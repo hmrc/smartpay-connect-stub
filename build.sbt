@@ -1,3 +1,4 @@
+import play.sbt.PlayImport.PlayKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
@@ -17,8 +18,9 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
+    ),
     // ***************
+    PlayKeys.playDefaultPort := 9263,
   )
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
