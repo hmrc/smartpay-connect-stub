@@ -22,8 +22,10 @@ import play.api.Logger
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.smartpayconnectstub.models.{PedLogOn, SpcMessageHelper, SubmitPayment}
 
 import javax.inject.{Inject, Singleton}
+import scala.xml.{Elem, Node, XML}
 
 @Singleton()
 class WebsocketController @Inject()(cc: ControllerComponents)(implicit mat: Materializer, actorSystem: ActorSystem)
@@ -45,9 +47,18 @@ object WebSocketActor {
 class WebSocketActor(out: ActorRef) extends Actor {
 val logger = Logger(WebSocketActor.getClass)
 
+
+
   def receive = {
-    case msg: String =>
-      logger.info(s"got message $msg")
-      out ! "I received your message: " + msg
+    case request: String =>
+      logger.info(s"Got message $request")
+      val xmlMsg:Elem = XML.loadString(request)
+      val response:Node = SpcMessageHelper.getSpcXMLMessage(xmlMsg) match {
+        case msg:PedLogOn => SpcMessageHelper.createPedLogOnResponse(msg,"success").toXML
+        case msg:SubmitPayment => SpcMessageHelper.createSubmitPaymentResponse(msg,"success").toXML
+        case x =>  throw new RuntimeException(s"Unknown SmartPay Connect message: $x")
+      }
+      logger.info(s"Reply $response")
+      out ! response.toString
   }
 }
