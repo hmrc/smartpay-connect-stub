@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.smartpayconnectstub.config
+package uk.gov.hmrc.smartpayconnectstub.models
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+final case class TransNum(value:String) {
+  def isEqual(transNum:TransNum):Boolean = { value.equalsIgnoreCase(transNum.value) }
+  def isValid:Boolean = value != TransNum.zero.value
+}
 
-@Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
+object TransNum {
+  val zero: TransNum = TransNum("000000")
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
+  def apply(value: String): TransNum = {
+    value match {
+      case s if s.isEmpty => zero
+      case _              => TransNum(value)
+    }
+  }
 
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
+
 }

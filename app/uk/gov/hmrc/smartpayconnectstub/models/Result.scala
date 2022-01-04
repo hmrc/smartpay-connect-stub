@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.smartpayconnectstub.config
+package uk.gov.hmrc.smartpayconnectstub.models
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+sealed trait Result
+final case object Success extends Result {override def toString: String = "success"}
+final case object Failure extends Result {override def toString: String = "failure"}
 
-@Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
-
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
+object Result {
+  def apply(result:String):Result ={
+    result match {
+      case "success" => Success
+      case "failure" => Failure
+      case x => throw new RuntimeException(s"Unknown Result: $x")
+    }
+  }
 }

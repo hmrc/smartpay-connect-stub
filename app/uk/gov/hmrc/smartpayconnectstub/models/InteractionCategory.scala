@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.smartpayconnectstub.config
+package uk.gov.hmrc.smartpayconnectstub.models
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+/**
+ * SPC- Smart Pay Connect - Interaction Node categories
+ */
+sealed trait InteractionCategory
+final case object online extends InteractionCategory
+final case object card_reader extends InteractionCategory
 
-@Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
-
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
-
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
+object InteractionCategory {
+  def apply(category:String):InteractionCategory ={
+    category match {
+      case "online" => online
+      case "card_reader" => card_reader
+      case x => throw new RuntimeException(s"Unknown InteractionCategory: $x")
+    }
+  }
 }
+
+
+
