@@ -17,7 +17,7 @@
 package uk.gov.hmrc.smartpayconnectstub.models
 
 sealed trait PaymentResult
-final case object Online extends PaymentResult { override def toString: String = "on-line"}
+final case object OnlineResult extends PaymentResult { override def toString: String = "on-line"}
 final case object declined extends PaymentResult
 final case object cancelled extends PaymentResult
 final case object not_authorised extends PaymentResult
@@ -26,7 +26,7 @@ final case object not_authorised extends PaymentResult
 object PaymentResult {
   def apply(value:String):PaymentResult ={
     value match {
-      case "on-line" => Online
+      case "on-line" => OnlineResult
       case "declined" => declined
       case "cancelled" => cancelled
       case "not_authorised" => not_authorised

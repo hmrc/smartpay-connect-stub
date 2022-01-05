@@ -20,13 +20,13 @@ package uk.gov.hmrc.smartpayconnectstub.models
  * SPC- Smart Pay Connect - Interaction Node categories
  */
 sealed trait InteractionCategory
-final case object online extends InteractionCategory
+final case object OnlineCategory extends InteractionCategory { override def toString: String = "online"}
 final case object card_reader extends InteractionCategory
 
 object InteractionCategory {
   def apply(category:String):InteractionCategory ={
     category match {
-      case "online" => online
+      case "online" => OnlineCategory
       case "card_reader" => card_reader
       case x => throw new RuntimeException(s"Unknown InteractionCategory: $x")
     }

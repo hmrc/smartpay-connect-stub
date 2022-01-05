@@ -36,7 +36,7 @@ class ScpParentActor(out: ActorRef) extends Actor {
     case request: String =>
       logger.info(s"Got message $request")
       val xmlMsg:Elem = XML.loadString(request)
-      val transNum = SpcXmlHelper.getSpcXMLMessageNode(xmlMsg).transNum
+      val transNum = SpcXmlHelper.getSpcXmlMessageNode(xmlMsg).transNum
       userActors.get(transNum).fold {
         val actorRef = context.actorOf(ScpUserActor.props(out, transNum),s"$transNum")
         actorRef ! xmlMsg
@@ -49,7 +49,7 @@ class ScpParentActor(out: ActorRef) extends Actor {
       }
     case Terminated(ref) =>
       logger.info(s"Actor user has been terminated $ref")
-      userActors.filter(x => x._2 == ref).keys.headOption.fold() { stoppedActor =>
+      userActors.filter(x => x._2 == ref).keys.headOption.map { stoppedActor =>
         context.become(handleScpMessages(userActors - stoppedActor))
       }
 

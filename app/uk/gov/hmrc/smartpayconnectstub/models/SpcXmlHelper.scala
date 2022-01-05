@@ -22,30 +22,33 @@ import scala.xml.{Elem, Node}
  * SPC- Smart Pay Connect helper functions
  */
 object SpcXmlHelper {
-  def getSpcXMLMessage(node: Node):spcXmlMessage = {
+  def getSpcXmlMessage(node: Node):spcXmlMessage = {
     (node \\ "POI_MSG" \ "@type").text match {
       case "interaction" =>
         (node \\ "INTERACTION" \ "@name").text match {
-          case "pedLogOn" => PedLogOn.fromXml(node)
-          case "posDisplayMessage" => PosDisplayMessage.fromXml(node)
+          case PedLogOn.name => PedLogOn.fromXml(node)
+          case PosDisplayMessage.name => PosDisplayMessage.fromXml(node)
+          case PosPrintReceiptResponse.name => PosPrintReceiptResponse.fromXml(node)
+          case PedLogOff.name => PedLogOff.fromXml(node)
           case x => throw new RuntimeException(s"Unknown INTERACTION name: $x")
         }
       case "submittal" =>
         (node \\ "SUBMIT" \ "@name").text match {
-          case "submitPayment" => SubmitPayment.fromXml(node)
+          case SubmitPayment.name => SubmitPayment.fromXml(node)
           case x => throw new RuntimeException(s"Unknown SUBMIT name: $x")
         }
       case "transactional" =>
         (node \\ "TRANS" \ "@name").text match {
-          case "processTransaction" => ProcessTransaction.fromXml(node)
-          case "updatePaymentEnhancedResponse" => UpdatePaymentEnhancedResponse.fromXml(node)
+          case ProcessTransaction.name => ProcessTransaction.fromXml(node)
+          case UpdatePaymentEnhancedResponse.name => UpdatePaymentEnhancedResponse.fromXml(node)
+          case Finalise.name => Finalise.fromXml(node)
           case x => throw new RuntimeException(s"Unknown TRANS name: $x")
         }
       case x => throw new RuntimeException(s"Unknown POI_MSG type: $x")
     }
   }
 
-  def getSpcXMLMessageNode(node:Node):MessageNode= {
+  def getSpcXmlMessageNode(node:Node):MessageNode= {
     MessageNode.fromXml(node)
   }
 

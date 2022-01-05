@@ -39,6 +39,7 @@ object PedLogOn {
     val messageNode = MessageNode.fromXml(node)
     PedLogOn(messageNode)
   }
+  val name: String = "pedLogOn"
 }
 
 
@@ -67,6 +68,7 @@ object PedLogOnResponse {
     val result = Result((node \\ "INTERACTION" \ "RESULT").text)
     PedLogOnResponse(messageNode, result)
   }
+  val name: String = "pedLogOnResponse"
 }
 
 case class SubmitPayment(messageNode: MessageNode, amountNode: AmountNode)  extends  spcXmlMessage{
@@ -90,6 +92,7 @@ object SubmitPayment {
     val amountNode = AmountNode.fromXml(node)
     SubmitPayment(messageNode, amountNode)
   }
+  val name: String = "submitPayment"
 }
 
 case class SubmitPaymentResponse(messageNode: MessageNode, result: Result)  extends  spcXmlMessage{
@@ -116,6 +119,7 @@ object SubmitPaymentResponse {
     val result = Result((node \\ "SUBMIT" \ "RESULT").text)
     SubmitPaymentResponse(messageNode, result)
   }
+  val name: String = "submitPaymentResponse"
 }
 
 
@@ -135,6 +139,7 @@ object ProcessTransaction {
     val messageNode = MessageNode.fromXml(node)
     ProcessTransaction(messageNode)
   }
+  val name: String = "processTransaction"
 }
 
 case class PosDisplayMessage(messageNode: MessageNode, interactionNode: InteractionNode) extends spcXmlMessage {
@@ -155,6 +160,7 @@ object PosDisplayMessage {
     val interactionNode = InteractionNode.fromXml(node)
     PosDisplayMessage(messageNode, interactionNode)
   }
+  val name: String = "posDisplayMessage"
 }
 
 
@@ -185,6 +191,7 @@ object UpdatePaymentEnhanced {
     val cardNode = CardNode.fromXml(node)
     UpdatePaymentEnhanced(messageNode, amountNode, cardNode)
   }
+  val name: String = "updatePaymentEnhanced"
 }
 
 case class UpdatePaymentEnhancedResponse(messageNode: MessageNode, amountNode: AmountNode) extends spcXmlMessage {
@@ -210,6 +217,7 @@ object UpdatePaymentEnhancedResponse {
     val amountNode = AmountNode.fromXml(node)
     UpdatePaymentEnhancedResponse(messageNode, amountNode)
   }
+  val name: String = "updatePaymentEnhancedResponse"
 }
 
 
@@ -316,6 +324,7 @@ object ProcessTransactionResponse {
     val paymentResult = PaymentResult((node \\ "PAYMENT" \ "PAYMENT_RESULT").text)
     ProcessTransactionResponse(messageNode, amountNode, result, paymentResult)
   }
+  val name: String = "processTransactionResponse"
 }
 
 
@@ -352,6 +361,7 @@ object PosPrintReceipt {
     val messageNode = MessageNode.fromXml(node)
     PosPrintReceipt(messageNode)
   }
+  val name: String = "posPrintReceipt"
 }
 
 
@@ -378,6 +388,7 @@ object PosPrintReceiptResponse {
     val result = Result((node \\ "INTERACTION" \ "RESPONSE").text)
     PosPrintReceiptResponse(messageNode, result)
   }
+  val name: String = "posPrintReceiptResponse"
 }
 
 case class Finalise(messageNode: MessageNode) extends spcXmlMessage {
@@ -396,6 +407,7 @@ object Finalise {
     val messageNode = MessageNode.fromXml(node)
     Finalise(messageNode)
   }
+  val name: String = "finalise"
 }
 
 
@@ -423,6 +435,7 @@ object FinaliseResponse {
     val result = Result((node \\ "TRANS" \ "RESULT").text)
     FinaliseResponse(messageNode, result)
   }
+  val name: String = "finaliseResponse"
 }
 
 case class PedLogOff(messageNode: MessageNode) extends spcXmlMessage {
@@ -441,6 +454,7 @@ object PedLogOff {
     val messageNode = MessageNode.fromXml(node)
     PedLogOff(messageNode)
   }
+  val name: String = "pedLogOff"
 }
 
 
@@ -468,4 +482,5 @@ object PedLogOffResponse {
     val result = Result((node \\ "TRANS" \ "RESULT").text)
     PedLogOffResponse(messageNode, result)
   }
+  val name: String = "pedLogOffResponse"
 }
