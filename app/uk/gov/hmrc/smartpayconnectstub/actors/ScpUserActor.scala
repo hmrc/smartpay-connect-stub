@@ -36,15 +36,13 @@ object ScpUserActor {
   def props(out: ActorRef, transNum: TransNum) = Props(new ScpUserActor(out, transNum))
 }
 
-//TODO - implement state machine
+
 class ScpUserActor(out: ActorRef, transNum: TransNum) extends Actor {
   var state = ScpState(AmountInPence.zero, None)
   var schedule = startCountDown()
   implicit val ec = context.dispatcher
 
-  lazy val logger = Logger(ScpUserActor.getClass)
 
-  //TODO - move countdown to config
   def startCountDown(): Cancellable = {
     context.system.scheduler.scheduleOnce(10 second, self, Timeout)
   }
@@ -144,6 +142,6 @@ class ScpUserActor(out: ActorRef, transNum: TransNum) extends Actor {
       context.stop(self)
   }
 
-
+  lazy val logger = Logger(ScpUserActor.getClass)
 
 }
