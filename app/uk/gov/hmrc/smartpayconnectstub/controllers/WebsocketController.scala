@@ -16,22 +16,24 @@
 
 package uk.gov.hmrc.smartpayconnectstub.controllers
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.smartpayconnectstub.actors.ScpParentActor
+import uk.gov.hmrc.smartpayconnectstub.actors.{SpcParentActor, SpcSessionActor}
 
 @Singleton()
-class WebsocketController @Inject()(cc: ControllerComponents)(implicit mat: Materializer, actorSystem: ActorSystem)
+class WebsocketController @Inject()(system: ActorSystem, cc: ControllerComponents)(implicit mat: Materializer, actorSystem: ActorSystem)
     extends BackendController(cc) {
+
+  val scpParentActor = system.actorOf(SpcParentActor.props())
 
   def ws(): WebSocket = WebSocket.accept[String,String] { implicit request =>
     ActorFlow.actorRef { out =>
-      ScpParentActor.props(out)
+      SpcSessionActor.props(out, scpParentActor)
     }
   }
 

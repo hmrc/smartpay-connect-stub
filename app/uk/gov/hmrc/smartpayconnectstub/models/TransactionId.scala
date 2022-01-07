@@ -16,20 +16,16 @@
 
 package uk.gov.hmrc.smartpayconnectstub.models
 
-final case class TransNum(value:String) {
-  def isEqual(transNum:TransNum):Boolean = { value.equalsIgnoreCase(transNum.value) }
-  def isValid:Boolean = value != TransNum.zero.value
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Format
+
+/**
+ * Transaction id used by smartpay connect.
+ */
+final case class TransactionId(value: String)
+
+object TransactionId {
+  implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
 }
 
-object TransNum {
-  val zero: TransNum = TransNum("000000")
 
-  def apply(value: String): TransNum = {
-    value match {
-      case s if s.isEmpty => zero
-      case _              => TransNum(value)
-    }
-  }
-
-
-}

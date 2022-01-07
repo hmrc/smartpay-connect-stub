@@ -22,7 +22,7 @@ import scala.xml.{Elem, Node}
  * SPC- Smart Pay Connect helper functions
  */
 object SpcXmlHelper {
-  def getSpcXmlMessage(node: Node):spcXmlMessage = {
+  def getSpcXmlMessage(node: Node):SpcMessage = {
     (node \\ "POI_MSG" \ "@type").text match {
       case "interaction" =>
         (node \\ "INTERACTION" \ "@name").text match {

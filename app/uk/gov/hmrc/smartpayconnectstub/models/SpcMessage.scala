@@ -21,9 +21,9 @@ import scala.xml.Node
 /**
  * SCP - Smart Pay Connect - XML messages
  */
-trait spcXmlMessage
+trait SpcMessage
 
-case class PedLogOn(messageNode: MessageNode) extends spcXmlMessage {
+case class PedLogOn(messageNode: MessageNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -43,10 +43,10 @@ object PedLogOn {
 }
 
 
-case class  PedLogOnResponse (messageNode: MessageNode, result: Result) extends  spcXmlMessage {
+case class  PedLogOnResponse (messageNode: MessageNode, result: Result) extends  SpcMessage {
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
@@ -71,7 +71,7 @@ object PedLogOnResponse {
   val name: String = "pedLogOnResponse"
 }
 
-case class SubmitPayment(messageNode: MessageNode, amountNode: AmountNode)  extends  spcXmlMessage{
+case class SubmitPayment(messageNode: MessageNode, amountNode: AmountNode)  extends  SpcMessage{
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -95,10 +95,10 @@ object SubmitPayment {
   val name: String = "submitPayment"
 }
 
-case class SubmitPaymentResponse(messageNode: MessageNode, result: Result)  extends  spcXmlMessage{
+case class SubmitPaymentResponse(messageNode: MessageNode, result: Result)  extends  SpcMessage{
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
@@ -123,7 +123,7 @@ object SubmitPaymentResponse {
 }
 
 
-case class ProcessTransaction(messageNode: MessageNode) extends spcXmlMessage {
+case class ProcessTransaction(messageNode: MessageNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -142,7 +142,7 @@ object ProcessTransaction {
   val name: String = "processTransaction"
 }
 
-case class PosDisplayMessage(messageNode: MessageNode, interactionNode: InteractionNode) extends spcXmlMessage {
+case class PosDisplayMessage(messageNode: MessageNode, interactionNode: InteractionNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {HeaderNode.toXml}
@@ -164,7 +164,7 @@ object PosDisplayMessage {
 }
 
 
-case class UpdatePaymentEnhanced(messageNode: MessageNode, amountNode: AmountNode, cardNode: CardNode) extends spcXmlMessage {
+case class UpdatePaymentEnhanced(messageNode: MessageNode, amountNode: AmountNode, cardNode: CardNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {HeaderNode.toXml}
@@ -194,7 +194,7 @@ object UpdatePaymentEnhanced {
   val name: String = "updatePaymentEnhanced"
 }
 
-case class UpdatePaymentEnhancedResponse(messageNode: MessageNode, amountNode: AmountNode) extends spcXmlMessage {
+case class UpdatePaymentEnhancedResponse(messageNode: MessageNode, amountNode: AmountNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -221,10 +221,10 @@ object UpdatePaymentEnhancedResponse {
 }
 
 
-case class ProcessTransactionResponse(messageNode: MessageNode,amountNode: AmountNode ,result: Result, paymentResult: PaymentResult)  extends  spcXmlMessage{
+case class ProcessTransactionResponse(messageNode: MessageNode,amountNode: AmountNode ,result: Result, paymentResult: PaymentResult)  extends  SpcMessage{
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
       <RLSOLVE_MSG version="5.0">
@@ -328,7 +328,7 @@ object ProcessTransactionResponse {
 }
 
 
-case class PosPrintReceipt(messageNode: MessageNode) extends spcXmlMessage {
+case class PosPrintReceipt(messageNode: MessageNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {HeaderNode.toXml}
@@ -365,10 +365,10 @@ object PosPrintReceipt {
 }
 
 
-case class  PosPrintReceiptResponse (messageNode: MessageNode, result: Result) extends spcXmlMessage {
+case class  PosPrintReceiptResponse (messageNode: MessageNode, result: Result) extends SpcMessage {
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
@@ -391,7 +391,7 @@ object PosPrintReceiptResponse {
   val name: String = "posPrintReceiptResponse"
 }
 
-case class Finalise(messageNode: MessageNode) extends spcXmlMessage {
+case class Finalise(messageNode: MessageNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -411,10 +411,10 @@ object Finalise {
 }
 
 
-case class  FinaliseResponse (messageNode: MessageNode, result: Result) extends spcXmlMessage {
+case class  FinaliseResponse (messageNode: MessageNode, result: Result) extends SpcMessage {
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
@@ -438,7 +438,7 @@ object FinaliseResponse {
   val name: String = "finaliseResponse"
 }
 
-case class PedLogOff(messageNode: MessageNode) extends spcXmlMessage {
+case class PedLogOff(messageNode: MessageNode) extends SpcMessage {
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">
       {messageNode.toXml}
@@ -458,10 +458,10 @@ object PedLogOff {
 }
 
 
-case class  PedLogOffResponse (messageNode: MessageNode, result: Result) extends spcXmlMessage {
+case class  PedLogOffResponse (messageNode: MessageNode, result: Result) extends SpcMessage {
   def isValid:Boolean = result match {
-    case Success => true
-    case Failure => false
+    case SuccessResult => true
+    case FailureResult => false
   }
   def toXml:Node = {
     <RLSOLVE_MSG version="5.0">

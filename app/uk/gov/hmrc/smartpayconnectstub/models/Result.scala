@@ -17,15 +17,15 @@
 package uk.gov.hmrc.smartpayconnectstub.models
 
 sealed trait Result
-final case object Success extends Result {override def toString: String = "success"}
-final case object Failure extends Result {override def toString: String = "failure"}
+final case object SuccessResult extends Result {override def toString: String = "success"}
+final case object FailureResult extends Result {override def toString: String = "failure"}
 
 
 object Result {
   def apply(result:String):Result ={
     result match {
-      case "success" => Success
-      case "failure" => Failure
+      case "success" => SuccessResult
+      case "failure" => FailureResult
       case x => throw new RuntimeException(s"Unknown Result: $x")
     }
   }

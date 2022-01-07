@@ -23,12 +23,12 @@ import scala.xml.Node
 /**
  * SCP - Smart Pay Connect - XML nodes that are used to build messages
  */
-trait spcXmlNode
+trait SpcXmlNode
 
-case class MessageNode(transNum: TransNum, deviceId: String, sourceId: String) extends spcXmlNode{
+case class MessageNode(transNum: TransactionId, deviceId: String, sourceId: String) extends SpcXmlNode{
   def toXml:Node = {
     <MESSAGE>
-      <TRANS_NUM>{transNum}</TRANS_NUM>
+      <TRANS_NUM>{transNum.value}</TRANS_NUM>
       <DEVICE_ID>{deviceId}</DEVICE_ID>
       <SOURCE_ID>{sourceId}</SOURCE_ID>
     </MESSAGE>
@@ -36,14 +36,14 @@ case class MessageNode(transNum: TransNum, deviceId: String, sourceId: String) e
 }
 object MessageNode {
   def fromXml(node: Node): MessageNode = {
-    val transNr = TransNum((node \\ "MESSAGE" \ "TRANS_NUM").text)
+    val transNr = TransactionId((node \\ "MESSAGE" \ "TRANS_NUM").text)
     val sourceId = (node \\ "MESSAGE" \ "SOURCE_ID").text
     val deviceId = (node \\ "MESSAGE" \ "DEVICE_ID").text
     MessageNode(transNr, sourceId, deviceId)
   }
 }
 
-case object HeaderNode extends spcXmlNode{
+case object HeaderNode extends SpcXmlNode{
   def toXml: Node = {
     <HEADER>
       <BUILD>
@@ -53,7 +53,7 @@ case object HeaderNode extends spcXmlNode{
   }
 }
 
-case class InteractionNode(category: InteractionCategory, event: InteractionEvent, prompt: InteractionPrompt) extends spcXmlNode{
+case class InteractionNode(category: InteractionCategory, event: InteractionEvent, prompt: InteractionPrompt) extends SpcXmlNode{
   def toXml:Node = {
     <INTERACTION name="posDisplayMessage">
       <STATUS category={category.toString} event={event.toString}/>
@@ -70,15 +70,15 @@ object InteractionNode {
   }
 }
 
-case class AmountNode(totalAmount: AmountInPence, finalAmountO: Option[AmountInPence]) extends spcXmlNode{
+case class AmountNode(totalAmount: AmountInPence, finalAmountO: Option[AmountInPence]) extends SpcXmlNode{
   def toXml:Node = {
     val totalAmountNode =
       <AMOUNT currency="826" country="826">
-        <TOTAL>{totalAmount}</TOTAL>
+        <TOTAL>{totalAmount.inPounds}</TOTAL>
       </AMOUNT>
 
     finalAmountO.map{ finalAmount =>
-      SpcXmlHelper.addNode(<FINAL>{finalAmount}</FINAL>,totalAmountNode)
+      SpcXmlHelper.addNode(<FINAL>{finalAmount.inPounds}</FINAL>,totalAmountNode)
     }.getOrElse(totalAmountNode)
   }
 }
@@ -91,7 +91,7 @@ object AmountNode {
 }
 
 
-case class CardNode(end: String, pan:String, cardType:String) extends spcXmlNode{
+case class CardNode(end: String, pan:String, cardType:String) extends SpcXmlNode{
   def toXml:Node = {
     <CARD>
       <PAN end={end} seqNum="01">{pan}</PAN>
