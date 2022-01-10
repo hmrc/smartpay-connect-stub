@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.smartpayconnectstub.config
+package uk.gov.hmrc.smartpayconnectstub.models
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Format
 
-@Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
+/**
+ * Transaction id used by smartpay connect.
+ */
+final case class TransactionId(value: String)
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
-
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
+object TransactionId {
+  implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
 }
+
+
