@@ -50,20 +50,12 @@ object F2FMessage {
       case PedLogOff.name                     => Json.fromJson[PedLogOff](json)
       case PedLogOffResponse.name             => Json.fromJson[PedLogOffResponse](json)
       case CancelTransaction.name             => Json.fromJson[CancelTransaction](json)
-      case CloseWebsocket.name                => Json.fromJson[CloseWebsocket](json)
-      case WebSocketError.name                => Json.fromJson[WebSocketError](json)
-      case UnknownMessage.name                => Json.fromJson[UnknownMessage](json)
-      case UnexpectedMessage.name             => Json.fromJson[UnexpectedMessage](json)
       case ErrorMessage.name                  => Json.fromJson[ErrorMessage](json)
-      case UnexpectedLastMessage.name         => Json.fromJson[UnexpectedLastMessage](json)
-      case MessageCreationFailed.name         => Json.fromJson[MessageCreationFailed](json)
       case _                                  => JsError(s"Unknown name")
     }
 
     def writes(f2fMessage: F2FMessage): JsValue = {
       f2fMessage match {
-        case b: UnknownMessage                => Json.toJson(b)
-        case b: UnexpectedMessage             => Json.toJson(b)
         case b: PedLogOn                      => Json.toJson(b)
         case b: PedLogOnResponse              => Json.toJson(b)
         case b: SubmitPayment                 => Json.toJson(b)
@@ -82,11 +74,7 @@ object F2FMessage {
         case b: PedLogOff                     => Json.toJson(b)
         case b: PedLogOffResponse             => Json.toJson(b)
         case b: CancelTransaction             => Json.toJson(b)
-        case b: CloseWebsocket                => Json.toJson(b)
-        case b: WebSocketError                => Json.toJson(b)
         case b: ErrorMessage                  => Json.toJson(b)
-        case b: UnexpectedLastMessage         => Json.toJson(b)
-        case b: MessageCreationFailed         => Json.toJson(b)
       }
     }
   }
