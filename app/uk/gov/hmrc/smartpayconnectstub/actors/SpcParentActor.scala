@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.smartpayconnectstub.actors
 
-import akka.actor.{Actor, ActorIdentity, ActorRef, Identify, Props, Terminated}
-import com.google.inject.Provides
+import akka.actor.{Actor, ActorRef, Props, Terminated}
 import play.api.Logger
-import play.api.libs.concurrent.ActorModule
 import uk.gov.hmrc.smartpayconnectstub.models.{SpcXmlHelper, TransactionId}
 
 import scala.xml.{Elem, XML}
