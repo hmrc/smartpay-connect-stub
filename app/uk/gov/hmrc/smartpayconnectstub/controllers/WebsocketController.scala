@@ -36,5 +36,4 @@ class WebsocketController @Inject()(system: ActorSystem, cc: ControllerComponent
       SpcSessionActor.props(out, scpParentActor)
     }
   }
-
 }
