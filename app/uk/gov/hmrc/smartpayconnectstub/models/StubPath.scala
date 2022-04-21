@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.smartpayconnectstub.models
 
-import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-final case class DeviceId(value: String)
+final case class StubPath(value: String)
 
-object DeviceId {
-  implicit val format: Format[DeviceId] = implicitly[Format[String]].inmap(DeviceId(_), _.value)
-  val headerName = "deviceID"
+object StubPath {
+  implicit val format: OFormat[StubPath] = Json.format[StubPath]
 }

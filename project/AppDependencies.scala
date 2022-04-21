@@ -6,12 +6,12 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % "5.18.0"
+    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % "5.18.0",
+    "uk.gov.hmrc"  %% "simple-reactivemongo"      % "8.0.0-play-28"
   )
 
   val test = Seq(
     "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % "5.18.0"             % Test,
-    
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.36.8"            % "test, it"
   )
 }
