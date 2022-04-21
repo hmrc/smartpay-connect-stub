@@ -2,4 +2,4 @@
 
 GET        /ws                         uk.gov.hmrc.smartpayconnectstub.controllers.WebsocketController.ws
 
-POST       /set-path-for-device/:path  uk.gov.hmrc.smartpayconnectstub.controllers.StubController.setPathForDeviceId(path: String)
+GET       /set-path-for-device/:path  uk.gov.hmrc.smartpayconnectstub.controllers.StubController.setPathForDeviceId(path: String)
