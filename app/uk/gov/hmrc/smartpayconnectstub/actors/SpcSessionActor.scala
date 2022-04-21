@@ -27,12 +27,12 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef) extends Actor {
   import SpcParentActor._
 
   override def preStart(): Unit = {
-    logger.info(s"Starting Session Actor!!!!! $self")
+    logger.debug(s"Starting Session Actor $self")
     super.preStart()
   }
 
   override def postStop(): Unit = {
-    logger.info(s"Stopping Session Actor!!!!! $self")
+    logger.debug(s"Stopping Session Actor $self")
     super.postStop()
   }
 
