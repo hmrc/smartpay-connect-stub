@@ -16,30 +16,30 @@
 
 package uk.gov.hmrc.smartpayconnectstub.models
 
+
+
 import enumeratum.{Enum, EnumEntry}
-import play.api.libs.json.Format
+import play.api.libs.json.{Format}
 import utils.EnumFormat
 
 import scala.collection.immutable
 
-sealed trait Result extends EnumEntry
+sealed trait TransactionAction extends EnumEntry
 
-object Result {
-  import Results._
-  implicit val format: Format[Result] = EnumFormat(Results)
+object TransactionAction {
+  import TransactionActions._
+  implicit val format: Format[TransactionAction] = EnumFormat(TransactionActions)
 
-  def apply(result: String): Result = {
-    result match {
-      case "success" => SuccessResult
-      case "failure" => FailureResult
-      case x         => throw new RuntimeException(s"Unknown scp message Result received: $x")
+  def apply(value: String): TransactionAction = {
+    value match {
+      case "auth_n_settle"        => AuthorizeAndSettle
+      case x                => throw new RuntimeException(s"Unknown TransactionAction: $x")
     }
   }
 }
 
-object Results extends Enum[Result] {
-  final case object SuccessResult extends Result { override def toString: String = "success" }
-  final case object FailureResult extends Result { override def toString: String = "failure" }
+object TransactionActions extends Enum[TransactionAction] {
+  case object AuthorizeAndSettle extends TransactionAction { override def toString: String = "auth_n_settle" }
 
-  override def values: immutable.IndexedSeq[Result] = findValues
+  override def values: immutable.IndexedSeq[TransactionAction] = findValues
 }

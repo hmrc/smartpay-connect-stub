@@ -18,9 +18,13 @@ package uk.gov.hmrc.smartpayconnectstub.actors
 
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import play.api.Logger
-import uk.gov.hmrc.smartpayconnectstub.models.models.AmountInPence
-import uk.gov.hmrc.smartpayconnectstub.models.{AmountNode, CardNode, ConnectingToAcquirer, EventSuccess, Finalise, FinaliseResponse, InsertCard, InteractionNode, OnlineCategory, OnlineResult, PedLogOff, PedLogOffResponse, PedLogOn, PedLogOnResponse, PosDisplayMessage, PosPrintReceipt, PosPrintReceiptResponse, ProcessTransaction, ProcessTransactionResponse, ProcessingTransaction, SpcMessage, SpcXmlHelper, SubmitPayment, SubmitPaymentResponse, SuccessResult, TransactionId, UpdatePaymentEnhanced, UpdatePaymentEnhancedResponse, card_reader, in_progress, use_chip}
+import uk.gov.hmrc.smartpayconnectstub.models.InteractionCategories.{CardReader, OnlineCategory}
+import uk.gov.hmrc.smartpayconnectstub.models.InteractionEvents.{EventSuccess, InProgress, Processing, UseChip}
+import uk.gov.hmrc.smartpayconnectstub.models.InteractionPrompts.{ConnectingToAcquirer, InsertCard, ProcessingTransaction}
+import uk.gov.hmrc.smartpayconnectstub.models.Results.SuccessResult
+import uk.gov.hmrc.smartpayconnectstub.models._
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.xml.{Elem, Node}
 
@@ -29,139 +33,208 @@ import scala.xml.{Elem, Node}
 * @param totalAmount  tax amount to be payed with transaction
 * @param finalAmount  totalAmount plus card/transaction fee(s)
 */
-case class ScpState(totalAmount: AmountInPence, finalAmount:Option[AmountInPence])
+case class ScpState(
+                     totalAmount: AmountInPence,
+                     paymentCard: PaymentCard,
+                     finalAmount:Option[AmountInPence],
+                     country: Country,
+                     currency: Currency,
+                     source: TransactionSource
+                   )
 case object Timeout
 
 object ScpUserActor {
-  def props() = Props(new ScpUserActor())
+  def props():Props = Props(new ScpUserActor())
 
-  case class SpcWSXmlMessage(out: ActorRef, msg:Elem)
-  case class SpcWSMessage(out: ActorRef, msg:SpcMessage)
+  case class SpcWSXmlMessage(out: ActorRef, session:ActorRef, msg:Elem)
+  case class SpcWSMessage(out: ActorRef, session:ActorRef, msg:F2FMessage)
 }
 
 
 class ScpUserActor extends Actor {
   import ScpUserActor._
-  var state = ScpState(AmountInPence.zero, None)
-  var schedule = startCountDown()
-  implicit val ec = context.dispatcher
+  var state:ScpState = ScpState(AmountInPence.zero, StubTestData.VisaCredit, None, Country.Uk, Currency.Gbp, TransactionSources.Icc)
+  var schedule:Cancellable = startCountDown()
+  implicit val ec:ExecutionContextExecutor = context.dispatcher
 
 
   def startCountDown(): Cancellable = {
-    context.system.scheduler.scheduleOnce(10 second, self, Timeout)
+    context.system.scheduler.scheduleOnce(15.second, self, Timeout)
   }
 
   override def postStop(): Unit = {
-    logger.info(s"Stopping User Actor!!!!! ${self.path}")
+    logger.debug(s"Stopping User Actor ${self.path}")
     super.postStop()
   }
 
 
   override def preStart(): Unit = {
-    logger.info(s"Starting User Actor!!!!! ${self.path}")
+    logger.debug(s"Starting User Actor ${self.path}")
     super.preStart()
   }
 
   def receive: Receive = handlePedLogOn orElse handleScpMessages
 
   def handleScpMessages: Receive = {
-    case SpcWSXmlMessage(out, xmlMsg) =>
-      logger.info(s"User Actor $self got XML message $xmlMsg")
+    case SpcWSXmlMessage(out, session, xmlMsg) =>
+      logger.debug(s"User Actor $self got XML message $xmlMsg")
       schedule.cancel()
       schedule = startCountDown()
-      val scpXmlMessage = SpcXmlHelper.getSpcXmlMessage(xmlMsg)
-      self ! SpcWSMessage(out,scpXmlMessage)
+      SpcXmlHelper.getSpcXmlMessage(xmlMsg) match {
+        case Some(scpXmlMessage) =>
+          self ! SpcWSMessage(out, session, scpXmlMessage)
+        case None =>
+          logger.error(s"User Actor received unknown message")
+          context.stop(self)
+      }
+
     case Timeout =>
-      logger.info(s"User Actor $self timeout. Closing itself")
+      logger.error(s"User Actor $self timeout. Closing itself")
       context.stop(self)
-    case x => logger.error(s"Unknown/Unexpected SmartPay Connect message: $x")
+    case SpcWSMessage(out, session, unexpected:SpcRequestMessage) => logger.error(s"Unexpected SmartPay Connect message: $unexpected")
+      //TODO - check actually what is teh error code
+      val posDisplayMessageInProgress = ErrorMessage(HeaderNode(),unexpected.messageNode, ErrorsNode(Seq(StubTestData.incorrectMessageFlowErrorNode)), SuccessResult)
+      sendScpReplyMessage(out,posDisplayMessageInProgress)
+
+    case x => logger.error(s"Unknown SmartPay Connect message: $x")
   }
 
   def handlePedLogOn: Receive =  {
-    case SpcWSMessage(out,pedLogOn:PedLogOn) =>
-      logger.info(s"User Actor $self got SpcMessage PedLogOn message $pedLogOn")
+    case SpcWSMessage(out, session, pedLogOn:PedLogOn) =>
+      logger.debug(s"User Actor $self got SpcMessage PedLogOn message $pedLogOn")
       state.copy(totalAmount = AmountInPence.zero, finalAmount = None)
-      val pedLogOnResponse: Node = PedLogOnResponse(pedLogOn.messageNode, SuccessResult).toXml
-      logger.info(s"User Actor $self Reply $pedLogOnResponse")
+
+      val pedLogOnResponse:SpcResponseMessage = PedLogOnResponse(HeaderNode(),pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,pedLogOnResponse)
+
       context.become(handleSubmitPayment orElse handleScpMessages)
-      out ! pedLogOnResponse.toString
+      context.stop(session)
   }
 
   def handleSubmitPayment: Receive = {
-    case SpcWSMessage(out,submitPayment: SubmitPayment) =>
-      logger.info(s"User Actor $self got SpcMessage SubmitPayment message $submitPayment")
-      state.copy(totalAmount = submitPayment.amountNode.totalAmount)
-      val submitPaymentResponse: Node = SubmitPaymentResponse(submitPayment.messageNode, SuccessResult).toXml
-      logger.info(s"User Actor $self Reply $submitPaymentResponse")
-      out ! submitPaymentResponse.toString
+    case SpcWSMessage(out, session,submitPayment: SubmitPayment) =>
+      logger.debug(s"User Actor $self got SpcMessage SubmitPayment message $submitPayment")
+      state.copy(totalAmount = submitPayment.transactionNode.amountNode.totalAmount,
+        currency = submitPayment.transactionNode.amountNode.currency,
+        country = submitPayment.transactionNode.amountNode.country,
+        source = submitPayment.transactionNode.transactionSourceO.getOrElse(TransactionSources.Icc))
+
+      val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(),submitPayment.messageNode, SuccessResult)
+      sendScpReplyMessage(out,submitPaymentResponse)
+
       context.become(handleProcessTransaction orElse handleScpMessages)
+      context.stop(session)
+
   }
 
   def handleProcessTransaction: Receive = {
-    case SpcWSMessage(out,processTransaction: ProcessTransaction) =>
-      logger.info(s"User Actor $self got SpcMessage processTransaction message $processTransaction")
-      val amountNode = AmountNode(state.totalAmount, state.finalAmount)
+    case SpcWSMessage(out, session,processTransaction: ProcessTransaction) =>
+      logger.debug(s"User Actor $self got SpcMessage processTransaction message $processTransaction")
 
-      val interactionNodeInsertCard = InteractionNode(category = card_reader, event = use_chip, prompt = InsertCard)
-      val posDisplayMessageInsertCard = PosDisplayMessage(processTransaction.messageNode, interactionNodeInsertCard).toXml
-      out ! posDisplayMessageInsertCard.toString
-      logger.info(s"User Actor $self Reply $posDisplayMessageInsertCard")
+      val interactionNodeInsertCard = InteractionNode(category = CardReader, event = UseChip, prompt = InsertCard)
+      val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(),processTransaction.messageNode, interactionNodeInsertCard, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posDisplayMessageInsertCard)
 
-      val interactionNodeConnecting = InteractionNode(category = OnlineCategory, event = in_progress, prompt = ConnectingToAcquirer)
-      val posDisplayMessageConnecting = PosDisplayMessage(processTransaction.messageNode, interactionNodeConnecting).toXml
-      out ! posDisplayMessageConnecting.toString
-      logger.info(s"User Actor $self Reply $posDisplayMessageConnecting")
+      val interactionNodeInProgress = InteractionNode(category = CardReader, event = InProgress, prompt = ConnectingToAcquirer)
+      val posDisplayMessageInProgress = PosDisplayMessage(HeaderNode(),processTransaction.messageNode, interactionNodeInProgress, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posDisplayMessageInProgress)
 
-      val interactionNodeProcessing = InteractionNode(category = OnlineCategory, event = EventSuccess, prompt = ProcessingTransaction)
-      val posDisplayMessageProcessing = PosDisplayMessage(processTransaction.messageNode, interactionNodeProcessing).toXml
-      out ! posDisplayMessageProcessing.toString
-      logger.info(s"User Actor $self Reply $posDisplayMessageProcessing")
+      val interactionNodeProcessing = InteractionNode(category = CardReader, event = Processing, prompt = ProcessingTransaction)
+      val posDisplayMessageProcessing = PosDisplayMessage(HeaderNode(), processTransaction.messageNode, interactionNodeProcessing, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posDisplayMessageProcessing)
 
-      val cardNode = CardNode("2024-12-31", "417666******0019", "VISA CREDIT")
-      val updatePaymentEnhanced = UpdatePaymentEnhanced(processTransaction.messageNode, amountNode, cardNode).toXml
-      logger.info(s"Reply $updatePaymentEnhanced")
-      out ! updatePaymentEnhanced.toString
+
+      val amountNode = AmountNode(state.totalAmount, state.currency, state.country, state.finalAmount)
+      val transactionNode = TransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present))
+      val visaCardNode = CardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
+      val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, visaCardNode, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,updatePaymentEnhanced)
+
       context.become(handleUpdatePaymentEnhancedResponse orElse handleScpMessages)
+      context.stop(session)
   }
 
   def handleUpdatePaymentEnhancedResponse: Receive = {
-    case SpcWSMessage(out,updatePaymentEnhancedResponse: UpdatePaymentEnhancedResponse) =>
-      logger.info(s"User Actor $self got SpcMessage updatePaymentEnhancedResponse message $updatePaymentEnhancedResponse")
-      state.copy(finalAmount = updatePaymentEnhancedResponse.amountNode.finalAmountO)
-      val posPrintReceipt = PosPrintReceipt(updatePaymentEnhancedResponse.messageNode).toXml
-      logger.info(s"User Actor $self Reply $posPrintReceipt")
-      out ! posPrintReceipt.toString
+    case SpcWSMessage(out, session,updatePaymentEnhancedResponse: UpdatePaymentEnhancedResponse) if updatePaymentEnhancedResponse.amountNode.currency == state.currency && updatePaymentEnhancedResponse.amountNode.country == state.country =>
+      logger.debug(s"User Actor $self got SpcMessage updatePaymentEnhancedResponse message $updatePaymentEnhancedResponse")
+      state.copy(finalAmount = updatePaymentEnhancedResponse.amountNode.finalAmountO, totalAmount = updatePaymentEnhancedResponse.amountNode.totalAmount)
+
+      val interactionNodeInProgress = InteractionNode(category = OnlineCategory, event = InProgress, prompt = ConnectingToAcquirer)
+      val posDisplayMessageInProgress = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNodeInProgress, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posDisplayMessageInProgress)
+
+      val interactionNodeSuccess = InteractionNode(category = OnlineCategory, event = EventSuccess, prompt = ProcessingTransaction)
+      val posDisplayMessageSuccess = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNodeSuccess, SuccessResult, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posDisplayMessageSuccess)
+
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posPrintReceipt)
+
+      val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
+      val posDecisionMessage = PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
+      sendScpReplyMessage(out,posDecisionMessage)
+
+      context.become(handleCompleteTransaction orElse handleScpMessages)
+      context.stop(session)
+  }
+
+  def handleCompleteTransaction: Receive = {
+    case SpcWSMessage(out, session,completeTransaction: CompleteTransaction) =>
+      logger.debug(s"User Actor $self got SpcMessage completeTransaction message $completeTransaction")
+
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), completeTransaction.messageNode, ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerReceipts ), SuccessResult,ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,posPrintReceipt)
+
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
+      context.stop(session)
   }
 
   def handlePosPrintReceiptResponse: Receive = {
-    case SpcWSMessage(out,posPrintReceiptResponse: PosPrintReceiptResponse) =>
-      logger.info(s"User Actor $self got SpcMessage posPrintReceiptResponse message $posPrintReceiptResponse")
-      val amountNode = AmountNode(state.totalAmount, state.finalAmount)
-      val processTransactionResponse: Node = ProcessTransactionResponse(posPrintReceiptResponse.messageNode, amountNode, SuccessResult, OnlineResult).toXml
-      logger.info(s"User Actor $self Reply $processTransactionResponse")
-      out ! processTransactionResponse.toString
+    case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
+      logger.debug(s"User Actor $self got SpcMessage posPrintReceiptResponse message $posPrintReceiptResponse")
+
+      val amountNode = AmountNode(state.totalAmount, state.paymentCard.currency, state.paymentCard.country, state.finalAmount)
+      val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
+      val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
+      val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
+      val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
+
+      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, customerReceiptNode, merchantReceiptNode, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,processTransactionResponse)
+
       context.become(handleFinalise orElse handleScpMessages)
+      context.stop(session)
+
   }
 
   def handleFinalise: Receive = {
-    case SpcWSMessage(out,finalise: Finalise) =>
-      logger.info(s"User Actor $self got SpcMessage finalise message $finalise")
-      val finaliseResponse: Node = FinaliseResponse(finalise.messageNode, SuccessResult).toXml
-      logger.info(s"User Actor $self Reply $finaliseResponse")
-      out ! finaliseResponse.toString
+    case SpcWSMessage(out, session,finalise: Finalise) =>
+      logger.debug(s"User Actor $self got SpcMessage finalise message $finalise")
+
+      val finaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
+      sendScpReplyMessage(out,finaliseResponse)
+
       context.become(handlePedLogOff orElse handleScpMessages)
+      context.stop(session)
   }
 
   def handlePedLogOff: Receive = {
-    case SpcWSMessage(out,pedLogOff: PedLogOff) =>
-      logger.info(s"User Actor $self got SpcMessage pedLogOff message $pedLogOff")
-      val pedLogOffResponse: Node = PedLogOffResponse(pedLogOff.messageNode, SuccessResult).toXml
-      logger.info(s"User Actor $self Reply $pedLogOffResponse")
-      out ! pedLogOffResponse.toString
+    case SpcWSMessage(out, session,pedLogOff: PedLogOff) =>
+      logger.debug(s"User Actor $self got SpcMessage pedLogOff message $pedLogOff")
+
+      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
+      sendScpReplyMessage(out,pedLogOffResponse)
+
+      context.stop(session)
       context.stop(self)
   }
 
-  lazy val logger = Logger(ScpUserActor.getClass)
+  lazy val logger:Logger = Logger(ScpUserActor.getClass)
+
+  private def sendScpReplyMessage(out:ActorRef, spcResponseMessage: SpcResponseMessage) = {
+    out ! spcResponseMessage.toXml.toString
+    logger.debug(s"User Actor $self Reply $spcResponseMessage")
+    Thread.sleep(500)
+  }
 
 }

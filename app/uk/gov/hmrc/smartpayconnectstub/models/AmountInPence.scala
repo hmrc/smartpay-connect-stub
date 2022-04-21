@@ -21,7 +21,6 @@ package uk.gov.hmrc.smartpayconnectstub.models
  *
  */
 
-package models
 
 import play.api.libs.json.{Format, JsError, JsNumber, JsSuccess, Reads, Writes}
 
@@ -46,11 +45,20 @@ object AmountInPence {
       case s              => AmountInPence(BigDecimal(s).longValue() * 100)
     }
   }
+  def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence(bigDecimal.longValue() * 100)
+
+  def fromScpAmount(str: String): AmountInPence = {
+    str match {
+      case s if s.isEmpty => AmountInPence(0)
+      case s              => AmountInPence(s.toLong)
+    }
+  }
+
   val zero: AmountInPence = AmountInPence(0)
 
   //  implicit val format: OFormat[AmountInPence] = Json.format[AmountInPence]
   implicit val format: Format[AmountInPence] = Format(
-    Reads{
+    Reads {
       case JsNumber(n) if n.isWhole() => JsSuccess(AmountInPence(n.toLong))
       case JsNumber(_)                => JsError("Expected positive integer but got non-integral number")
       case other                      => JsError(s"Expected positive integer but got type ${other.getClass.getSimpleName}")

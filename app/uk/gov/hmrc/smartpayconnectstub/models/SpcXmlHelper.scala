@@ -16,35 +16,46 @@
 
 package uk.gov.hmrc.smartpayconnectstub.models
 
-import scala.xml.{Elem, Node}
+import scala.xml.{Attribute, Elem, Node}
 
 /**
  * SPC- Smart Pay Connect helper functions
  */
 object SpcXmlHelper {
-  def getSpcXmlMessage(node: Node):SpcMessage = {
+  def getSpcXmlMessage(node: Node): Option[SpcMessage] = {
     (node \\ "POI_MSG" \ "@type").text match {
       case "interaction" =>
         (node \\ "INTERACTION" \ "@name").text match {
-          case PedLogOn.name => PedLogOn.fromXml(node)
-          case PosDisplayMessage.name => PosDisplayMessage.fromXml(node)
-          case PosPrintReceiptResponse.name => PosPrintReceiptResponse.fromXml(node)
-          case PedLogOff.name => PedLogOff.fromXml(node)
-          case x => throw new RuntimeException(s"Unknown INTERACTION name: $x")
+          case PedLogOn.name                => Some(PedLogOn.fromXml(node))
+          case PedLogOnResponse.name        => Some(PedLogOnResponse.fromXml(node))
+          case PosDisplayMessage.name       => Some(PosDisplayMessage.fromXml(node))
+          case PosPrintReceiptResponse.name => Some(PosPrintReceiptResponse.fromXml(node))
+          case PosPrintReceipt.name         => Some(PosPrintReceipt.fromXml(node))
+          case PedLogOff.name               => Some(PedLogOff.fromXml(node))
+          case PedLogOffResponse.name       => Some(PedLogOffResponse.fromXml(node))
+          case _                            => None
         }
       case "submittal" =>
         (node \\ "SUBMIT" \ "@name").text match {
-          case SubmitPayment.name => SubmitPayment.fromXml(node)
-          case x => throw new RuntimeException(s"Unknown SUBMIT name: $x")
+          case SubmitPayment.name         => Some(SubmitPayment.fromXml(node))
+          case SubmitPaymentResponse.name => Some(SubmitPaymentResponse.fromXml(node))
+          case _                          => None
         }
       case "transactional" =>
         (node \\ "TRANS" \ "@name").text match {
-          case ProcessTransaction.name => ProcessTransaction.fromXml(node)
-          case UpdatePaymentEnhancedResponse.name => UpdatePaymentEnhancedResponse.fromXml(node)
-          case Finalise.name => Finalise.fromXml(node)
-          case x => throw new RuntimeException(s"Unknown TRANS name: $x")
+          case ProcessTransaction.name            => Some(ProcessTransaction.fromXml(node))
+          case ProcessTransactionResponse.name    => Some(ProcessTransactionResponse.fromXml(node))
+          case UpdatePaymentEnhanced.name         => Some(UpdatePaymentEnhanced.fromXml(node))
+          case UpdatePaymentEnhancedResponse.name => Some(UpdatePaymentEnhancedResponse.fromXml(node))
+          case PosDecisionMessage.name            => Some(PosDecisionMessage.fromXml(node))
+          case Finalise.name                      => Some(Finalise.fromXml(node))
+          case FinaliseResponse.name              => Some(FinaliseResponse.fromXml(node))
+          case CancelTransaction.name             => Some(CancelTransaction.fromXml(node))
+          case CompleteTransaction.name           => Some(CompleteTransaction.fromXml(node))
+          case _                                  => None
         }
-      case x => throw new RuntimeException(s"Unknown POI_MSG type: $x")
+      case "error" => Some(ErrorMessage.fromXml(node))
+      case _       => None
     }
   }
 
@@ -55,6 +66,11 @@ object SpcXmlHelper {
 
   def addNode(to: Node, newNode: Node):Node = to match {
     case Elem(prefix, label, attributes, scope, child@_*) => Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
+    case _ => println("could not find node"); to
+  }
+
+  def addAttribute(to: Elem, attribute: Attribute):Elem = to match {
+    case elem : Elem => elem % attribute
     case _ => println("could not find node"); to
   }
 }
