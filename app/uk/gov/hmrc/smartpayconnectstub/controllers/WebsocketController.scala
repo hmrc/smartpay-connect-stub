@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.smartpayconnectstub.controllers
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
