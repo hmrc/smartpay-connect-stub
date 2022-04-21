@@ -1,5 +1,5 @@
 # microservice specific routes
 
-GET        /ws                   uk.gov.hmrc.smartpayconnectstub.controllers.WebsocketController.ws
+GET        /ws                         uk.gov.hmrc.smartpayconnectstub.controllers.WebsocketController.ws
 
-POST       /set-path-for-device  uk.gov.hmrc.smartpayconnectstub.controllers.StubController.setPathForDevice
+POST       /set-path-for-device/:path  uk.gov.hmrc.smartpayconnectstub.controllers.StubController.setPathForDeviceId(path: String)

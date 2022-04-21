@@ -16,24 +16,10 @@
 
 package uk.gov.hmrc.smartpayconnectstub.models
 
-import enumeratum._
-import uk.gov.hmrc.smartpayconnectstub.utils.ValueClassBinder.{bindableA, valueClassBinder}
-import play.api.libs.json.{Json, OFormat}
-import play.api.mvc.{PathBindable, QueryStringBindable}
-import scala.collection.immutable
+import play.api.libs.json._
 
-sealed abstract class StubPath extends EnumEntry
+final case class StubPath(value: String)
 
 object StubPath {
   implicit val format: OFormat[StubPath] = Json.format[StubPath]
-  implicit val pathBinder: QueryStringBindable[StubPath] = bindableA(_.toString)
-  implicit val taxTypeBinder: PathBindable[StubPath] = valueClassBinder(_.toString)
 }
-
-object StubPaths extends Enum[StubPath] {
-
-  case object Happy extends StubPath
-
-  override def values: immutable.IndexedSeq[StubPath] = findValues
-}
-

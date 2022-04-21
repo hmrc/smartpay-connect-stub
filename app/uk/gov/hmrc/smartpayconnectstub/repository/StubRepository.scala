@@ -20,12 +20,12 @@ import javax.inject.{Inject, Singleton}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes._
 import reactivemongo.bson.BSONDocument
-import uk.gov.hmrc.smartpayconnectstub.models.StubPath
+import uk.gov.hmrc.smartpayconnectstub.models.{DeviceId, StubPath}
 import scala.concurrent.ExecutionContext
 
 @Singleton
 final class StubRepository @Inject() (reactiveMongoComponent: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-  extends Repository[StubPath, String]("smartpay-connect-stub", reactiveMongoComponent) {
+  extends Repository[StubPath, DeviceId]("smartpay-connect-stub", reactiveMongoComponent) {
 
   override def indexes: Seq[Index] = Seq(
     Index(
@@ -34,8 +34,8 @@ final class StubRepository @Inject() (reactiveMongoComponent: ReactiveMongoCompo
       options = BSONDocument("expireAfterSeconds" -> 600)
     ),
     Index(
-      key  = Seq("deviceId" -> IndexType.Ascending),
-      name = Some("deviceId")
+      key  = Seq(DeviceId.headerName -> IndexType.Ascending),
+      name = Some(DeviceId.headerName)
     )
   )
 }
