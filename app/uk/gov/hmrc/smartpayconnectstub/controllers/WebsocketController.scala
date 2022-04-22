@@ -36,7 +36,8 @@ class WebsocketController @Inject()(system: ActorSystem, cc: ControllerComponent
   val scpParentActor = system.actorOf(SpcParentActor.props())
 
   def ws(): WebSocket = WebSocket.accept[String,String] { implicit request =>
-    val deviceId: String = request.headers.get(DeviceId.headerName).getOrElse(throw new RuntimeException("ws error: No Device Id provided"))
+    //val deviceId: String = request.headers.get(DeviceId.headerName).getOrElse(throw new RuntimeException("ws error: No Device Id provided"))
+    val deviceId: DeviceId = DeviceId(request.headers.get(DeviceId.headerName).getOrElse("1"))
     //Take the below and use it to set the call once we have some routes to go to
     val futureListStubPath: Future[List[StubPath]] = repository.find(DeviceId.headerName -> deviceId)
 
