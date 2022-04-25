@@ -18,18 +18,19 @@ package uk.gov.hmrc.smartpayconnectstub.actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
 import play.api.Logger
-import uk.gov.hmrc.smartpayconnectstub.models.{SpcXmlHelper, TransactionId}
+import uk.gov.hmrc.smartpayconnectstub.models.StubPaths.{SuccessIcc, SuccessKeyed}
+import uk.gov.hmrc.smartpayconnectstub.models.{SpcXmlHelper, StubPath, TransactionId}
 
 import scala.xml.{Elem, XML}
 
 object SpcParentActor {
   def props():Props = Props(new SpcParentActor())
 
-  case class SpcWSStringMessage(out: ActorRef, msg:String)
+  case class SpcWSStringMessage(out: ActorRef, msg:String, stubPath: StubPath)
 }
 
 class SpcParentActor extends Actor {
-  import ScpUserActor._
+  import SuccessIccdUserActor._
   import SpcParentActor._
 
   override def postStop(): Unit = {
@@ -47,7 +48,7 @@ class SpcParentActor extends Actor {
   def receive: Receive = handleScpMessages(Map.empty[TransactionId,ActorRef])
 
   def handleScpMessages(userActors:Map[TransactionId, ActorRef]) : Receive = {
-    case SpcWSStringMessage(out,request) =>
+    case SpcWSStringMessage(out, request, stubPath) =>
       val session = context.sender()
       logger.debug(s"Parent Actor got message $request")
       logger.debug(s"Parent Actor userActors $userActors")
@@ -56,7 +57,13 @@ class SpcParentActor extends Actor {
 
       userActors.get(transNum).fold {
         logger.debug(s"Parent actor is going to create user actor with name ${transNum.value}")
-        val actorRef = context.actorOf(ScpUserActor.props(),s"${transNum.value}")
+
+        val actorRef = stubPath match {
+          case SuccessIcc => context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
+          case SuccessKeyed => context.actorOf(SuccessKeyedUserActor.props(),s"${transNum.value}")
+        }
+
+//        val actorRef = context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
         logger.debug(s"Parent actor created new user Actor $actorRef")
         logger.debug(s"Parent Actor  Send XML message $request to:$actorRef for transactionId:${transNum}")
         context.watch(actorRef)
