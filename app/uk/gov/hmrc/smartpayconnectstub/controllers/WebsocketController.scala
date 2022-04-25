@@ -25,24 +25,20 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.smartpayconnectstub.actors.{SpcParentActor, SpcSessionActor}
 import uk.gov.hmrc.smartpayconnectstub.repository.StubRepository
-import uk.gov.hmrc.smartpayconnectstub.models.{DeviceId, StubPath}
+import utils.RequestSupport
 
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class WebsocketController @Inject()(system: ActorSystem, cc: ControllerComponents, repository: StubRepository)(implicit mat: Materializer, actorSystem: ActorSystem, ec: ExecutionContext)
+class WebsocketController @Inject()(system: ActorSystem, cc: ControllerComponents, repository: StubRepository)(implicit mat: Materializer, actorSystem: ActorSystem)
     extends BackendController(cc) {
 
   val scpParentActor = system.actorOf(SpcParentActor.props())
 
   def ws(): WebSocket = WebSocket.accept[String,String] { implicit request =>
-    //val deviceId: String = request.headers.get(DeviceId.headerName).getOrElse(throw new RuntimeException("ws error: No Device Id provided"))
-    val deviceId: DeviceId = DeviceId(request.headers.get(DeviceId.headerName).getOrElse("1"))
-    //Take the below and use it to set the call once we have some routes to go to
-    val futureListStubPath: Future[List[StubPath]] = repository.find(DeviceId.headerName -> deviceId)
+    val mayBeDeviceId = RequestSupport.hc(request.withBody()).deviceID
 
     ActorFlow.actorRef { out =>
-      SpcSessionActor.props(out, scpParentActor)
-    }
+        SpcSessionActor.props(out, scpParentActor, mayBeDeviceId, repository)
+      }
   }
 }

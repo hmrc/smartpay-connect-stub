@@ -22,10 +22,11 @@ import reactivemongo.api.indexes._
 import reactivemongo.bson.BSONDocument
 import uk.gov.hmrc.smartpayconnectstub.models.{DeviceId, StubPath}
 import scala.concurrent.ExecutionContext
+import StubPath._
 
 @Singleton
 final class StubRepository @Inject() (reactiveMongoComponent: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-  extends Repository[StubPath, DeviceId]("smartpay-connect-stub", reactiveMongoComponent) {
+  extends Repository[StubPath, DeviceId]("smartpay-connect-stub", reactiveMongoComponent){
 
   override def indexes: Seq[Index] = Seq(
     Index(

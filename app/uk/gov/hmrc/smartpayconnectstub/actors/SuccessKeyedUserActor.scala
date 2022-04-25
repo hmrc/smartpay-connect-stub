@@ -33,26 +33,26 @@ import scala.xml.{Elem, Node}
 * @param totalAmount  tax amount to be payed with transaction
 * @param finalAmount  totalAmount plus card/transaction fee(s)
 */
-case class ScpState(
-                     totalAmount: AmountInPence,
-                     paymentCard: PaymentCard,
-                     finalAmount:Option[AmountInPence],
-                     country: Country,
-                     currency: Currency,
-                     source: TransactionSource
-                   )
-case object Timeout
+//case class ScpState(
+//                     totalAmount: AmountInPence,
+//                     paymentCard: PaymentCard,
+//                     finalAmount:Option[AmountInPence],
+//                     country: Country,
+//                     currency: Currency,
+//                     source: TransactionSource
+//                   )
+//case object Timeout
 
-object ScpUserActor {
-  def props():Props = Props(new ScpUserActor())
+object SuccessKeyedUserActor {
+  def props():Props = Props(new SuccessIccdUserActor())
 
   case class SpcWSXmlMessage(out: ActorRef, session:ActorRef, msg:Elem)
   case class SpcWSMessage(out: ActorRef, session:ActorRef, msg:F2FMessage)
 }
 
 
-class ScpUserActor extends Actor {
-  import ScpUserActor._
+class SuccessKeyedUserActor extends Actor {
+  import SuccessIccdUserActor._
   var state:ScpState = ScpState(AmountInPence.zero, StubTestData.VisaCredit, None, Country.Uk, Currency.Gbp, TransactionSources.Icc)
   var schedule:Cancellable = startCountDown()
   implicit val ec:ExecutionContextExecutor = context.dispatcher
@@ -93,10 +93,12 @@ class ScpUserActor extends Actor {
       context.stop(self)
     case SpcWSMessage(out, session, unexpected:SpcRequestMessage) => logger.error(s"Unexpected SmartPay Connect message: $unexpected")
       //TODO - check actually what is teh error code
-      val posDisplayMessageInProgress = ErrorMessage(HeaderNode(),unexpected.messageNode, ErrorsNode(Seq(StubTestData.incorrectMessageFlowErrorNode)), SuccessResult)
-      sendScpReplyMessage(out,posDisplayMessageInProgress)
+      val errorMessage = ErrorMessage(HeaderNode(),unexpected.messageNode, ErrorsNode(Seq(StubTestData.incorrectMessageFlowErrorNode)), SuccessResult)
+      sendScpReplyMessage(out,errorMessage)
+      context.stop(self)
 
     case x => logger.error(s"Unknown SmartPay Connect message: $x")
+      context.stop(self)
   }
 
   def handlePedLogOn: Receive =  {
@@ -152,6 +154,8 @@ class ScpUserActor extends Actor {
 
       context.become(handleUpdatePaymentEnhancedResponse orElse handleScpMessages)
       context.stop(session)
+
+
   }
 
   def handleUpdatePaymentEnhancedResponse: Receive = {
@@ -176,6 +180,19 @@ class ScpUserActor extends Actor {
 
       context.become(handleCompleteTransaction orElse handleScpMessages)
       context.stop(session)
+
+    case SpcWSMessage(out, session,cancelTransaction: CancelTransaction) =>
+
+      val amountNode = AmountNode(state.totalAmount, state.paymentCard.currency, state.paymentCard.country, state.finalAmount)
+      val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
+      val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
+
+      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), cancelTransaction.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.cancelled, None, None, ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out,processTransactionResponse)
+
+
+      context.become(handleFinalise orElse handleScpMessages)
+      context.stop(session)
   }
 
   def handleCompleteTransaction: Receive = {
@@ -199,7 +216,7 @@ class ScpUserActor extends Actor {
       val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
       val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
 
-      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, customerReceiptNode, merchantReceiptNode, ErrorsNode(Seq.empty))
+      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, Some(customerReceiptNode), Some(merchantReceiptNode), ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)
@@ -229,7 +246,7 @@ class ScpUserActor extends Actor {
       context.stop(self)
   }
 
-  lazy val logger:Logger = Logger(ScpUserActor.getClass)
+  lazy val logger:Logger = Logger(SuccessIccdUserActor.getClass)
 
   private def sendScpReplyMessage(out:ActorRef, spcResponseMessage: SpcResponseMessage) = {
     out ! spcResponseMessage.toXml.toString

@@ -18,13 +18,27 @@ package uk.gov.hmrc.smartpayconnectstub.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import play.api.Logger
+import uk.gov.hmrc.smartpayconnectstub.models.{DeviceId, StubPath, StubPaths}
+import uk.gov.hmrc.smartpayconnectstub.repository.StubRepository
+import akka.pattern.pipe
+import akka.actor.Stash
 
+import scala.concurrent.Future
+
+/**
+ * Session actor is only exists for duration of websocket connection.
+ * When websocket close actor is terminated
+ */
 object SpcSessionActor {
-  def props(out: ActorRef, spcParentActor: ActorRef):Props = Props(new SpcSessionActor(out,spcParentActor))
+  def props(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Option[String],repository: StubRepository):Props = Props(new SpcSessionActor(out,spcParentActor, mayBeDeviceId, repository))
 }
 
-class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef) extends Actor {
+class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Option[String], repository: StubRepository)
+  extends Actor with Stash {
   import SpcParentActor._
+
+  val defaultPath = StubPaths.SuccessIcc
+  implicit val ec = context.dispatcher
 
   override def preStart(): Unit = {
     logger.debug(s"Starting Session Actor $self")
@@ -36,10 +50,34 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef) extends Actor {
     super.postStop()
   }
 
+  override def receive: Receive = waitForFirstMessage
+  def waitForFirstMessage: Receive = {
+    case firstRequest: String =>
+      logger.debug(s"SpcSessionActor $self received first message $firstRequest")
+      stash()
+      val stubPathF = mayBeDeviceId match {
+          case Some(deviceId) => repository.find(DeviceId.headerName -> deviceId).map(_.headOption).map (_.getOrElse(defaultPath) )
+          case None => Future.successful(defaultPath)
+        }
+      stubPathF.pipeTo(self)
+      context.become(waitForStubPath())
+    case x => logger.error(s"SpcSessionActor in state waitForStubPath received unhadled message: $x")
+  }
 
-  override def receive: Receive = {
+  def waitForStubPath(): Receive = {
+    case stubPath: StubPath =>
+      logger.debug(s"SpcSessionActor $self received StubPath $stubPath")
+      unstashAll()
+      context.become(withStubPath(stubPath))
+
+    case x => logger.error(s"SpcSessionActor in state waitForStubPath received unhadled message: $x")
+  }
+
+  def withStubPath(stubPath: StubPath): Receive ={
     case request: String =>
-      spcParentActor ! SpcWSStringMessage(out, request)
+      logger.debug(s"SpcSessionActor $self received StubPath $stubPath")
+      spcParentActor ! SpcWSStringMessage(out, request, stubPath)
+    case x => logger.error(s"SpcSessionActor in state withStubPath received unhadled message: $x")
   }
 
   private lazy val logger = Logger(SpcSessionActor.getClass)

@@ -19,7 +19,7 @@ package uk.gov.hmrc.smartpayconnectstub.models
 import play.api.libs.json.{Format, JsError, JsResult, JsSuccess, JsValue, Json, OFormat}
 import uk.gov.hmrc.smartpayconnectstub.models.Results.{FailureResult, SuccessResult}
 
-import scala.xml.Node
+import scala.xml.{Node, NodeSeq}
 
 /**
  * SCP - Smart Pay Connect - XML messages
@@ -359,8 +359,8 @@ final case class ProcessTransactionResponse(
                                              ptrCardNode: PtrCardNode,
                                              result: Result,
                                              paymentResult: PaymentResult,
-                                             receiptNodeCustomer: ReceiptNode,
-                                             receiptNodeMerchant: ReceiptNode,
+                                             receiptNodeCustomerO: Option[ReceiptNode],
+                                             receiptNodeMerchantO: Option[ReceiptNode],
                                              errorsNode: ErrorsNode,
                                              name: String = ProcessTransactionResponse.name) extends SpcResponseMessage {
   override def isValid: Boolean = result match {
@@ -394,8 +394,8 @@ final case class ProcessTransactionResponse(
             { ptrTransactionNode.toXml }
             { ptrCardNode.toXml }
           </PAYMENT>
-          { receiptNodeMerchant.toXml }
-          { receiptNodeCustomer.toXml }
+          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml) }
+          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml) }
         </TRANS>
       </POI_MSG>
     </RLSOLVE_MSG>
@@ -416,7 +416,7 @@ object ProcessTransactionResponse {
     val receiptNodeMerchant = ReceiptNode.fromXml(node) //TODO that is incorrect as they are 2 Receipt notes
     val errorsNode = ErrorsNode.fromXml(node)
     val headerNode = HeaderNode.fromXml(node)
-    ProcessTransactionResponse(headerNode, messageNode, ptrTransactionNode, ptrCardNode, result, paymentResult, receiptNodeCustomer, receiptNodeMerchant, errorsNode)
+    ProcessTransactionResponse(headerNode, messageNode, ptrTransactionNode, ptrCardNode, result, paymentResult, Some(receiptNodeCustomer), Some(receiptNodeMerchant), errorsNode)
   }
 
   val name: String = "processTransactionResponse"
