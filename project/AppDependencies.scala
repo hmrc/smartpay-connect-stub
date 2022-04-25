@@ -13,6 +13,7 @@ object AppDependencies {
 
   val test = Seq(
     "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % "5.18.0"             % Test,
+    "org.scalatest"           %% "scalatest"                  % "3.2.7"              % Test,
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.36.8"            % "test, it"
   )
 }
