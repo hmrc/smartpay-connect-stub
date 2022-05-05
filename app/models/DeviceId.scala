@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-object JsonUtil {
+final case class DeviceId(value: String)
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
+object DeviceId {
+  implicit val format: Format[DeviceId] = implicitly[Format[String]].inmap(DeviceId(_), _.value)
+  val headerName = "deviceID"
 }

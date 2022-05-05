@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package utils
+package langswitch
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+object ErrorMessages {
 
-object JsonUtil {
+  val error_path_required: Message = Message("Stub path required")
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
 }

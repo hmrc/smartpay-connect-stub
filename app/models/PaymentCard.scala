@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+import play.api.libs.json.{Json, OFormat}
 
-object JsonUtil {
+case class PaymentCard (currency: Currency, country:Country, endDate: String, startDate:String, pan:String, cardType: CardType)
+object PaymentCard {
+  implicit val format: OFormat[PaymentCard] = Json.format[PaymentCard]
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
 }

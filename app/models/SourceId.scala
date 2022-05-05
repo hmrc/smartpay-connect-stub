@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+import play.api.libs.json.Format
+import play.api.libs.functional.syntax._
 
-object JsonUtil {
+/**
+ * Source id used by smartpay connect.
+ */
+final case class SourceId(value: String)
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
+object SourceId {
+  implicit val format: Format[SourceId] = implicitly[Format[String]].inmap(SourceId(_), _.value)
 }

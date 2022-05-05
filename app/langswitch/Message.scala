@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package utils
+package langswitch
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+case class Message(
+    english: String,
+    welsh:   Option[String]
+) {
 
-object JsonUtil {
-
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
+  def show(implicit language: Language): String = language match {
+    case Languages.English => english
+    case Languages.Welsh   => welsh.getOrElse(english)
   }
+}
+
+object Message {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def apply(english: String, welsh: String = null): Message = Message(english, Option(welsh))
 }

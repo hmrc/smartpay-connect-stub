@@ -18,13 +18,32 @@ package utils
 
 //import akka.http.scaladsl.model.headers.Language
 //import play.api.i18n._
+import langswitch.Language
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.Request
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
 
+import javax.inject.Inject
+/**
+ * Repeating the pattern which was brought originally by play-framework
+ * and putting some more data which can be derived from a request
+ *
+ * Use it to provide HeaderCarrier, Lang, or Messages
+ */
+class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I18nSupport {
+
+  implicit def hc(implicit request: Request[_]): HeaderCarrier = RequestSupport.hc
+  def lang(implicit messages: Messages): Lang = messages.lang
+
+  //implicit def language(implicit messages: Messages): Language = Language(messages.lang)
+}
+
+
 object RequestSupport {
   def isLoggedIn(implicit request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
 
+  implicit def language(implicit messages: Messages): Language = Language(messages.lang)
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
   /**

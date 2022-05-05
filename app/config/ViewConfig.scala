@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package config
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-object JsonUtil {
+import javax.inject.{Inject, Singleton}
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
+@Singleton
+class ViewConfig @Inject()(
+    val config:     Configuration,
+    servicesConfig: ServicesConfig
+) {
+  //private val contactBaseUrl = servicesConfig.baseUrl("face-to-face-frontend")
+  private val serviceIdentifier = "MyService"
+  val appName: String = servicesConfig.getString("appName")
+  val frontendBaseUrl: String = servicesConfig.getString("urls.frontend-base")
+  val supportLanguages: Boolean = true
 
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
 }
