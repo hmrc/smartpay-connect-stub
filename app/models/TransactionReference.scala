@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+import play.api.libs.json.Format
+import play.api.libs.functional.syntax._
 
-object JsonUtil {
+final case class TransactionReference(value: String)
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
+object TransactionReference {
+  implicit val format: Format[TransactionReference] = implicitly[Format[String]].inmap(TransactionReference(_), _.value)
+  val Uk = Country("826")
+  val US = Country("840")
 }

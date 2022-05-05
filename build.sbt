@@ -8,6 +8,8 @@ val silencerVersion = "1.7.5"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+//  .settings(DefaultBuildSettings.scalaSettings: _*)
+//  .settings(DefaultBuildSettings.defaultSettings(): _*)
   .settings(
     majorVersion                     := 0,
     scalaVersion                     := "2.12.14",
@@ -22,6 +24,16 @@ lazy val microservice = Project(appName, file("."))
     ),
     // ***************
     PlayKeys.playDefaultPort := 9263,
+    TwirlKeys.templateImports ++= Seq(
+      "play.twirl.api.HtmlFormat",
+      "play.twirl.api.HtmlFormat._",
+      "uk.gov.hmrc.govukfrontend.views.html.components._",
+      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
+      "views.ViewUtils._",
+      "controllers.routes._"
+    )
   )
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)

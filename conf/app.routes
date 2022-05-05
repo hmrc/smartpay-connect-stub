@@ -1,5 +1,11 @@
 # microservice specific routes
+GET         /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET        /ws                         uk.gov.hmrc.smartpayconnectstub.controllers.WebsocketController.ws
 
-GET       /set-path-for-device/:path  uk.gov.hmrc.smartpayconnectstub.controllers.StubController.setPathForDeviceId(path: String)
+GET         /ws                         controllers.WebsocketController.ws
+GET         /language/:language         controllers.LanguageSwitchController.switchToLanguage(language: langswitch.Language)
+
+GET         /set-path-for-device        controllers.StubController.getPathForDeviceId
+POST        /set-path-for-device        controllers.StubController.submitPathForDeviceId
+
+#POST        /set-path-for-device/:path  controllers.StubController.setPathForDeviceId(path: String)

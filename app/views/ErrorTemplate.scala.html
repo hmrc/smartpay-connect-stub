@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,26 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package utils
+@this(
+    layout: templates.Layout
+)
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages)
 
-object JsonUtil {
+@layout(pageTitle = titleNoForm(pageTitle)) {
+    <h1 class="govuk-heading-xl">@messages(heading)</h1>
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
-
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
+    <p class="govuk-body">@messages(message)</p>
 }

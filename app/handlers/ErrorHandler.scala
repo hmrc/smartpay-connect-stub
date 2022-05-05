@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package handlers
 
-import play.api.libs.json.{Format, JsObject, JsResult, JsValue, Json, OFormat}
-import play.api.libs.json._
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.Request
+import play.twirl.api.Html
+import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
+import views.html.ErrorTemplate
 
-object JsonUtil {
+import javax.inject.{Inject, Singleton}
 
-  def oFormat[T](format: Format[T]): OFormat[T] = {
-    val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
-        Json.obj("stubPath" -> format.writes(o))
-      }
+@Singleton
+class ErrorHandler @Inject()(
+    val messagesApi: MessagesApi,
+    view:            ErrorTemplate
+) extends FrontendErrorHandler with I18nSupport {
 
-      override def reads(json: JsValue): JsResult[T] = {
-        val reader = (__ \ "stubPath").read[T](format)
-        reader.reads(json)
-      }
-    }
-    oFormat
-  }
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html =
+    view(pageTitle, heading, message)
 }

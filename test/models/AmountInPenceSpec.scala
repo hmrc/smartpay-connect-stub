@@ -3,7 +3,6 @@ package models
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import uk.gov.hmrc.smartpayconnectstub.models.AmountInPence
 
 
 class SurchargeSpec extends AnyFreeSpec with Matchers {

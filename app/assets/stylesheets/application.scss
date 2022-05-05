@@ -1,0 +1,90 @@
+$govuk-assets-path: "/assets/lib/govuk-frontend/govuk/assets/";
+
+@import "lib/govuk-frontend/govuk/all";
+
+.govuk-header--telephone-payment-service .govuk-header__logo {
+	width: 33.33%;
+	padding-right: 0;
+	float: left;
+	vertical-align: top
+}
+
+.govuk-header--telephone-payment-service .govuk-header__content {
+	width: 66.66%;
+	float: left
+}
+
+.govuk-header--telephone-payment-service .govuk-header__navigation-item {
+	display: inline-block;
+	margin-right: 15px;
+	padding: 5px 0;
+	border: 0
+}
+
+.gem-c-organisation-logo {
+	font-family: nta, Arial, sans-serif;
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 20px
+}
+
+.gem-c-organisation-logo .gem-c-organisation-logo__container {
+	text-transform: none;
+	text-decoration: none;
+	display: block;
+	color: #0b0c0c;
+	color: #fff;
+	height: auto;
+	width: auto;
+	direction: ltr
+}
+
+.gem-c-organisation-logo .gem-c-organisation-logo__crest {
+	border-left: 2px solid #0b0c0c;
+	padding-top: 31px;
+	padding-left: 7px
+}
+
+.gem-c-organisation-logo .gem-c-organisation-logo__crest--hmrc {
+	background-image: url(/assets/images/hmrc_crest_18px-white.png);
+	background-repeat: no-repeat;
+	background-position: 6px 0;
+	background-size: auto 26px
+}
+
+.gem-c-organisation-logo .brand__border-color {
+	border-color: #009390
+}
+
+.govuk-header__link--service-name {
+	display: inline-block;
+	margin-bottom: 10px;
+	font-family: nta, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-weight: 700;
+	font-size: 18px;
+	font-size: 1.125rem;
+	line-height: 1.11111
+}
+
+.align-right {
+    text-align:center
+}
+
+.float-right {
+    float: right
+}
+
+.align-text {
+    float: left;
+    margin-right: 10px
+}
+
+.color-white {
+  color: white;
+}
+
+.js-enabled nav .govuk-header__navigation {
+    display: block !important;
+}
