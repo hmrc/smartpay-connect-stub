@@ -36,14 +36,11 @@ import scala.xml.Elem
 
 object SuccessIccdUserActor {
   def props():Props = Props(new SuccessIccdUserActor())
-
-  case class SpcWSXmlMessage(out: ActorRef, session:ActorRef, msg:Elem)
-  case class SpcWSMessage(out: ActorRef, session:ActorRef, msg:F2FMessage)
 }
 
 
 class SuccessIccdUserActor extends Actor {
-  import SuccessIccdUserActor._
+  import SpcParentActor._
   var state:ScpState = ScpState(AmountInPence.zero, StubTestData.VisaCredit, None, Country.Uk, Currency.Gbp, TransactionSources.Icc)
   var schedule:Cancellable = startCountDown()
   implicit val ec:ExecutionContextExecutor = context.dispatcher
@@ -174,7 +171,7 @@ class SuccessIccdUserActor extends Actor {
       val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
       val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
 
-      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), cancelTransaction.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.cancelled, None, None, ErrorsNode(Seq.empty))
+      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), messageNode = cancelTransaction.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.SuccessResult, paymentResult = PaymentResults.cancelled, receiptNodeCustomerO = None, receiptNodeMerchantO = None, errorsNode = ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
 
@@ -203,7 +200,7 @@ class SuccessIccdUserActor extends Actor {
       val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
       val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
 
-      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, Some(customerReceiptNode), Some(merchantReceiptNode), ErrorsNode(Seq.empty))
+      val processTransactionResponse = ProcessTransactionResponse(headerNode = HeaderNode(), messageNode = posPrintReceiptResponse.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.SuccessResult, paymentResult = PaymentResults.OnlineResult, receiptNodeCustomerO = Some(customerReceiptNode), receiptNodeMerchantO = Some(merchantReceiptNode), errorsNode = ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)
