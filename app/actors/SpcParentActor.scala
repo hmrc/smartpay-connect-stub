@@ -18,9 +18,8 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
 import play.api.Logger
-import models.StubPaths.{SuccessIcc, SuccessKeyed}
-import models.{SpcXmlHelper, StubPath, TransactionId}
-
+import models.StubPaths.{CancelledOnPedIcc, CardDeclinedIcc, IncorrectPinIcc, SuccessIcc}
+import models.{F2FMessage, SpcXmlHelper, StubPath, TransactionId}
 
 import scala.xml.{Elem, XML}
 
@@ -28,6 +27,9 @@ object SpcParentActor {
   def props():Props = Props(new SpcParentActor())
 
   case class SpcWSStringMessage(out: ActorRef, msg:String, stubPath: StubPath)
+
+  case class SpcWSXmlMessage(out: ActorRef, session:ActorRef, msg:Elem)
+  case class SpcWSMessage(out: ActorRef, session:ActorRef, msg:F2FMessage)
 }
 
 class SpcParentActor extends Actor {
@@ -60,10 +62,22 @@ class SpcParentActor extends Actor {
         logger.debug(s"Parent actor is going to create user actor with name ${transNum.value}")
 
         val actorRef = stubPath match {
-          case SuccessIcc => context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
-          case SuccessKeyed => context.actorOf(SuccessKeyedUserActor.props(),s"${transNum.value}")
+          case SuccessIcc =>
+            logger.debug(s"Parent actor is going to create SuccessIccdUserActor for stubPath:$stubPath")
+            context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
+          case CancelledOnPedIcc =>
+            logger.debug(s"Parent actor is going to create CancelledOnPedIcc for stubPath:$stubPath")
+            context.actorOf(CancelledIccUserActor.props(),s"${transNum.value}")
+          case CardDeclinedIcc =>
+            logger.debug(s"Parent actor is going to create CardDeclinedIccUserActor for stubPath:$stubPath")
+            context.actorOf(CardDeclinedIccUserActor.props(),s"${transNum.value}")
           //TODO default set for now until all path implemented
-          case _ => context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
+          case IncorrectPinIcc =>
+            logger.debug(s"Parent actor is going to create IncorrectPinIcc for stubPath:$stubPath")
+            context.actorOf(IncorrectPinCardRemovedUserActor.props(),s"${transNum.value}")
+          case _ =>
+            logger.debug(s"Parent actor is going to create Default for stubPath:$stubPath")
+            context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")
         }
 
 //        val actorRef = context.actorOf(SuccessIccdUserActor.props(),s"${transNum.value}")

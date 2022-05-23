@@ -40,7 +40,7 @@ class StubController @Inject() (
     with I18nSupport {
 
   def getPathForDeviceId:Action[AnyContent] = Action.async { implicit request =>
-    val formWithData = PathForDeviceForm.form(translatedFormErrors).fill(PathForDeviceFormData(StubPaths.SuccessKeyed))
+    val formWithData = PathForDeviceForm.form(translatedFormErrors).fill(PathForDeviceFormData(StubPaths.SuccessIcc))
     Future.successful(Ok(path_for_device_view(formWithData)))
   }
 
