@@ -157,11 +157,8 @@ class CardDeclinedIccUserActor extends Actor {
       val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
 
-      val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
-      val posDecisionMessage = PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
-      sendScpReplyMessage(out,posDecisionMessage)
 
-      context.become(handleCompleteTransaction orElse handleScpMessages)
+      context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
       context.stop(session)
 
     case SpcWSMessage(out, session,cancelTransaction: CancelTransaction) =>
@@ -178,16 +175,7 @@ class CardDeclinedIccUserActor extends Actor {
       context.stop(session)
   }
 
-  def handleCompleteTransaction: Receive = {
-    case SpcWSMessage(out, session,completeTransaction: CompleteTransaction) =>
-      logger.debug(s"User Actor $self got SpcMessage completeTransaction message $completeTransaction")
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), completeTransaction.messageNode, ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerReceipts ), SuccessResult,ErrorsNode(Seq.empty))
-      sendScpReplyMessage(out,posPrintReceipt)
-
-      context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
-      context.stop(session)
-  }
 
   def handlePosPrintReceiptResponse: Receive = {
     case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
