@@ -149,7 +149,6 @@ class CancelledIccUserActor extends Actor {
 
       val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
-      
 
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
       context.stop(session)
@@ -167,8 +166,7 @@ class CancelledIccUserActor extends Actor {
       context.become(handleFinalise orElse handleScpMessages)
       context.stop(session)
   }
-
-
+  
   def handlePosPrintReceiptResponse: Receive = {
     case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
       logger.debug(s"User Actor $self got SpcMessage posPrintReceiptResponse message $posPrintReceiptResponse")

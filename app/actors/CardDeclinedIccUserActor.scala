@@ -158,6 +158,7 @@ class CardDeclinedIccUserActor extends Actor {
       sendScpReplyMessage(out,posPrintReceipt)
 
 
+
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
       context.stop(session)
 
@@ -174,7 +175,6 @@ class CardDeclinedIccUserActor extends Actor {
       context.become(handleFinalise orElse handleScpMessages)
       context.stop(session)
   }
-
 
 
   def handlePosPrintReceiptResponse: Receive = {

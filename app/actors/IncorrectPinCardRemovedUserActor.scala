@@ -152,7 +152,6 @@ class IncorrectPinCardRemovedUserActor extends Actor {
       sendScpReplyMessage(out,posPrintReceipt)
 
 
-
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
       context.stop(session)
 
@@ -169,8 +168,6 @@ class IncorrectPinCardRemovedUserActor extends Actor {
       context.become(handleFinalise orElse handleScpMessages)
       context.stop(session)
   }
-
-
 
   def handlePosPrintReceiptResponse: Receive = {
     case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
