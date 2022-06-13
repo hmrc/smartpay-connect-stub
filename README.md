@@ -1,25 +1,24 @@
 
 # smartpay-connect-stub
+This stub supports the Face to Face service, and is designed to behave like a PED (Pin enabled device). The PED model that is being used on the service is the Lane 3000.  
 
-This is a placeholder README.md for a new repository
+### How to run
 
-### License
+The stub must be run on your local machine. You can do this via service manager.
 
-This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+Warning: You will also need to run stubs locally if you want to use a stubbed test environment. This is due to the frontend service using websockets - which are not supported on the MDTP platform.
 
-### How to run stub
-
-Stub need to be run on local machine. 
-
-Service manager
+#### Service manager
 
 `sm --start SMARTPAY_CONNECT_STUB`
 
 ### How to configure stub path
 
-http://localhost:9263/smartpay-connect-stub/set-path-for-device
+1. Go to http://localhost:9263/smartpay-connect-stub/set-path-for-device.
+2. Select the scenario from the dropdown
+3. Click submit
+4. Start a face to face journey by going to http://localhost:9260/face-to-face/start
 
-if user do not set path default path would be used for 'success with chip@pin' payments
+If you do not set the stub path, the default is 'success with chip@pin' scenario.
 
-If user desire different path please set it each time start stub on your machine.
-
+When you want to select a different path, you will need to set it each time by following the configuration steps above.
