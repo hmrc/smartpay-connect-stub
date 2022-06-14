@@ -22,3 +22,7 @@ Warning: You will also need to run stubs locally if you want to use a stubbed te
 If you do not set the stub path, the default is 'success with chip@pin' scenario.
 
 When you want to select a different path, you will need to set it each time by following the configuration steps above.
+
+### License
+
+This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
