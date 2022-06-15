@@ -10,7 +10,14 @@ Warning: You will also need to run stubs locally if you want to use a stubbed te
 
 #### Service manager
 
+To run the stub:
+
 `sm --start SMARTPAY_CONNECT_STUB`
+
+To run the full service manager profile for face to face:
+
+`sm --start F2F_ALL`
+
 
 ### How to configure stub path
 
