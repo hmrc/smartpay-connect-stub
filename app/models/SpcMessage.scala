@@ -395,8 +395,8 @@ final case class ProcessTransactionResponse(
             { ptrTransactionNode.toXml }
             { ptrCardNode.toXml }
           </PAYMENT>
-          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml) }
-          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml) }
+          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)) }
+          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)) }
         </TRANS>
       </POI_MSG>
     </RLSOLVE_MSG>

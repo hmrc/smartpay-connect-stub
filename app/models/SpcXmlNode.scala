@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json._
 
-import scala.xml.{Node, Null, UnprefixedAttribute}
+import scala.xml.{Node, Null, PCData, UnprefixedAttribute}
 
 /**
  * SCP - Smart Pay Connect - XML nodes that are used to build messages
@@ -309,18 +309,111 @@ object PtrCardNode {
   val name = "PtrCardNode"
 }
 
-final case class ReceiptNode(receiptType: ReceiptType, receiptPrint: String, name: String = ReceiptNode.name) extends SpcXmlNode {
-  def toXml: Node = {
-    <RECEIPT type={ receiptType.receiptType } format="plain">{ receiptPrint }</RECEIPT>
+final case class ReceiptNode(
+                              receiptType:            ReceiptType,
+                              applicationId:          String,
+                              authCode:               String,
+                              cardSchema:             CardType,
+                              currencyCode:           Currency,
+                              customerPresence:       CustomerPresence,
+                              finalAmount:            AmountInPence,
+                              merchantNumber:         MerchantNumber,
+                              cardPan:                CardPan,
+                              panSequence:            String,
+                              terminalId:             TerminalId,
+                              transactionSource:      TransactionSource,
+                              totalAmount:            AmountInPence,
+                              transactionDate:        String,
+                              transactionTime:        String,
+                              transactionType:        TransactionType,
+                              cardVerificationMethod: CardVerificationMethod,
+                              name:                   String                 = ReceiptNode.name
+                            ) extends SpcXmlNode {
+  def receiptToXml: Node = {
+    <RECEIPT>
+      <APPLICATION_ID>{ applicationId }</APPLICATION_ID>
+      <AUTH_CODE>{ authCode }</AUTH_CODE>
+      <CARD_SCHEME>{ cardSchema.value }</CARD_SCHEME>
+      <CURRENCY_CODE>{ currencyCode.value }</CURRENCY_CODE>
+      <CUSTOMER_PRESENCE>{ customerPresence.toString }</CUSTOMER_PRESENCE>
+      <FINAL_AMOUNT>{ finalAmount.value }</FINAL_AMOUNT>
+      <MERCHANT_NUMBER>{ merchantNumber.value }</MERCHANT_NUMBER>
+      <PAN_NUMBER>{ cardPan.value }</PAN_NUMBER>
+      <PAN_EXPIRY>12/24</PAN_EXPIRY>
+      <PAN_SEQUENCE>{ panSequence }</PAN_SEQUENCE>
+      <PAN_START>07/09</PAN_START>
+      <TERMINAL_ID>{ terminalId.value }</TERMINAL_ID>
+      <TOKEN>DB89CDDF-4A25-4C46-E053-11221FACA840</TOKEN>
+      <TOTAL_AMOUNT>{ totalAmount.value }</TOTAL_AMOUNT>
+      <TRANSACTION_DATA_SOURCE>{ transactionSource.toString }</TRANSACTION_DATA_SOURCE>
+      <TRANSACTION_DATE>{ transactionDate }</TRANSACTION_DATE>
+      <TRANSACTION_NUMBER>00062a89de319000088f98a3c42</TRANSACTION_NUMBER>
+      <TRANSACTION_RESPONSE>D12345</TRANSACTION_RESPONSE>
+      <TRANSACTION_TIME>{ transactionTime }</TRANSACTION_TIME>
+      <TRANSACTION_TYPE>{ transactionType.toString }</TRANSACTION_TYPE>
+      <VERIFICATION_METHOD>{ cardVerificationMethod.toString }</VERIFICATION_METHOD>
+      <DUPLICATE>true</DUPLICATE>
+    </RECEIPT>
   }
+
+
+  def toXml: Node = {
+    <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+
+  def toXml(receiptTypef: ReceiptType): Node = {
+    <RECEIPT type={ receiptTypef.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+
 }
 
 object ReceiptNode {
   implicit val format: OFormat[ReceiptNode] = Json.format[ReceiptNode]
+  def fromXml(node: Node, receiptType: ReceiptType): Option[ReceiptNode] = {
+    val receipts = (node \\ "RECEIPT")
+    val receiptOption = receipts.filter(node => (node \\ "RECEIPT" \ "@type").text == receiptType.toString).headOption
+    receiptOption.map(receipt => fromXml(receipt))
+  }
+
   def fromXml(node: Node): ReceiptNode = {
-    val receiptType = ReceiptType((node \\ "RECEIPT" \ "@type").headOption.map(_.text).getOrElse("")) //TODO 2 receipt
-    val receiptPrint = (node \\ "RECEIPT").headOption.map(_.text).getOrElse("")
-    ReceiptNode(receiptType, receiptPrint)
+    val receiptType = ReceiptType((node \\ "RECEIPT" \ "@type").text)
+    val xmlReceiptNode = scala.xml.XML.loadString((node \\ "RECEIPT").text.trim)
+    val applicationId = (xmlReceiptNode \\ "APPLICATION_ID").text
+    val authCode = (xmlReceiptNode \\ "AUTH_CODE").text
+    val cardSchema = CardType((xmlReceiptNode \\ "CARD_SCHEME").text)
+    val currencyCode = Currency((xmlReceiptNode \\ "CURRENCY_CODE").text)
+    val customerPresence = CustomerPresence((xmlReceiptNode \\ "CUSTOMER_PRESENCE").text)
+    val finalAmount = AmountInPence((xmlReceiptNode \\ "FINAL_AMOUNT").text)
+    val merchantNumber = MerchantNumber((xmlReceiptNode \\ "MERCHANT_NUMBER").text)
+    val cardPan = CardPan((xmlReceiptNode \\ "PAN_NUMBER").text)
+    val panSequence = (xmlReceiptNode \\ "PAN_SEQUENCE").text
+    val terminalId = TerminalId((xmlReceiptNode \\ "TERMINAL_ID").text)
+    val transactionSource = TransactionSource((xmlReceiptNode \\ "TRANSACTION_DATA_SOURCE").text)
+    val totalAmount = AmountInPence((xmlReceiptNode \\ "TOTAL_AMOUNT").text)
+    val transactionDate = (xmlReceiptNode \\ "TRANSACTION_DATE").text
+    val transactionTime = (xmlReceiptNode \\ "TRANSACTION_TIME").text
+    val transactionType = TransactionType((xmlReceiptNode \\ "TRANSACTION_TYPE").text)
+    val cardVerificationMethod = CardVerificationMethod((xmlReceiptNode \\ "VERIFICATION_METHOD").text)
+
+    ReceiptNode(
+      receiptType            = receiptType,
+      applicationId          = applicationId,
+      authCode               = authCode,
+      cardSchema             = cardSchema,
+      currencyCode           = currencyCode,
+      customerPresence       = customerPresence,
+      finalAmount            = finalAmount,
+      merchantNumber         = merchantNumber,
+      cardPan                = cardPan,
+      panSequence            = panSequence,
+      terminalId             = terminalId,
+      transactionSource      = transactionSource,
+      totalAmount            = totalAmount,
+      transactionDate        = transactionDate,
+      transactionTime        = transactionTime,
+      transactionType        = transactionType,
+      cardVerificationMethod = cardVerificationMethod
+    )
   }
   val name = "ReceiptNode"
 }

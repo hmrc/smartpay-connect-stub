@@ -17,7 +17,7 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
-import models.{AmountInPence, AmountNode, CancelTransaction, CardNode, CompleteTransaction, Country, Currency, ErrorMessage, ErrorsNode, F2FMessage, Finalise, FinaliseResponse, HeaderNode, InteractionNode, PaymentResults, PdTransNode, PedLogOff, PedLogOffResponse, PedLogOn, PedLogOnResponse, PosDecisionMessage, PosDisplayMessage, PosPrintReceipt, PosPrintReceiptResponse, ProcessTransaction, ProcessTransactionResponse, PtrCardNode, PtrTransactionNode, ReceiptNode, ReceiptTypes, Results, ScpState, SpcRequestMessage, SpcResponseMessage, SpcXmlHelper, StubTestData, SubmitPayment, SubmitPaymentResponse, Timeout, TransactionActions, TransactionCustomers, TransactionDecisions, TransactionNode, TransactionSources, TransactionTypes, UpdatePaymentEnhanced, UpdatePaymentEnhancedResponse}
+import models.{AmountInPence, AmountNode, CancelTransaction, CardNode, CardPan, CardType, CardVerificationMethod, CompleteTransaction, Country, Currency, CustomerPresence, ErrorMessage, ErrorsNode, F2FMessage, Finalise, FinaliseResponse, HeaderNode, InteractionNode, MerchantNumber, PaymentResults, PdTransNode, PedLogOff, PedLogOffResponse, PedLogOn, PedLogOnResponse, PosDecisionMessage, PosDisplayMessage, PosPrintReceipt, PosPrintReceiptResponse, ProcessTransaction, ProcessTransactionResponse, PtrCardNode, PtrTransactionNode, ReceiptNode, ReceiptType, ReceiptTypes, Results, ScpState, SpcRequestMessage, SpcResponseMessage, SpcXmlHelper, StubTestData, SubmitPayment, SubmitPaymentResponse, TerminalId, Timeout, TransactionActions, TransactionCustomers, TransactionDecisions, TransactionNode, TransactionSources, TransactionType, TransactionTypes, UpdatePaymentEnhanced, UpdatePaymentEnhancedResponse}
 import play.api.Logger
 import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.InteractionEvents.{EventSuccess, InProgress, Processing, UseChip}
@@ -155,7 +155,8 @@ class SuccessIccdUserActor extends Actor {
       val posDisplayMessageSuccess = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNodeSuccess, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posDisplayMessageSuccess)
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
+
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, StubTestData.merchantSignatureReceipt, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
 
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
@@ -183,10 +184,8 @@ class SuccessIccdUserActor extends Actor {
       val amountNode = AmountNode(state.totalAmount, state.paymentCard.currency, state.paymentCard.country, state.finalAmount)
       val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
       val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
-      val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
-      val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
 
-      val processTransactionResponse = ProcessTransactionResponse(headerNode = HeaderNode(), messageNode = posPrintReceiptResponse.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.SuccessResult, paymentResult = PaymentResults.OnlineResult, receiptNodeCustomerO = Some(customerReceiptNode), receiptNodeMerchantO = Some(merchantReceiptNode), errorsNode = ErrorsNode(Seq.empty))
+      val processTransactionResponse = ProcessTransactionResponse(headerNode = HeaderNode(), messageNode = posPrintReceiptResponse.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.SuccessResult, paymentResult = PaymentResults.OnlineResult, receiptNodeCustomerO = Some(StubTestData.customerReceipt), receiptNodeMerchantO = Some(StubTestData.merchantSignatureReceipt), errorsNode = ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)
