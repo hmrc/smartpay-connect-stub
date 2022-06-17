@@ -148,7 +148,7 @@ class IncorrectPinCardRemovedUserActor extends Actor {
       val posDisplayMessageSuccess = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNodeSuccess, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posDisplayMessageSuccess)
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, StubTestData.customerReceipt, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
 
 
@@ -176,10 +176,8 @@ class IncorrectPinCardRemovedUserActor extends Actor {
       val amountNode = AmountNode(state.totalAmount, state.paymentCard.currency, state.paymentCard.country, state.finalAmount)
       val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
       val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
-      val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
-      val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
 
-      val processTransactionResponse = ProcessTransactionResponse(headerNode = HeaderNode(), messageNode = posPrintReceiptResponse.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.FailureResult, paymentResult = PaymentResults.declined, receiptNodeCustomerO = Some(customerReceiptNode), receiptNodeMerchantO = Some(merchantReceiptNode), errorsNode = ErrorsNode(Seq(ErrorNode("200008","Card removed from the reader"))))
+      val processTransactionResponse = ProcessTransactionResponse(headerNode = HeaderNode(), messageNode = posPrintReceiptResponse.messageNode, ptrTransactionNode = ptrTransactionNode, ptrCardNode = visaPtrCardNode, result = Results.FailureResult, paymentResult = PaymentResults.declined, receiptNodeCustomerO = Some(StubTestData.customerReceipt), receiptNodeMerchantO = Some(StubTestData.merchantSignatureReceipt), errorsNode = ErrorsNode(Seq(ErrorNode("200008","Card removed from the reader"))))
       sendScpReplyMessage(out,processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)

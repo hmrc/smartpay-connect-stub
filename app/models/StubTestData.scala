@@ -71,7 +71,45 @@ object StubTestData {
 
   val VisaCredit = PaymentCard(Currency.Usd, Country.US, "****-**", "2009-07-01", "476173******0011", CardType.VisaCredit)
 
+  val merchantSignatureReceipt = ReceiptNode(
+    receiptType            = ReceiptTypes.MerchantSignatureReceipt,
+    applicationId          = "A0000000031010",
+    authCode               = "D12345",
+    cardSchema             = CardType.VisaCredit,
+    currencyCode           = Currency.Gbp,
+    customerPresence       = CustomerPresence.present,
+    finalAmount            = AmountInPence(1000),
+    merchantNumber         = MerchantNumber("9876543"),
+    cardPan                = CardPan("476173******0011"),
+    panSequence            = "01",
+    terminalId             = TerminalId("23212075"),
+    transactionSource      = TransactionSources.Icc,
+    totalAmount            = AmountInPence(1000),
+    transactionDate        = "2022-04-04",
+    transactionTime        = "17:36:03",
+    transactionType        = TransactionTypes.Purchase,
+    cardVerificationMethod = CardVerificationMethod.signature
+  )
 
+  val customerReceipt = ReceiptNode(
+    receiptType            = ReceiptTypes.CustomerReceipt,
+    applicationId          = "A0000000031010",
+    authCode               = "D12345",
+    cardSchema             = CardType.VisaCredit,
+    currencyCode           = Currency.Gbp,
+    customerPresence       = CustomerPresence.present,
+    finalAmount            = AmountInPence(1000),
+    merchantNumber         = MerchantNumber("9876543"),
+    cardPan                = CardPan("476173******0011"),
+    panSequence            = "01",
+    terminalId             = TerminalId("23212075"),
+    transactionSource      = TransactionSources.Icc,
+    totalAmount            = AmountInPence(1000),
+    transactionDate        = "2022-04-04",
+    transactionTime        = "17:36:03",
+    transactionType        = TransactionTypes.Purchase,
+    cardVerificationMethod = CardVerificationMethod.signature
+  )
 
 
 }

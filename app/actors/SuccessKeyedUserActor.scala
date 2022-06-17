@@ -160,7 +160,7 @@ class SuccessKeyedUserActor extends Actor {
       val posDisplayMessageSuccess = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNodeSuccess, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posDisplayMessageSuccess)
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt ), SuccessResult,ErrorsNode(Seq.empty))
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, StubTestData.merchantSignatureReceipt, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
 
       val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
@@ -188,7 +188,7 @@ class SuccessKeyedUserActor extends Actor {
     case SpcWSMessage(out, session,completeTransaction: CompleteTransaction) =>
       logger.debug(s"User Actor $self got SpcMessage completeTransaction message $completeTransaction")
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), completeTransaction.messageNode, ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerReceipts ), SuccessResult,ErrorsNode(Seq.empty))
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), completeTransaction.messageNode, StubTestData.merchantSignatureReceipt, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
 
       context.become(handlePosPrintReceiptResponse orElse handleScpMessages)
@@ -202,10 +202,8 @@ class SuccessKeyedUserActor extends Actor {
       val amountNode = AmountNode(state.totalAmount, state.paymentCard.currency, state.paymentCard.country, state.finalAmount)
       val ptrTransactionNode = PtrTransactionNode(amountNode,Some(TransactionActions.AuthorizeAndSettle), Some(TransactionTypes.Purchase), Some(state.source), Some(TransactionCustomers.Present),Some(StubTestData.transactionReference))
       val visaPtrCardNode = PtrCardNode(state.paymentCard.currency, state.paymentCard.country, state.paymentCard.endDate, state.paymentCard.startDate, state.paymentCard.pan, state.paymentCard.cardType)
-      val customerReceiptNode = ReceiptNode(ReceiptTypes.CustomerReceipt, StubTestData.customerDuplicateReceipt )
-      val merchantReceiptNode = ReceiptNode(ReceiptTypes.MerchantSignatureReceipt, StubTestData.securityReceipt )
 
-      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, Some(customerReceiptNode), Some(merchantReceiptNode), ErrorsNode(Seq.empty))
+      val processTransactionResponse = ProcessTransactionResponse(HeaderNode(), posPrintReceiptResponse.messageNode, ptrTransactionNode, visaPtrCardNode, Results.SuccessResult, PaymentResults.OnlineResult, Some(StubTestData.customerReceipt), Some(StubTestData.merchantSignatureReceipt), ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)
