@@ -40,7 +40,7 @@ class IncorrectPinCardRemovedUserActor extends Actor {
 
 
   def startCountDown(): Cancellable = {
-    context.system.scheduler.scheduleOnce(15.second, self, Timeout)
+    context.system.scheduler.scheduleOnce(CountDown.value, self, Timeout)
   }
 
   override def postStop(): Unit = {
