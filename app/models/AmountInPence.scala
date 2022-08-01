@@ -42,10 +42,10 @@ object AmountInPence {
   def apply(str: String): AmountInPence = {
     str match {
       case s if s.isEmpty => AmountInPence(0)
-      case s              => AmountInPence(BigDecimal(s).longValue() * 100)
+      case s              => AmountInPence((BigDecimal(s.replace(",", "")).doubleValue() * 100).round)
     }
   }
-  def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence(bigDecimal.longValue() * 100)
+  def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence((bigDecimal.doubleValue() * 100).round)
 
   def fromScpAmount(str: String): AmountInPence = {
     str match {

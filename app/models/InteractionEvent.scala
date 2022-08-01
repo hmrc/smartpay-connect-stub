@@ -39,6 +39,9 @@ object InteractionEvent {
       case "processing"        => Processing
       case "use_chip_reinsert" => UseChipReinsert
       case "use_another_card"  => UseAnotherCard
+      case "started"           => StartedEvent
+      case "failed_retry"      => FailedRetry
+      case "fallforward"       => Fallforward
       case x                   => throw new RuntimeException(s"Unknown InteractionEvent: $x")
     }
   }
@@ -51,5 +54,8 @@ object InteractionEvents extends Enum[InteractionEvent] {
   final case object Processing extends InteractionEvent { override def toString: String = "processing" }
   final case object UseChipReinsert extends InteractionEvent { override def toString: String = "use_chip_reinsert" }
   final case object UseAnotherCard extends InteractionEvent { override def toString: String = "use_another_card" }
+  final case object StartedEvent extends InteractionEvent { override def toString: String = "started" }
+  final case object FailedRetry extends InteractionEvent { override def toString: String = "failed_retry" }
+  final case object Fallforward extends InteractionEvent { override def toString: String = "fallforward" }
   override def values: immutable.IndexedSeq[InteractionEvent] = findValues
 }

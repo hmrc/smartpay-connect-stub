@@ -23,6 +23,4 @@ final case class TransactionReference(value: String)
 
 object TransactionReference {
   implicit val format: Format[TransactionReference] = implicitly[Format[String]].inmap(TransactionReference(_), _.value)
-  val Uk = Country("826")
-  val US = Country("840")
 }

@@ -16,12 +16,17 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import akka.actor.Actor.Receive
 
-final case class MerchantNumber(value: String) {
-  def receiptValue: String = value.replaceAll(".(?=.{4})", "*")
-}
+case class SpcFlow(
+                     paymentCard: PaymentCard,
+                     paymentResult: PaymentResult,
+                     receiptNodeName: ReceiptTypeName,
+                     transactionResult: TranResult,
+                     cardVerificationMethod: CardVerificationMethod,
+                     transactionSource: TransactionSource,
+                     displayMessagesValidation: Seq[(InteractionEvent,InteractionPrompt)],
+                     displayMessagesAuthentication: Seq[(InteractionEvent,InteractionPrompt)]
+                   )
 
-object MerchantNumber {
-  implicit val format: OFormat[MerchantNumber] = Json.format[MerchantNumber]
-}
+
