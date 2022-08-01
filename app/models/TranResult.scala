@@ -22,13 +22,13 @@ import utils.EnumFormat
 
 import scala.collection.immutable
 
-sealed trait Result extends EnumEntry
+sealed trait TranResult extends EnumEntry
 
-object Result {
-  import Results._
-  implicit val format: Format[Result] = EnumFormat(Results)
+object TranResult {
+  import TranResults._
+  implicit val format: Format[TranResult] = EnumFormat(TranResults)
 
-  def apply(result: String): Result = {
+  def apply(result: String): TranResult = {
     result match {
       case "success" => SuccessResult
       case "failure" => FailureResult
@@ -37,9 +37,9 @@ object Result {
   }
 }
 
-object Results extends Enum[Result] {
-  final case object SuccessResult extends Result { override def toString: String = "success" }
-  final case object FailureResult extends Result { override def toString: String = "failure" }
+object TranResults extends Enum[TranResult] {
+  final case object SuccessResult extends TranResult { override def toString: String = "success" }
+  final case object FailureResult extends TranResult { override def toString: String = "failure" }
 
-  override def values: immutable.IndexedSeq[Result] = findValues
+  override def values: immutable.IndexedSeq[TranResult] = findValues
 }

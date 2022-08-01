@@ -20,6 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class CardPan(value: String) {
   def receiptValue: String = value.replaceAll(".(?=.{4})", "*")
+  def maskedValue: String = "*** Data Removed for Security ***"
 }
 
 object CardPan {

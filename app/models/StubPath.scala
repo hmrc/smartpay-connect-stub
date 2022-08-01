@@ -35,19 +35,60 @@ object StubPath {
 
   def apply(value: String): StubPath = {
     value match {
-      case "success_icc" => SuccessIcc
-      case "card_declined_icc"   => CardDeclinedIcc
-      case "cancelled_ped_icc" => CancelledOnPedIcc
-      case "incorrect_pin_icc" => IncorrectPinIcc
+      case "success_chip_and_pin" => SuccessChipAndPin
+      case "success_chip_and_pin_multi_card" => SuccessChipAndPinMulti
+
+
+      case "success_no_verification" => SuccessNoVerification
+//      case "success_contactless_EMV" => SuccessContactlessEMV
+//      case "success_no_verification_pre_auth2" => SuccessNoVerificationPreAuth2
+//      case "success_contactless_EMV3" => SuccessContactlessEMV3
+
+      case "declined_no_verification_no_authorisation" => DeclinedNotAuthorisedNotVerified
+      case "declined_no_verification_no_authorisation2" => DeclinedNotAuthorisedNotVerified2
+      case "declined_invalid_card" => DeclinedInvalidCard
+      case "declined_invalid_card2" => DeclinedInvalidCard2
+
+      case "declined_validation_failed" => DeclinedValidationFailed
+
+
+//      case "card_declined_icc"   => CardDeclinedIcc
+//      case "cancelled_ped_icc" => CancelledOnPedIcc
+//      case "incorrect_pin_icc" => IncorrectPinIcc
       case x             => throw new RuntimeException(s"Unknown StubPath: $x")
     }
   }
 }
 
 object StubPaths extends Enum[StubPath] {
-  final case object SuccessIcc extends StubPath { val value = "success_icc"; val description = "Chip&Pin success path with surcharge accepted" }
-  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
-  final case object CancelledOnPedIcc extends StubPath { val value =  "cancelled_ped_icc" ; val description = "Chip&Pin path with transaction cancelled by user on ped"}
-  final case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
+  final case object SuccessChipAndPin extends StubPath { val value = "success_chip_and_pin"; val description = "Success chip & pin with all data on receipt" }
+  final case object SuccessChipAndPinMulti extends StubPath { val value = "success_chip_and_pin_multi_card"; val description = "Success chip & pin with no sequenceNumber on receipt" }
+
+  //FlowType1
+  final case object SuccessNoVerification extends StubPath { val value = "success_no_verification"; val description = "Success no verification card with all data on receipt" }
+  //FlowType8, ReceiptType 5
+//  final case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
+//  //FlowType8, ReceiptType 5
+//  final case object SuccessNoVerificationPreAuth2 extends StubPath { val value = "success_no_verification_pre_auth2"; val description = "Success no chip & pin card with no authCode, startDate on receipt" }
+//  //FlowType4, ReceiptType 8
+//  final case object SuccessContactlessEMV3 extends StubPath { val value = "success_contactless_EMV3"; val description = "Success contactlessEMV card with availableSpent additionally on receipt" }
+
+  //FlowType5 ReceiptType3
+  final case object DeclinedNotAuthorisedNotVerified extends StubPath { val value =  "declined_no_verification_no_authorisation" ; val description = "Declined/Not Authorised for chip & pin card with authCode missing on receipt"}
+  final case object DeclinedNotAuthorisedNotVerified2 extends StubPath { val value =  "declined_no_verification_no_authorisation2" ; val description = "Declined/Not Authorised for chip & pin card with authCode and startDate missing on receipt"}
+
+
+  //FlowType7 ReceiptType4
+  final case object DeclinedInvalidCard extends StubPath { val value =  "declined_invalid_card" ; val description = "Declined/Not Authorised invalid card with terminalId missing on receipt"}
+  //FlowType7 ReceiptType9
+  final case object DeclinedInvalidCard2 extends StubPath { val value =  "declined_invalid_card2" ; val description = "Declined/Not Authorised invalid card with authCode, terminalId, seqNumber missing on receipt"}
+
+
+  final case object DeclinedValidationFailed extends StubPath { val value =  "declined_validation_failed" ; val description = "*Declined/No Validation with availableSpent and startDate missing on receipt"}
+
+
+//  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
+//  final case object CancelledOnPedIcc extends StubPath { val value =  "cancelled_ped_icc" ; val description = "Chip&Pin path with transaction cancelled by user on ped"}
+//  final case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
   override def values: immutable.IndexedSeq[StubPath] = findValues
 }

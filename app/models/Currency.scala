@@ -26,4 +26,5 @@ object Currency {
   implicit val format: Format[Currency] = implicitly[Format[String]].inmap(Currency(_), _.value)
   val Gbp = Currency("826")
   val Usd = Currency("840")
+  val Eur = Currency("978")
 }

@@ -37,7 +37,7 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Op
   extends Actor with Stash {
   import SpcParentActor._
 
-  val defaultPath = StubPaths.SuccessIcc
+  val defaultPath = StubPaths.SuccessNoVerification
   implicit val ec = context.dispatcher
 
   override def preStart(): Unit = {

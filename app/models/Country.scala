@@ -26,4 +26,5 @@ object Country {
   implicit val format: Format[Country] = implicitly[Format[String]].inmap(Country(_), _.value)
   val Uk = Country("826")
   val US = Country("840")
+  val Bel = Country("056")
 }

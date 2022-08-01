@@ -16,11 +16,12 @@
 
 package models
 
-case class ScpState(
+case class SubmittedData(
                      totalAmount: AmountInPence,
-                     paymentCard: PaymentCard,
-                     finalAmount:Option[AmountInPence],
                      country: Country,
                      currency: Currency,
-                     source: TransactionSource
-                   )
+                     transactionNumber: TransactionId,
+                     transactionDateTime:Long
+                 )
+
+

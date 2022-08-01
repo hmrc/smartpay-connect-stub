@@ -20,9 +20,10 @@ import play.api.libs.json.Format
 import play.api.libs.functional.syntax._
 
 
-final case class CardType(value: String)
+final case class CardSchema(value: String)
 
-object CardType {
-  implicit val format: Format[CardType] = implicitly[Format[String]].inmap(CardType(_), _.value)
-  val VisaCredit = CardType("Visa Credit")
+object CardSchema {
+  implicit val format: Format[CardSchema] = implicitly[Format[String]].inmap(CardSchema(_), _.value)
+  val VisaCredit = CardSchema("Visa Credit")
+  val MasterDebit = CardSchema("Mastercard Debit")
 }

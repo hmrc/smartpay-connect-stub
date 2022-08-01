@@ -16,15 +16,6 @@
 
 package actors
 
-import akka.actor.{Actor, ActorRef, Cancellable, Props}
-import models.InteractionCategories.{CardReader, OnlineCategory}
-import models.InteractionEvents.{EventSuccess, InProgress, Processing, UseChip}
-import models.InteractionPrompts.{ConnectingToAcquirer, InsertCard, ProcessingTransaction}
-import models.Results.SuccessResult
-import models._
-import play.api.Logger
-
-import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 
 object CountDown {
