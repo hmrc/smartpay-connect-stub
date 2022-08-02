@@ -37,7 +37,7 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Op
   extends Actor with Stash {
   import SpcParentActor._
 
-  val defaultPath = StubPaths.SuccessNoVerification
+  val defaultPath = StubPaths.SuccessChipAndPin
   implicit val ec = context.dispatcher
 
   override def preStart(): Unit = {
@@ -59,7 +59,8 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Op
       val stubPathF = mayBeDeviceId match {
           case Some(deviceId) => repository.find("_id" -> deviceId).map(_.headOption).map{x =>
             x.getOrElse(defaultPath) }
-          case None => Future.successful(defaultPath)
+          case None => repository.find().map(_.headOption).map{x =>
+            x.getOrElse(defaultPath) }
         }
       stubPathF.pipeTo(self)
       context.become(waitForStubPath())
