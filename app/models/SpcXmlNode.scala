@@ -115,7 +115,7 @@ final case class PtrTransactionNode(amountNode: AmountNode,
         <TERMINAL_RESULT>XXXXXXXXX</TERMINAL_RESULT>
         <UNPREDICTABLE_NUM>XXXXXXX</UNPREDICTABLE_NUM>
         <CRYPTO_TRANSTYPE>XX</CRYPTO_TRANSTYPE>
-        { amountNode }
+        { amountNode.toXml }
       </TRANSACTION>
   }
 }
@@ -183,6 +183,7 @@ trait ReceiptNode {
 
   val spcFlow:                SpcFlow
   val submittedData:          SubmittedData
+  val totalAmount:            AmountInPence
   val finalAmount:            Option[AmountInPence]
 
 
@@ -194,7 +195,7 @@ trait ReceiptNode {
   def maybeAuthCode:          Option[String] = Some(StubUtil.AUTH_CODE)
   def maybeAvailableSpend:    Option[AmountInPence] = spcFlow.paymentCard.availableSpend
   def maybePanSequence:       Option[String] = Some(spcFlow.paymentCard.seqNum)
-  def maybePanStartDate:      Option[String] = Some(spcFlow.paymentCard.startDate)
+  def maybePanStartDate:      Option[String] = Some(spcFlow.paymentCard.receiptStart)
 
   val name:String = "ReceiptNode"
 
@@ -202,14 +203,14 @@ trait ReceiptNode {
     <RECEIPT>
       <APPLICATION_ID>{ StubUtil.APPLICATION_ID }</APPLICATION_ID>
       <CARD_SCHEME>{ spcFlow.paymentCard.cardSchema.value }</CARD_SCHEME>
-      <CURRENCY_CODE>{ submittedData.currency.value }</CURRENCY_CODE>
+      <CURRENCY_CODE>{ submittedData.currency.toThreeLetterIcoCode }</CURRENCY_CODE>
       <CUSTOMER_PRESENCE>{ CustomerPresence.present.toString }</CUSTOMER_PRESENCE>
-      <FINAL_AMOUNT>{ finalAmount.getOrElse(submittedData.totalAmount).value }</FINAL_AMOUNT>
+      <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
       <MERCHANT_NUMBER>{StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
       <PAN_NUMBER>{ getPanNumber }</PAN_NUMBER>
       <PAN_EXPIRY>{getEndDate }</PAN_EXPIRY>
       <TOKEN>XXXXXXXXXXXXXXXXX</TOKEN>
-      <TOTAL_AMOUNT>{ submittedData.totalAmount.value }</TOTAL_AMOUNT>
+      <TOTAL_AMOUNT>{ totalAmount.formatInDecimal }</TOTAL_AMOUNT>
       <TRANSACTION_DATA_SOURCE>{ TransactionSources.Icc }</TRANSACTION_DATA_SOURCE>
       <TRANSACTION_DATE>{ StubUtil.formatReceiptDate(transactionDatetime) }</TRANSACTION_DATE>
       <TRANSACTION_NUMBER>{ submittedData.transactionNumber.value }</TRANSACTION_NUMBER>
@@ -276,17 +277,17 @@ object ReceiptTypeName {
 
 object ReceiptNode {
   import ReceiptTypeName._
-  def createReceiptNode(submittedData: SubmittedData, spcFlow: SpcFlow, finalAmount: Option[AmountInPence]):ReceiptNode = {
+  def createReceiptNode(submittedData: SubmittedData, spcFlow: SpcFlow, totalAmount: AmountInPence, finalAmount: Option[AmountInPence]):ReceiptNode = {
     spcFlow.receiptNodeName match {
-      case ReceiptType1Name => ReceiptType1Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType2Name => ReceiptType2Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType3Name => ReceiptType3Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType4Name => ReceiptType4Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType5Name => ReceiptType5Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType6Name => ReceiptType6Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType7Name => ReceiptType7Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType8Name => ReceiptType8Node(spcFlow, submittedData, finalAmount)
-      case ReceiptType9Name => ReceiptType9Node(spcFlow, submittedData, finalAmount)
+      case ReceiptType1Name => ReceiptType1Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType2Name => ReceiptType2Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType3Name => ReceiptType3Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType4Name => ReceiptType4Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType5Name => ReceiptType5Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType6Name => ReceiptType6Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType7Name => ReceiptType7Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType8Name => ReceiptType8Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType9Name => ReceiptType9Node(spcFlow, submittedData, totalAmount, finalAmount)
     }
   }
 
@@ -295,6 +296,7 @@ object ReceiptNode {
 final case class ReceiptType1Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                             ) extends ReceiptNode with SpcXmlNode {
   override val maybeAvailableSpend: Option[AmountInPence] = None
@@ -303,6 +305,7 @@ final case class ReceiptType1Node(
 final case class ReceiptType2Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode {
   override val maybeAvailableSpend: Option[AmountInPence] = None
@@ -312,6 +315,7 @@ final case class ReceiptType2Node(
 final case class ReceiptType3Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
   override val maybeAuthCode: Option[String] = None
@@ -321,6 +325,7 @@ final case class ReceiptType3Node(
 final case class ReceiptType4Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
   override val maybeAuthCode: Option[String] = None
@@ -331,6 +336,7 @@ final case class ReceiptType4Node(
 final case class ReceiptType5Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
   override val maybePanStartDate: Option[String] = None
@@ -339,6 +345,7 @@ final case class ReceiptType5Node(
 final case class ReceiptType6Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
   override val maybeAuthCode: Option[String] = None
@@ -348,6 +355,7 @@ final case class ReceiptType6Node(
 final case class ReceiptType7Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
   override val maybeAuthCode: Option[String] = None
@@ -359,6 +367,7 @@ final case class ReceiptType7Node(
 final case class ReceiptType8Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode {
   override val maybePanSequence: Option[String] = None
@@ -368,6 +377,7 @@ final case class ReceiptType8Node(
 final case class ReceiptType9Node(
                                    spcFlow: SpcFlow,
                                    submittedData: SubmittedData,
+                                   totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode {
   override val maybePanSequence: Option[String] = None
@@ -379,6 +389,7 @@ final case class ReceiptType9Node(
 final case class ReceiptMerchantNode(
                                       spcFlow: SpcFlow,
                                       submittedData: SubmittedData,
+                                      totalAmount: AmountInPence,
                                       finalAmount: Option[AmountInPence]
                                  ) extends SpcXmlNode with ReceiptNode  {
 

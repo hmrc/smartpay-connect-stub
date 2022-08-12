@@ -20,7 +20,14 @@ import play.api.libs.json.Format
 import play.api.libs.functional.syntax._
 
 
-final case class Currency(value: String)
+final case class Currency(value: String) {
+  def toThreeLetterIcoCode = value match{
+    case "826" => "GBP"
+    case "840" => "USD"
+    case "978" => "EUR"
+    case x => x
+  }
+}
 
 object Currency {
   implicit val format: Format[Currency] = implicitly[Format[String]].inmap(Currency(_), _.value)

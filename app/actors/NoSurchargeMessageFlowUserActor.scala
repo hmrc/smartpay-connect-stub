@@ -128,7 +128,7 @@ class NoSurchargeMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
       }
 
       //PosPrintReceipt client
-      val merchantReceiptNode = ReceiptMerchantNode(spcFlow, submittedData, None)
+      val merchantReceiptNode = ReceiptMerchantNode(spcFlow, submittedData, submittedData.totalAmount, None)
       val posPrintReceipt = PosPrintReceipt(HeaderNode(), processTransaction.messageNode, merchantReceiptNode, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
       
@@ -142,7 +142,7 @@ class NoSurchargeMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
 
 
       //PosPrintReceipt client
-      val clientReceiptNode = ReceiptNode.createReceiptNode(submittedData, spcFlow, finalAmount)
+      val clientReceiptNode = ReceiptNode.createReceiptNode(submittedData, spcFlow, submittedData.totalAmount,finalAmount)
 
       val posPrintReceipt = PosPrintReceipt(HeaderNode(), posPrintReceiptResponse.messageNode, clientReceiptNode, SuccessResult,ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,posPrintReceipt)
