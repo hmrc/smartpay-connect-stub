@@ -18,6 +18,7 @@ package models
 
 import models.SpcXmlHelper._
 import play.api.libs.json._
+import utils.RandomDataGenerator
 
 import scala.xml.{Node, PCData}
 
@@ -104,7 +105,7 @@ final case class PtrTransactionNode(amountNode: AmountNode,
                                     transactionDate:String,
                                     transactionTime: String) extends SpcXmlNode {
   def toXml: Node = {
-      <TRANSACTION action={TransactionActions.AuthorizeAndSettle.toString}  type={TransactionTypes.Purchase.toString} source={transactionSource.toString} customer={TransactionCustomers.Present.toString} reference={StubUtil.TRANSACTION_REFERENCE.value} date={ transactionDate } time= {transactionTime}>
+      <TRANSACTION action={TransactionActions.AuthorizeAndSettle.toString}  type={TransactionTypes.Purchase.toString} source={transactionSource.toString} customer={TransactionCustomers.Present.toString} reference={RandomDataGenerator.generateTransactionReference.value} date={ transactionDate } time= {transactionTime}>
         <SCHEME_REF>XXXXXXXXXXXXXXXX</SCHEME_REF>
         <AUTH_CODE>{ StubUtil.AUTH_CODE }</AUTH_CODE>
         <CARDHOLDER_RESULT verification={ verification.toString }>XXXXXX</CARDHOLDER_RESULT>
