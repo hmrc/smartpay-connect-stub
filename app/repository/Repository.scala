@@ -16,36 +16,61 @@
 
 package repository
 
+import org.bson.codecs.Codec
+import org.bson.json.JsonObject
+import org.mongodb.scala.model.{Filters, IndexModel, ReplaceOptions}
+import org.mongodb.scala.result
+import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json._
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.UpdateWriteResult
-import uk.gov.hmrc.mongo.ReactiveRepository
+import repository.Repo.Id
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class Repository[A, ID](
-                            collectionName:         String,
-                            reactiveMongoComponent: ReactiveMongoComponent)
-                          (implicit domainFormat: OFormat[A],
-                           idFormat:         Format[ID],
-                           executionContext: ExecutionContext)
-  extends ReactiveRepository[A, ID](
-    collectionName,
-    reactiveMongoComponent.mongoConnector.db,
-    domainFormat,
-    idFormat) {
-
-  implicit val f: OWrites[JsObject] = new OWrites[JsObject] {
-    override def writes(o: JsObject): JsObject = o
-  }
+abstract class Repo[ID <: Id, A](
+                                               collectionName: String,
+                                               mongoComponent: MongoComponent,
+                                               indexes:        Seq[IndexModel],
+                                               extraCodecs:    Seq[Codec[_]],
+                                               replaceIndexes: Boolean         = false
+                                             )(implicit manifest: Manifest[A],
+                                               domainFormat:     OFormat[A],
+                                               executionContext: ExecutionContext
+                                             )
+  extends PlayMongoRepository[A](
+    mongoComponent = mongoComponent,
+    collectionName = collectionName,
+    domainFormat   = domainFormat,
+    indexes        = indexes,
+    replaceIndexes = replaceIndexes,
+    extraCodecs    = extraCodecs
+  ) {
 
   /**
-   * Update or Insert (UpSert)
+   * Update or Insert (UpSert) element `a` identified by `id`
    */
-  def upsert(id: ID, a: A): Future[UpdateWriteResult] = collection.update(ordered = false).one(
-    _id(id),
-    a,
-    upsert = true
-  )
+  def upsert(id: ID, a: A): Future[result.UpdateResult] = collection
+    .replaceOne(
+      filter      = Filters.eq("_id", id.value),
+      replacement = a,
+      options     = ReplaceOptions().upsert(true)
+    )
+    .toFuture()
+
+  def find(query: (String, JsValueWrapper)*): Future[List[A]] = collection
+    .find(
+      filter = new JsonObject(Json.obj(query: _*).toString())
+    )
+    .toFuture()
+    .map(_.toList)
+
 }
+
+object Repo {
+  trait Id {
+    def value: String
+  }
+}
+
 

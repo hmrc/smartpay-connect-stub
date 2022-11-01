@@ -9,7 +9,7 @@ object AppDependencies {
     "uk.gov.hmrc"           %% "bootstrap-frontend-play-28"   % "5.18.0",
     "uk.gov.hmrc"           %% "play-frontend-hmrc"           % "0.83.0-play-28",
     "uk.gov.hmrc"           %% "play-language"                % "5.1.0-play-28",
-    "uk.gov.hmrc"           %% "simple-reactivemongo"         % "8.0.0-play-28",
+    "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-28"           % "0.73.0",
     "org.julienrf"          %% "play-json-derived-codecs"     % "6.0.0",
   )
 

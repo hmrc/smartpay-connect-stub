@@ -18,8 +18,9 @@ package models
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import repository.Repo.Id
 
-final case class DeviceId(value: String)
+final case class DeviceId(value: String) extends Id
 
 object DeviceId {
   implicit val format: Format[DeviceId] = implicitly[Format[String]].inmap(DeviceId(_), _.value)
