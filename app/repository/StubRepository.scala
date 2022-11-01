@@ -17,28 +17,38 @@
 package repository
 
 import models.{DeviceId, StubPath}
+import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
+import uk.gov.hmrc.mongo.MongoComponent
 
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes._
-import reactivemongo.bson.BSONDocument
-
 import scala.concurrent.ExecutionContext
-import models.StubPath._
 
-@Singleton
-final class StubRepository @Inject() (reactiveMongoComponent: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-  extends Repository[StubPath, DeviceId]("smartpay-connect-stub", reactiveMongoComponent){
 
-  override def indexes: Seq[Index] = Seq(
-    Index(
-      key     = Seq("created" -> IndexType.Ascending),
-      name    = Some("createdIdx"),
-      options = BSONDocument("expireAfterSeconds" -> 600)
+object StubRepository {
+  def indexes: Seq[IndexModel] = Seq(
+    IndexModel(
+      keys         = Indexes.ascending("created"),
+      indexOptions = IndexOptions().expireAfter(600, TimeUnit.SECONDS).name("createdIdx")
     ),
-    Index(
-      key  = Seq(DeviceId.headerName -> IndexType.Ascending),
-      name = Some(DeviceId.headerName)
+    IndexModel(
+      keys         = Indexes.ascending(DeviceId.headerName),
+      indexOptions = IndexOptions().name(DeviceId.headerName)
     )
   )
 }
+
+
+@Singleton
+final class StubRepository @Inject() (
+                                       mongoComponent: MongoComponent
+                                      )(implicit ec: ExecutionContext)
+  extends Repo[DeviceId, StubPath](
+    collectionName = "smartpay-connect-stub",
+    mongoComponent = mongoComponent,
+    indexes        = StubRepository.indexes,
+    extraCodecs    = Seq.empty,
+    replaceIndexes = true
+  ) {
+}
+
