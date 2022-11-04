@@ -19,6 +19,7 @@ package repository
 import models.{DeviceId, StubPath}
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.Codecs
 
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
@@ -47,7 +48,7 @@ final class StubRepository @Inject() (
     collectionName = "smartpay-connect-stub",
     mongoComponent = mongoComponent,
     indexes        = StubRepository.indexes,
-    extraCodecs    = Seq.empty,
+    extraCodecs    = Codecs.playFormatSumCodecs(StubPath.oformat),
     replaceIndexes = true
   ) {
 }
