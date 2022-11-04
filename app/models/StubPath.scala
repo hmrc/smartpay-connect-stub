@@ -30,7 +30,7 @@ sealed trait StubPath extends EnumEntry {
 
 object StubPath {
   import StubPaths._
-  implicit val format: Format[StubPath] = EnumFormat(StubPaths)
+  val format: Format[StubPath] = EnumFormat(StubPaths)
   implicit val oformat: OFormat[StubPath] = JsonUtil.oFormat(format)
 
   def apply(value: String): StubPath = {
