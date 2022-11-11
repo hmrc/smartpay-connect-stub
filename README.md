@@ -14,15 +14,29 @@ At the moment only Development and Staging are configured to connect to this stu
 
 # Architecture
 
-_smartpay-connect-stub_ is a client to a _browser_ running a page served from _face-to-face-frontend_.
+A _browser_ get the page from _face-to-face-frontend_. This page runs javascript which calls a websocket on the stubs: 
 
 ```mermaid
 graph TD
-F2F(face-to-face-frontend) <-->|websocket| A(Browser)
-A(Browser) <-->|websocket| B[smartpay-connect-proxy]
-B <-->|Tcp socket| C(smartpay-connect)
+A(Browser) -->|GET page with javascript| F2F(face-to-face-frontend) 
+A <-->|websocket| B[smartpay-connect-stub]
 ```
 
+The sequence diagram:
+
+```mermaid
+sequenceDiagram
+participant B as Browser
+participant SPCS as smartpay-connect-stub
+
+    B->>SPCS: open websocket connection
+    SPCS-->>B: opened
+
+    B->>SPCS: send message
+    SPCS->>B: receive messages (1-n)
+    SPCS-->>B: close connection
+
+```
 # How to run
 
 ## Using sbt
