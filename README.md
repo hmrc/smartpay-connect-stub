@@ -8,7 +8,9 @@ The smartpay-connect-stub is a stub microservice used in F2F project. It emulate
 Unfortunatelu because this service exposes a websocket endpoint it can't be deployd to MDTP platform. MDTP doesn't support such technology.
 Therefore this service has to always run on developer's machine.
 
-It has to also run locally when testing F2F on integrated environment (like Development, QA or Staging).
+It has to also run locally when testing F2F on integrated environment (like Development, QA or Staging). 
+
+At the moment only Development and Staging are configured to connect to this stub. This is done in _face-to-face-frontend` microservice via setting `smartpayConnectUrl` [property](https://github.com/hmrc/face-to-face-frontend/blob/main/conf/application.conf#L119) pointing to production microservice or this stub.
 
 # How to run
 
