@@ -12,6 +12,17 @@ It has to also run locally when testing F2F on integrated environment (like Deve
 
 At the moment only Development and Staging are configured to connect to this stub. This is done in _face-to-face-frontend` microservice via setting `smartpayConnectUrl` [property](https://github.com/hmrc/face-to-face-frontend/blob/main/conf/application.conf#L119) pointing to production microservice or this stub.
 
+# Architecture
+
+_smartpay-connect-stub_ is a client to a _browser_ running a page served from _face-to-face-frontend_.
+
+```mermaid
+graph TD
+F2F(face-to-face-frontend) <-->|websocket| A(Browser)
+A(Browser) <-->|websocket| B[smartpay-connect-proxy]
+B <-->|Tcp socket| C(smartpay-connect)
+```
+
 # How to run
 
 ## Using sbt
