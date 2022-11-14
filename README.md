@@ -1,16 +1,16 @@
 
 # About
 
-The smartpay-connect-stub is a stub microservice used in F2F project. It emulates group of Barclaycard related systems involved in taking a card payment. Those are a _smartpay-connect-proxy_ and _smartpay-connect_ connected to the PED (Pin Enabled Device). This service emulates the user interaction with PED. Various scenarios can be choosen definint user behaveiour for successfull and faile payments. 
+The smartpay-connect-stub is a stub microservice used in F2F project. It emulates group of Barclaycard related systems involved in taking a card payment. Those are a _smartpay-connect-proxy_ and _smartpay-connect_ connected to the PED (Pin Enabled Device). This service emulates the user interaction with PED. Various scenarios can be choosen defining user behaviour for successfull and failed payments. 
 
 # Websockets and MDTP
 
-Unfortunatelu because this service exposes a websocket endpoint it can't be deployd to MDTP platform. MDTP doesn't support such technology.
+:shrug: Unfortunately because this service exposes a websocket endpoint it can't be deployd to MDTP platform. MDTP doesn't support such technology.
 Therefore this service has to always run on developer's machine.
 
-It has to also run locally when testing F2F on integrated environment (like Development, QA or Staging). 
+:exclamation: It has to also run locally when testing F2F on integrated environment (like Development, QA or Staging). 
 
-At the moment only Development and Staging are configured to connect to this stub. This is done in _face-to-face-frontend` microservice via setting `smartpayConnectUrl` [property](https://github.com/hmrc/face-to-face-frontend/blob/main/conf/application.conf#L119) pointing to production microservice or this stub.
+At the moment only Development and Staging are configured to connect to this stub. This is done in _face-to-face-frontend_ microservice via setting `smartpayConnectUrl` [property](https://github.com/hmrc/face-to-face-frontend/blob/main/conf/application.conf#L119) pointing to production microservice or this stub.
 
 # Architecture
 
@@ -71,6 +71,12 @@ This service supports various payment scenarions.
 
 The default scenario is 'success with chip@pin'.
 When you want to select a different path, you will need to set it each time by following the configuration steps above.
+
+# Other documentation
+* https://confluence.tools.tax.service.gov.uk/display/OPS/F2F+Payments
+* https://confluence.tools.tax.service.gov.uk/display/Payments/Face+to+Face+Payments
+* https://confluence.tools.tax.service.gov.uk/display/Payments/smartpay-connect-proxy
+* https://confluence.tools.tax.service.gov.uk/pages/viewpage.action?pageId=457442181
 
 ### License
 
