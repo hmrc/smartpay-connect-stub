@@ -81,6 +81,7 @@ object StubUtil {
   //That matching our test card
   val MasterDebit = PaymentCard(Currency.Eur, Country.Bel, "2025-12-01", "2004-01-01", "5457210089020012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))
   val VisaCredit =  PaymentCard(Currency.Usd, Country.Uk, "2025-12-01", "2004-01-01",  "4761730000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
+  val VisaCredit_BinCheckFail =  PaymentCard(Currency.Usd, Country.Uk, "2025-12-01", "2004-01-01",  "9999930000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
 
   def getCurrentDateTime: Long = new Date().getTime
   def formatReceiptDate(datetime:Long) = new SimpleDateFormat("dd/MM/yyyy").format( datetime)

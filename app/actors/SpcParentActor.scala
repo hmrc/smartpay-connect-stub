@@ -239,6 +239,30 @@ class SpcParentActor extends Actor {
             )
             context.actorOf(NoSurchargeMessageFlowUserActor.props(spcFlow),s"${transNum.value}")
 
+          case DeclinedBinCheckFailed =>
+            logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
+            val spcFlow:SpcFlow = SpcFlow(
+              paymentCard = StubUtil.VisaCredit_BinCheckFail,
+              paymentResult = PaymentResults.cancelled,
+              receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+              transactionResult = TranResults.SuccessResult,
+              cardVerificationMethod = CardVerificationMethod.pin,
+              transactionSource = TransactionSources.Icc,
+              displayMessagesValidation = Seq(
+                (InteractionEvents.Processing,InteractionPrompts.ProcessingTransaction),
+                (InteractionEvents.Processing,InteractionPrompts.ProcessingTransaction)
+              ),
+              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+//                Seq(
+//                (InteractionEvents.StartedEvent,InteractionPrompts.CustomerEnterPin),
+//                (InteractionEvents.EventSuccess,InteractionPrompts.ProcessingTransaction),
+//                (InteractionEvents.InProgress,InteractionPrompts.ConnectingToAcquirer),
+//                (InteractionEvents.EventSuccess,InteractionPrompts.ProcessingTransaction),
+//              )
+            )
+            context.actorOf(BinCheckCardDisacrtedFlowUserActor.props(spcFlow),s"${transNum.value}")
+
+
 //          case SuccessContactlessEMV3 =>
 //            logger.debug(s"Parent actor is going to create NoSurchargeMessageFlowUserActor for stubPath:$stubPath")
 //            val spcFlow:SpcFlow = SpcFlow(
