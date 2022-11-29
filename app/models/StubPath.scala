@@ -42,6 +42,7 @@ object StubPath {
       case "success_no_verification" => SuccessNoVerification
       case "success_empty_receipt" => SuccessEmptyReceipt
       case "success_broken_receipt" => SuccessBrokenReceipt
+      case "success_no_receipt" => SuccessNoReceipt
 //      case "success_contactless_EMV" => SuccessContactlessEMV
 //      case "success_no_verification_pre_auth2" => SuccessNoVerificationPreAuth2
 //      case "success_contactless_EMV3" => SuccessContactlessEMV3
@@ -72,6 +73,7 @@ object StubPaths extends Enum[StubPath] {
   final case object SuccessNoVerification extends StubPath { val value = "success_no_verification"; val description = "Success no verification card with all data on receipt" }
   final case object SuccessEmptyReceipt extends StubPath { val value = "success_empty_receipt"; val description = "Success chip & pin with empty receipt. (Not real example but F2F should handle that)" }
   final case object SuccessBrokenReceipt extends StubPath { val value = "success_broken_receipt"; val description = "Success chip & pin with broken receipt. (Not real example but F2F should handle that)" }
+  final case object SuccessNoReceipt extends StubPath { val value = "success_no_receipt"; val description = "Success chip & pin with no receipt." }
   //FlowType8, ReceiptType 5
 //  final case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
 //  //FlowType8, ReceiptType 5
