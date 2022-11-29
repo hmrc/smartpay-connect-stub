@@ -16,8 +16,6 @@
 
 package models
 
-import akka.actor.Actor.Receive
-
 case class SpcFlow(
                      paymentCard: PaymentCard,
                      paymentResult: PaymentResult,
@@ -29,4 +27,14 @@ case class SpcFlow(
                      displayMessagesAuthentication: Seq[(InteractionEvent,InteractionPrompt)]
                    )
 
+
+case class SpcFlowNoReceipt(
+                    paymentCard: PaymentCard,
+                    paymentResult: PaymentResult,
+                    transactionResult: TranResult,
+                    cardVerificationMethod: CardVerificationMethod,
+                    transactionSource: TransactionSource,
+                    displayMessagesValidation: Seq[(InteractionEvent,InteractionPrompt)],
+                    displayMessagesAuthentication: Seq[(InteractionEvent,InteractionPrompt)]
+                  )
 
