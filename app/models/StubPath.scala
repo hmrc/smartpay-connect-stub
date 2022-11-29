@@ -40,6 +40,8 @@ object StubPath {
 
 
       case "success_no_verification" => SuccessNoVerification
+      case "success_empty_receipt" => SuccessEmptyReceipt
+      case "success_broken_receipt" => SuccessBrokenReceipt
 //      case "success_contactless_EMV" => SuccessContactlessEMV
 //      case "success_no_verification_pre_auth2" => SuccessNoVerificationPreAuth2
 //      case "success_contactless_EMV3" => SuccessContactlessEMV3
@@ -51,6 +53,7 @@ object StubPath {
 
       case "declined_validation_failed" => DeclinedValidationFailed
       case "declined_bin_check_failed" => DeclinedBinCheckFailed
+      case "declined_no_receipt" => DeclinedNoReceipt
 
 
 //      case "card_declined_icc"   => CardDeclinedIcc
@@ -67,6 +70,8 @@ object StubPaths extends Enum[StubPath] {
 
   //FlowType1
   final case object SuccessNoVerification extends StubPath { val value = "success_no_verification"; val description = "Success no verification card with all data on receipt" }
+  final case object SuccessEmptyReceipt extends StubPath { val value = "success_empty_receipt"; val description = "Success chip & pin with empty receipt. (Not real example but F2F should handle that)" }
+  final case object SuccessBrokenReceipt extends StubPath { val value = "success_broken_receipt"; val description = "Success chip & pin with broken receipt. (Not real example but F2F should handle that)" }
   //FlowType8, ReceiptType 5
 //  final case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
 //  //FlowType8, ReceiptType 5
@@ -86,7 +91,8 @@ object StubPaths extends Enum[StubPath] {
 
 
   final case object DeclinedValidationFailed extends StubPath { val value =  "declined_validation_failed" ; val description = "*Declined/No Validation with availableSpent and startDate missing on receipt"}
-  final case object DeclinedBinCheckFailed extends StubPath { val value =  "declined_bin_check_failed" ; val description = "*Declined/Bin check failed"}
+  final case object DeclinedBinCheckFailed extends StubPath { val value =  "declined_bin_check_failed" ; val description = "Declined/Bin check failed"}
+  final case object DeclinedNoReceipt extends StubPath { val value = "declined_no_receipt"; val description = "Declined no receipt" }
 
 
 //  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}

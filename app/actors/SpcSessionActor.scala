@@ -16,14 +16,11 @@
 
 package actors
 
-import akka.actor.{Actor, ActorRef, Props}
-import play.api.Logger
+import akka.actor.{Actor, ActorRef, Props, Stash}
 import akka.pattern.pipe
-import akka.actor.Stash
 import models.{StubPath, StubPaths}
+import play.api.Logger
 import repository.StubRepository
-
-import scala.concurrent.Future
 
 /**
  * Session actor is only exists for duration of websocket connection.

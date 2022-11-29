@@ -179,8 +179,13 @@ final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNod
 }
 
 
-
 trait ReceiptNode {
+  def toXml: Node
+  def toXml(receiptType: ReceiptType): Node
+}
+
+
+trait ReceiptNotEmptyNode extends ReceiptNode{
 
   val spcFlow:                SpcFlow
   val submittedData:          SubmittedData
@@ -229,11 +234,11 @@ trait ReceiptNode {
 
   }
 
-  def toXml: Node = {
+  override def toXml: Node = {
     <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
   }
 
-  def toXml(receiptType: ReceiptType): Node = {
+  override def toXml(receiptType: ReceiptType): Node = {
     <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
   }
 
@@ -253,6 +258,75 @@ trait ReceiptNode {
   }
 
 }
+
+trait ReceiptEmptyNode extends ReceiptNode{
+  def receiptType:            ReceiptType = ReceiptTypes.CustomerReceipt
+  val name:String = "ReceiptEmptyNode"
+
+  def receiptToXml: Node = {
+    <RECEIPT/>
+  }
+
+  override def toXml: Node = {
+    <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+
+  override def toXml(receiptType: ReceiptType): Node = {
+    <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+}
+
+trait ReceiptBrokenNode extends ReceiptNode{
+
+  val spcFlow:                SpcFlow
+  val submittedData:          SubmittedData
+  val totalAmount:            AmountInPence
+  val finalAmount:            Option[AmountInPence]
+
+
+  def receiptType:            ReceiptType = ReceiptTypes.CustomerReceipt
+  def transactionDatetime:    Long = submittedData.transactionDateTime
+  def duplicate:              Boolean = true
+
+
+  val name:String = "ReceiptBrokenNode"
+
+  def receiptToXml: Node = {
+    <RECEIPT>
+      <APPLICATION_ID>{ StubUtil.APPLICATION_ID }</APPLICATION_ID>
+      <CURRENCY_CODE>{ submittedData.currency.toThreeLetterIcoCode }</CURRENCY_CODE>
+      <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
+      <MERCHANT_NUMBER>{StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
+      <PAN_NUMBER>{ getPanNumber }</PAN_NUMBER>
+      <TOTAL_AMOUNT>{ totalAmount.formatInDecimal }</TOTAL_AMOUNT>
+      <TRANSACTION_DATE>{ StubUtil.formatReceiptDate(transactionDatetime) }</TRANSACTION_DATE>
+      <TRANSACTION_NUMBER>{ submittedData.transactionNumber.value }</TRANSACTION_NUMBER>
+      <TRANSACTION_RESPONSE>{ spcFlow.paymentResult.toString }</TRANSACTION_RESPONSE>
+      <TRANSACTION_TYPE>{ TransactionTypes.Purchase.toString }</TRANSACTION_TYPE>
+    </RECEIPT>
+  }
+
+  override def toXml: Node = {
+    <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+
+  override def toXml(receiptType: ReceiptType): Node = {
+    <RECEIPT type={ receiptType.receiptType } format="xml">{ PCData(receiptToXml.toString()) }</RECEIPT>
+  }
+
+  def getPanNumber: String = receiptType match{
+    case _@ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptPan
+    case _ => spcFlow.paymentCard.receiptPanMasked
+  }
+
+  def getEndDate: String = receiptType match{
+    case _@ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptEnd
+    case _ => spcFlow.paymentCard.receiptEndMasked
+  }
+
+}
+
+
 
 sealed trait ReceiptTypeName
 
@@ -274,6 +348,10 @@ object ReceiptTypeName {
   case object ReceiptType8Name extends ReceiptTypeName
 
   case object ReceiptType9Name extends ReceiptTypeName
+
+  case object ReceiptTypeEmpty extends ReceiptTypeName
+
+  case object ReceiptTypeBroken extends ReceiptTypeName
 }
 
 object ReceiptNode {
@@ -289,6 +367,8 @@ object ReceiptNode {
       case ReceiptType7Name => ReceiptType7Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType8Name => ReceiptType8Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType9Name => ReceiptType9Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptTypeEmpty => ReceiptTypeEmptyNode()
+      case ReceiptTypeBroken => ReceiptTypeBrokenNode(spcFlow, submittedData, totalAmount, finalAmount)
     }
   }
 
@@ -299,7 +379,7 @@ final case class ReceiptType1Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                            ) extends ReceiptNode with SpcXmlNode {
+                            ) extends ReceiptNotEmptyNode with SpcXmlNode {
   override val maybeAvailableSpend: Option[AmountInPence] = None
 }
 
@@ -308,7 +388,7 @@ final case class ReceiptType2Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode {
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybePanSequence: Option[String] = None
 }
@@ -318,7 +398,7 @@ final case class ReceiptType3Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
   override val maybeAuthCode: Option[String] = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
 }
@@ -328,7 +408,7 @@ final case class ReceiptType4Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
   override val maybeAuthCode: Option[String] = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybeTerminalId: Option[String] = None
@@ -339,7 +419,7 @@ final case class ReceiptType5Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
   override val maybePanStartDate: Option[String] = None
 }
 
@@ -348,7 +428,7 @@ final case class ReceiptType6Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
   override val maybeAuthCode: Option[String] = None
   override val maybePanStartDate: Option[String] = None
   }
@@ -358,7 +438,7 @@ final case class ReceiptType7Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
   override val maybeAuthCode: Option[String] = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybePanStartDate: Option[String] = None
@@ -370,7 +450,7 @@ final case class ReceiptType8Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode {
   override val maybePanSequence: Option[String] = None
   override val maybePanStartDate: Option[String] = None
 }
@@ -380,19 +460,28 @@ final case class ReceiptType9Node(
                                    submittedData: SubmittedData,
                                    totalAmount: AmountInPence,
                                    finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode {
   override val maybePanSequence: Option[String] = None
   override val maybeTerminalId: Option[String] = None
   override val maybeAuthCode: Option[String] = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
 }
 
+final case class ReceiptTypeEmptyNode() extends SpcXmlNode with ReceiptEmptyNode
+
+final case class ReceiptTypeBrokenNode(
+                                         spcFlow: SpcFlow,
+                                         submittedData: SubmittedData,
+                                         totalAmount: AmountInPence,
+                                         finalAmount: Option[AmountInPence]
+                                       ) extends SpcXmlNode with ReceiptBrokenNode
+
 final case class ReceiptMerchantNode(
                                       spcFlow: SpcFlow,
                                       submittedData: SubmittedData,
                                       totalAmount: AmountInPence,
                                       finalAmount: Option[AmountInPence]
-                                 ) extends SpcXmlNode with ReceiptNode  {
+                                 ) extends SpcXmlNode with ReceiptNotEmptyNode  {
 
   override val receiptType: ReceiptType = ReceiptTypes.MerchantReceipt
   override val maybeAuthCode: Option[String] = None

@@ -23,19 +23,11 @@ import models._
 import play.api.Logger
 
 import scala.concurrent.ExecutionContextExecutor
-
-/**
-* Scp - Smart Pay Connect  - class that hold actor/payment state data
-* @param totalAmount  tax amount to be payed with transaction
-* @param finalAmount  totalAmount plus card/transaction fee(s)
-*/
-
-object StandardMessageFlowUserActor {
-  def props(spcFlow:SpcFlow):Props = Props(new StandardMessageFlowUserActor(spcFlow))
+object NoReceiptMessageFlowUserActor {
+  def props(spcFlowNoReceipt:SpcFlowNoReceipt):Props = Props(new NoReceiptMessageFlowUserActor(spcFlowNoReceipt))
 }
 
-
-class StandardMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
+class NoReceiptMessageFlowUserActor(spcFlowNoReceipt:SpcFlowNoReceipt) extends Actor {
   import SpcParentActor._
 
   var schedule:Cancellable = startCountDown()
@@ -126,7 +118,7 @@ class StandardMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
       logger.debug(s"User Actor $self got SpcMessage processTransaction message $processTransaction")
 
       //Display sequence - card validation
-      spcFlow.displayMessagesValidation.foreach{
+      spcFlowNoReceipt.displayMessagesValidation.foreach{
         case (interactionEvents, interactionPrompt) =>
           val interactionNode = InteractionNode(category = CardReader, event = interactionEvents, prompt = interactionPrompt)
           val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(),processTransaction.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
@@ -136,7 +128,7 @@ class StandardMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
       //UpdatePaymentEnhanced
       val amountNode = AmountNode(submittedData.totalAmount,submittedData.currency, submittedData.country, None)
       val transactionNode = TransactionNode(amountNode = amountNode)
-      val cardNode = UpeCardNode(spcFlow.paymentCard)
+      val cardNode = UpeCardNode(spcFlowNoReceipt.paymentCard)
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,updatePaymentEnhanced)
 
@@ -151,62 +143,32 @@ class StandardMessageFlowUserActor(spcFlow:SpcFlow) extends Actor {
       val totalAmount = updatePaymentEnhancedResponse.amountNode.totalAmount
 
       //Display sequence - card Authentication
-      spcFlow.displayMessagesAuthentication.foreach{
+      spcFlowNoReceipt.displayMessagesAuthentication.foreach{
         case (interactionEvents, interactionPrompt) =>
           val interactionNode = InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
           val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(),updatePaymentEnhancedResponse.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
           sendScpReplyMessage(out,posDisplayMessageInsertCard)
       }
 
-      //PosPrintReceipt client
-      val merchantReceiptNode = ReceiptMerchantNode(spcFlow, submittedData, totalAmount, finalAmount)
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, merchantReceiptNode, SuccessResult,ErrorsNode(Seq.empty))
-      sendScpReplyMessage(out,posPrintReceipt)
-
-      context.become(handlePosPrintReceiptResponse(submittedData, totalAmount, finalAmount, merchantReceiptNode ) orElse handleScpMessages)
-      context.stop(session)
-  }
-
-  def handlePosPrintReceiptResponse(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode:ReceiptNode): Receive = {
-    case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
-      logger.debug(s"User Actor $self got SpcMessage posPrintReceiptResponse message $posPrintReceiptResponse")
-
-
-      //PosPrintReceipt client
-      val clientReceiptNode = ReceiptNode.createReceiptNode(submittedData, spcFlow, totalAmount, finalAmount)
-
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), posPrintReceiptResponse.messageNode, clientReceiptNode, SuccessResult,ErrorsNode(Seq.empty))
-      sendScpReplyMessage(out,posPrintReceipt)
-
-      context.become(handlePosPrintReceiptResponseWithPtr(submittedData, totalAmount, finalAmount, merchantReceiptNode, clientReceiptNode ) orElse handleScpMessages)
-      context.stop(session)
-
-  }
-
-
-  def handlePosPrintReceiptResponseWithPtr(submittedData: SubmittedData,  totalAmount: AmountInPence,finalAmount: Option[AmountInPence], merchantReceiptNode:ReceiptNode, clientReceiptNode:ReceiptNode): Receive = {
-    case SpcWSMessage(out,session,posPrintReceiptResponse: PosPrintReceiptResponse) =>
-      logger.debug(s"User Actor $self got SpcMessage posPrintReceiptResponse message $posPrintReceiptResponse")
-
       //processTransactionResponse
       val amountNode = AmountNode(totalAmount, submittedData.currency, submittedData.country, finalAmount)
 
       val ptrTransactionNode = PtrTransactionNode(
         amountNode = amountNode,
-        verification = spcFlow.cardVerificationMethod,
+        verification = spcFlowNoReceipt.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
         transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+      val cardNode = PtrResponseCardNode(spcFlowNoReceipt.paymentCard)
 
       val processTransactionResponse = ProcessTransactionResponse(
         headerNode = HeaderNode(),
-        messageNode = posPrintReceiptResponse.messageNode,
+        messageNode = updatePaymentEnhancedResponse.messageNode,
         ptrTransactionNode = ptrTransactionNode,
         ptrCardNode = cardNode,
-        result = spcFlow.transactionResult,
-        paymentResult =spcFlow.paymentResult,
-        receiptNodeCustomerO = Some(clientReceiptNode),
-        receiptNodeMerchantO = Some(merchantReceiptNode),
+        result = spcFlowNoReceipt.transactionResult,
+        paymentResult =spcFlowNoReceipt.paymentResult,
+        receiptNodeCustomerO = None,
+        receiptNodeMerchantO = None,
         errorsNode = ErrorsNode(Seq.empty))
       sendScpReplyMessage(out,processTransactionResponse)
 
