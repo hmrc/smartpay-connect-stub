@@ -55,6 +55,7 @@ object StubPath {
       case "declined_validation_failed" => DeclinedValidationFailed
       case "declined_bin_check_failed" => DeclinedBinCheckFailed
       case "declined_no_receipt" => DeclinedNoReceipt
+      case "fallback_pos_decision" => FallbackPosDecision
 
 
 //      case "card_declined_icc"   => CardDeclinedIcc
@@ -95,6 +96,8 @@ object StubPaths extends Enum[StubPath] {
   final case object DeclinedValidationFailed extends StubPath { val value =  "declined_validation_failed" ; val description = "*Declined/No Validation with availableSpent and startDate missing on receipt"}
   final case object DeclinedBinCheckFailed extends StubPath { val value =  "declined_bin_check_failed" ; val description = "Declined/Bin check failed"}
   final case object DeclinedNoReceipt extends StubPath { val value = "declined_no_receipt"; val description = "Declined no receipt" }
+
+  final case object FallbackPosDecision extends StubPath { val value = "fallback_pos_decision"; val description = "Fallback after posDecision" }
 
 
 //  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
