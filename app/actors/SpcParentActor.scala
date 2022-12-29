@@ -376,6 +376,28 @@ class SpcParentActor extends Actor {
             )
             context.actorOf(NoReceiptMessageFlowUserActor.props(spcFlowNoReceipt),s"${transNum.value}")
 
+          case FallbackPosDecision =>
+            logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
+            val spcFlow:SpcFlow = SpcFlow(
+              paymentCard = StubUtil.VisaCredit,
+              paymentResult = PaymentResults.cancelled,
+              receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+              transactionResult = TranResults.SuccessResult,
+              cardVerificationMethod = CardVerificationMethod.pin,
+              transactionSource = TransactionSources.Icc,
+              displayMessagesValidation = Seq(
+                (InteractionEvents.Processing,InteractionPrompts.ProcessingTransaction),
+                (InteractionEvents.Processing,InteractionPrompts.ProcessingTransaction)
+              ),
+              displayMessagesAuthentication = Seq(
+                (InteractionEvents.StartedEvent,InteractionPrompts.CustomerEnterPin),
+                (InteractionEvents.EventSuccess,InteractionPrompts.ProcessingTransaction),
+                (InteractionEvents.InProgress,InteractionPrompts.ConnectingToAcquirer),
+                (InteractionEvents.EventSuccess,InteractionPrompts.ProcessingTransaction),
+              )
+            )
+            context.actorOf(FallBackFlowUserActor.props(spcFlow),s"${transNum.value}")
+
           //          case CancelledOnPedIcc =>
 //            logger.debug(s"Parent actor is going to create CancelledOnPedIcc for stubPath:$stubPath")
 //            context.actorOf(CancelledIccUserActor.props(),s"${transNum.value}")
