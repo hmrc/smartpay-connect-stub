@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package repository
 
 import org.bson.codecs.Codec
-import org.bson.json.JsonObject
 import org.mongodb.scala.model.{Filters, IndexModel, ReplaceOptions}
 import org.mongodb.scala.result
-import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json._
-import repository.Repo.Id
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -58,19 +55,19 @@ abstract class Repo[ID <: Id, A](
     )
     .toFuture()
 
-  def find(query: (String, JsValueWrapper)*): Future[List[A]] = collection
+  def findById(id: ID): Future[Option[A]] = collection
     .find(
-      filter = new JsonObject(Json.obj(query: _*).toString())
+      filter = Filters.eq("_id", id.value)
     )
-    .toFuture()
-    .map(_.toList)
+    .headOption()
 
 }
 
-object Repo {
-  trait Id {
-    def value: String
-  }
+trait Id {
+  def value: String
 }
 
-
+trait HasId[ID <: Id] {
+  def _id: ID
+  def id: ID = _id
+}

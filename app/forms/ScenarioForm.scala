@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-import play.api.libs.json.Format
-import play.api.libs.functional.syntax._
+import play.api.data.Forms.mapping
+import play.api.data.{Form, Forms, Mapping}
+import scenario.Scenario
+import utils.EnumFormatter
 
+object ScenarioForm {
 
-final case class Currency(value: String) {
-  def toThreeLetterIcoCode = value match{
-    case "826" => "GBP"
-    case "840" => "USD"
-    case "978" => "EUR"
-    case x => x
+  val form: Form[Scenario] = {
+
+    val scenarioMapping: Mapping[Scenario] = Forms.of(EnumFormatter.format(
+      `enum` = Scenario,
+      errorMessageIfMissing = "Select scenario",
+      errorMessageIfEnumError = "Select scenario"
+    ))
+
+    Form(
+      mapping(
+        "scenario" -> scenarioMapping
+      )(identity)(Some(_))
+    )
   }
-}
-
-object Currency {
-  implicit val format: Format[Currency] = implicitly[Format[String]].inmap(Currency(_), _.value)
-  val Gbp = Currency("826")
-  val Usd = Currency("840")
-  val Eur = Currency("978")
 }

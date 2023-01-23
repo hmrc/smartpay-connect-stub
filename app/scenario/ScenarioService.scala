@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package models
+package scenario
 
-import play.api.libs.json.Format
-import play.api.libs.functional.syntax._
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
+class ScenarioService @Inject() (scenarioRepo: ScenarioRepo)(implicit ec: ExecutionContext) {
 
-final case class Country(value: String)
+  private val id: ScenarioId.currentScenario.type = ScenarioId.currentScenario
 
-object Country {
-  implicit val format: Format[Country] = implicitly[Format[String]].inmap(Country(_), _.value)
-  val Uk = Country("826")
-  val US = Country("840")
-  val Bel = Country("056")
+  def setScenario(scenario: Scenario): Future[Unit] = {
+    scenarioRepo
+      .upsert(id, ScenarioEntity(id, scenario))
+      .map(_ => ())
+  }
+
+  def getScenario(): Future[Scenario] = {
+    scenarioRepo
+      .findById(id)
+      .map(_.map(_.scenario))
+      .map(_.getOrElse(Scenario.default))
+  }
+
 }

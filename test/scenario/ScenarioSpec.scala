@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package scenario
 
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import play.api.libs.json.Json
 
+class ScenarioSpec extends AnyFreeSpec with Matchers{
 
-class SurchargeSpec extends AnyFreeSpec with Matchers {
-
-
-  "calculate" - {
-    "correct surcharge " in {
-      val amount1 = AmountInPence(1000)
-      val amount2 = AmountInPence(1000)
-
-      amount1 shouldBe amount2
-
-
-    }
+  "json" in {
+    val json = Json.obj("SuccessChipAndPin" -> Json.obj())
+    Json.toJson(Scenario.SuccessChipAndPin: Scenario) shouldBe json
+    json.as[Scenario] shouldBe Scenario.SuccessChipAndPin
   }
-
 }
-

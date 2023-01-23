@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package langswitch
+package scenario
 
-object ErrorMessages {
 
-  val error_path_required: Message = Message("Stub path required")
+import play.api.libs.json.{Format, Json}
+import repository.Id
 
+object ScenarioId {
+  implicit val format: Format[ScenarioId] = Json.valueFormat
+
+  val currentScenario: ScenarioId = ScenarioId("current-scenario")
 }
+
+final case class ScenarioId(value: String) extends Id
+

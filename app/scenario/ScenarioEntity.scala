@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package langswitch
+package scenario
 
-object ClassicMessages {
+import play.api.libs.json.{Json, OFormat}
+import repository.HasId
 
+/**
+ * We have to wrap Scenario and id into extra class so it can be stored in mongo.
+ */
+final case class ScenarioEntity(
+                                 _id: ScenarioId,
+                                 scenario: Scenario
+                               ) extends HasId[ScenarioId]
+
+object ScenarioEntity {
+  implicit val format: OFormat[ScenarioEntity] = Json.format[ScenarioEntity]
 }

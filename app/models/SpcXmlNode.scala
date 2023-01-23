@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ final case class InteractionNode(category: InteractionCategory, event: Interacti
 }
 
 
-final case class AmountNode(totalAmount: AmountInPence, currency:Currency, country:Country, finalAmountO: Option[AmountInPence]) extends SpcXmlNode {
+final case class AmountNode(totalAmount: AmountInPence, currency:CurrencyNum, country:Country, finalAmountO: Option[AmountInPence]) extends SpcXmlNode {
   def toXml: Node = {
     val totalAmountNode =
       <AMOUNT currency={ currency.value } country={ country.value }>
@@ -75,7 +75,7 @@ final case class AmountNode(totalAmount: AmountInPence, currency:Currency, count
 object AmountNode {
   def fromXml(node: Node): AmountNode = {
     val totalAmount = AmountInPence.fromScpAmount((node \\ "AMOUNT" \ "TOTAL").text)
-    val currency = Currency((node \\ "AMOUNT" \ "@currency").text)
+    val currency = CurrencyNum((node \\ "AMOUNT" \ "@currency").text)
     val country = Country((node \\ "AMOUNT" \ "@country").text)
     val finalAmountO = (node \\ "AMOUNT" \ "FINAL").headOption.map(x => AmountInPence(x.text))
     AmountNode(totalAmount, currency, country, finalAmountO)
@@ -209,7 +209,7 @@ trait ReceiptNotEmptyNode extends ReceiptNode{
     <RECEIPT>
       <APPLICATION_ID>{ StubUtil.APPLICATION_ID }</APPLICATION_ID>
       <CARD_SCHEME>{ spcFlow.paymentCard.cardSchema.value }</CARD_SCHEME>
-      <CURRENCY_CODE>{ submittedData.currency.toThreeLetterIcoCode }</CURRENCY_CODE>
+      <CURRENCY_CODE>{ submittedData.currency.toCurrencyCode }</CURRENCY_CODE>
       <CUSTOMER_PRESENCE>{ CustomerPresence.present.toString }</CUSTOMER_PRESENCE>
       <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
       <MERCHANT_NUMBER>{StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
@@ -294,7 +294,7 @@ trait ReceiptBrokenNode extends ReceiptNode{
   def receiptToXml: Node = {
     <RECEIPT>
       <APPLICATION_ID>{ StubUtil.APPLICATION_ID }</APPLICATION_ID>
-      <CURRENCY_CODE>{ submittedData.currency.toThreeLetterIcoCode }</CURRENCY_CODE>
+      <CURRENCY_CODE>{ submittedData.currency.toCurrencyCode }</CURRENCY_CODE>
       <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
       <MERCHANT_NUMBER>{StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
       <PAN_NUMBER>{ getPanNumber }</PAN_NUMBER>

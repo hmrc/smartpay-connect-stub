@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,25 @@
  * limitations under the License.
  */
 
-package repository
+package scenario
 
-import models.{DeviceId, StubPath}
-import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
+import play.api.libs.json.{Json, OFormat}
+import repository.{HasId, Repo}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.Codecs
 
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 
-object StubRepository {
-  def indexes: Seq[IndexModel] = Seq(
-    IndexModel(
-      keys         = Indexes.ascending("created"),
-      indexOptions = IndexOptions().expireAfter(600, TimeUnit.SECONDS).name("createdIdx")
-    ),
-    IndexModel(
-      keys         = Indexes.ascending(DeviceId.headerName),
-      indexOptions = IndexOptions().name(DeviceId.headerName)
-    )
-  )
-}
-
-
 @Singleton
-final class StubRepository @Inject() (
+final class ScenarioRepo @Inject()(
                                        mongoComponent: MongoComponent
                                       )(implicit ec: ExecutionContext)
-  extends Repo[DeviceId, StubPath](
-    collectionName = "smartpay-connect-stub",
+  extends Repo[ScenarioId.currentScenario.type, ScenarioEntity](
+    collectionName = "scenario",
     mongoComponent = mongoComponent,
-    indexes        = StubRepository.indexes,
-    extraCodecs    = Codecs.playFormatSumCodecs(StubPath.oformat),
+    indexes        = Nil,
+    extraCodecs    = Nil,
     replaceIndexes = true
-  ) {
-}
+  )
 

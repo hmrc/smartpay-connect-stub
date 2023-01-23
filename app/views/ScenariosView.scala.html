@@ -1,0 +1,103 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import _root_.utils.RequestSupport._
+@import _root_.utils.RequestSupport
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import scenario.Scenario
+@import play.api.mvc.Request
+@import controllers.routes
+
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukRadios: GovukRadios,
+        formWithCSRF: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        requestSupport: RequestSupport
+)
+
+@(
+    currentScenario: Scenario,
+    form: Form[Scenario])(implicit
+    request: Request[_]
+)
+
+@import requestSupport._
+
+@key = @{
+    "scenario"
+}
+
+@layout(
+    pageTitle    = "Scenarios"
+) {
+
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(
+            ErrorSummary(errorList = form.errors.map(e =>
+                ErrorLink(
+                    href = Some(s"#${e.key}"),
+                    content = Text(e.message)
+                )
+            ),
+           title = Text("There is a problem"))
+        )
+    }
+
+
+    <section class="govuk-body">
+
+
+    @formWithCSRF(action = scenario.routes.ScenarioController.submitScenario) {
+        @govukRadios(Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = Text("Scenarios"),
+                    classes = "govuk-fieldset__legend--xl",
+                    isPageHeading = true
+                ))
+            )),
+            hint = Some(Hint(
+                content = Text("The scenario will be used to drive behaviour of the smartpay-connect-stub thus it will affect the journey in F2F service.")
+            )),
+            idPrefix = Some(key),
+            name = key,
+            items = Scenario.values.map{ scenario =>
+                RadioItem(
+                    content = Text(scenario.description),
+                    value = Some(scenario.toString),
+                    hint = if(form.data.values.toList.contains(scenario.toString)) Some(Hint(
+                        content = Text("Currently active scenario"),
+                        classes = "color-green"
+                    )) else None,
+                    checked = form.data.values.toList.contains(scenario.toString),
+                )
+
+            },
+            classes = "govuk-radios",
+            errorMessage = form.error(key).map(e =>  uk.gov.hmrc.govukfrontend.views.html.components.ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(e.message)))
+        ))
+        @govukButton(Button(content = Text("Continue"), attributes = Map("id" -> "continue")))
+    }
+
+
+    </section>
+}
