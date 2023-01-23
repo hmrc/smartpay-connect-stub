@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,23 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props, Stash}
 import akka.pattern.pipe
-import models.{StubPath, StubPaths}
 import play.api.Logger
-import repository.StubRepository
+import scenario.{Scenario, ScenarioRepo, ScenarioService}
+
+import scala.concurrent.Future
 
 /**
  * Session actor is only exists for duration of websocket connection.
  * When websocket close actor is terminated
  */
 object SpcSessionActor {
-  def props(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Option[String],repository: StubRepository):Props = Props(new SpcSessionActor(out,spcParentActor, mayBeDeviceId, repository))
+  def props(out: ActorRef, spcParentActor: ActorRef, scenarioService: ScenarioService):Props = Props(new SpcSessionActor(out,spcParentActor, scenarioService))
 }
 
-class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Option[String], repository: StubRepository)
+class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, scenarioService: ScenarioService)
   extends Actor with Stash {
   import SpcParentActor._
 
-  val defaultPath = StubPaths.SuccessChipAndPin
   implicit val ec = context.dispatcher
 
   override def preStart(): Unit = {
@@ -48,35 +48,30 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, mayBeDeviceId: Op
   }
 
   override def receive: Receive = waitForFirstMessage
-  def waitForFirstMessage: Receive = {
+
+  private def waitForFirstMessage: Receive = {
     case firstRequest: String =>
       logger.debug(s"SpcSessionActor $self received first message $firstRequest")
-      logger.debug(s"mayBeDeviceId  $mayBeDeviceId")
       stash()
-      val stubPathF = mayBeDeviceId match {
-          case Some(deviceId) => repository.find("_id" -> deviceId).map(_.headOption).map{x =>
-            x.getOrElse(defaultPath) }
-          case None => repository.find().map(_.headOption).map{x =>
-            x.getOrElse(defaultPath) }
-        }
-      stubPathF.pipeTo(self)
-      context.become(waitForStubPath())
+      val scenario: Future[Scenario] = scenarioService.getScenario()
+      scenario.pipeTo(self)
+      context.become(waitForScenario())
     case x => logger.error(s"SpcSessionActor in state waitForStubPath received unhadled message: $x")
   }
 
-  def waitForStubPath(): Receive = {
-    case stubPath: StubPath =>
-      logger.debug(s"SpcSessionActor $self received StubPath $stubPath")
+  private def waitForScenario(): Receive = {
+    case scenario: Scenario =>
+      logger.debug(s"SpcSessionActor $self received StubPath $scenario")
       unstashAll()
-      context.become(withStubPath(stubPath))
+      context.become(withScenario(scenario))
 
     case x => logger.error(s"SpcSessionActor in state waitForStubPath received unhadled message: $x")
   }
 
-  def withStubPath(stubPath: StubPath): Receive ={
+  private def withScenario(scenario: Scenario): Receive ={
     case request: String =>
-      logger.debug(s"SpcSessionActor $self processing with StubPath $stubPath")
-      spcParentActor ! SpcWSStringMessage(out, request, stubPath)
+      logger.debug(s"SpcSessionActor $self processing with StubPath $scenario")
+      spcParentActor ! SpcWSStringMessage(out, request, scenario)
     case x => logger.error(s"SpcSessionActor in state withStubPath received unhadled message: $x")
   }
 

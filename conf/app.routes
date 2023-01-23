@@ -1,11 +1,8 @@
 # microservice specific routes
 GET         /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
+GET         /scenario                   scenario.ScenarioController.showScenarios
+POST        /scenario                   scenario.ScenarioController.submitScenario
+
 
 GET         /ws                         controllers.WebsocketController.ws
-GET         /language/:language         controllers.LanguageSwitchController.switchToLanguage(language: langswitch.Language)
-
-GET         /set-path-for-device        controllers.StubController.getPathForDeviceId
-POST        /set-path-for-device        controllers.StubController.submitPathForDeviceId
-
-#POST        /set-path-for-device/:path  controllers.StubController.setPathForDeviceId(path: String)

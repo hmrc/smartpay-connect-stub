@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,71 +14,84 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
+@import cats.syntax.eq._
 @import views.html.helper.CSPNonce
-@import langswitch.Language
+@import uk.gov.hmrc.govukfrontend.views.html.components.BackLink
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
+
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import utils.RequestSupport
 
 @this(
-    appConfig: FrontendAppConfig,
-    govukLayout: GovukLayout,
-    govukBackLink: GovukBackLink,
-    hmrcHead: HmrcHead,
-    hmrcStandardHeader: HmrcStandardHeader,
-    hmrcStandardFooter: HmrcStandardFooter,
-    hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
-    hmrcLanguageSelect: HmrcLanguageSelect,
-    hmrcTimeoutDialog: HmrcTimeoutDialog,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    hmrcScripts: HmrcScripts,
-    alphaBanner: StandardAlphaBanner
+        govukLayout: GovukLayout,
+        govukPhaseBanner : GovukPhaseBanner,
+        govukBackLink: GovukBackLink,
+        hmrcHead: HmrcHead,
+        hmrcStandardHeader: HmrcStandardHeader,
+        hmrcStandardFooter: HmrcStandardFooter,
+        hmrcScripts: HmrcScripts,
+        hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+        hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+        requestSupport: RequestSupport
 )
 
 @(
         pageTitle: String,
-        showBackLink: Boolean = true,
-        timeout: Boolean = true,
-        showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+        headBlock: Option[Html] = None,
+        hasErrors: Boolean = false
+)(
+        contentBlock: Html)(implicit
+        request: Request[_]
+)
 
+@import requestSupport._
 
 
 @head = {
-
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/application.css")">
-    @hmrcHead(
-        nonce     = CSPNonce.get,
-        headBlock = None
-    )
+    @headBlock.getOrElse(Html(""))
+    @Html(s"""<link rel="stylesheet" media="screen" href="${controllers.routes.Assets.versioned("stylesheets/application.css").toString}" ${CSPNonce.attr.toString}>""")
 }
 
-@beforeContent = {
-
-    @if(appConfig.languageTranslationEnabled) {
-        @hmrcLanguageSelect(LanguageSelect(
-            if (messages.lang.code == "cy") Cy else En,
-            (En, routes.LanguageSwitchController.switchToLanguage(Language(Lang("en"))).url),
-            (Cy, routes.LanguageSwitchController.switchToLanguage(Language(Lang("cy"))).url)
-        ))
-    }
-
-    @if(showBackLink) {
-        @govukBackLink(BackLink(href = "#"))
-    }
-}
-
-
-@content = {
-    @contentBlock
-
-    <div class="govuk-!-margin-top-8">
-        @hmrcReportTechnicalIssueHelper()
+@beforeContentBlock = {
+    <div class="govuk-!-display-none-print">
     </div>
 }
 
+@content = {
+    <div class="govuk-!-margin-bottom-6">
+    @contentBlock
+    </div>
+    <div class="govuk-!-display-none-print">
+    @hmrcReportTechnicalIssueHelper()
+    </div>
+}
+
+@serviceName = @{
+    "Smartpay Connect Stub [F2F]"
+}
+
+@serviceNameAndTitle = @{
+    s"$pageTitle - $serviceName"
+}
+
+@govTitle = @{serviceNameAndTitle + " - GOV.UK"}
+@documentTitle = @{if(hasErrors) { s"Error $govTitle" } else { govTitle }}
+
+@header = @{
+    hmrcStandardHeader(
+        serviceName = Some(serviceName),
+        signOutUrl =  None
+    )
+}
+
 @govukLayout(
-    pageTitle   = Some(pageTitle),
-    headBlock   = Some(head),
-    headerBlock = None,
-    beforeContentBlock = Some(beforeContent),
-    footerBlock        = Some(hmrcStandardFooter())
+    pageTitle = Some(documentTitle),
+    headBlock = Some(hmrcHead(headBlock = Some(head), nonce = CSPNonce.get)),
+    headerBlock = Some(header),
+    scriptsBlock = Some(hmrcScripts(scriptsBlock = None, nonce = CSPNonce.get)),
+    beforeContentBlock = Some(beforeContentBlock),
+    footerBlock = Some(hmrcStandardFooter())
 )(content)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
-import models.StubPaths._
+import scenario.Scenario._
 import models._
 import play.api.Logger
+import scenario.Scenario
 
 import scala.xml.{Elem, XML}
 
 object SpcParentActor {
   def props():Props = Props(new SpcParentActor())
 
-  case class SpcWSStringMessage(out: ActorRef, msg:String, stubPath: StubPath)
+  case class SpcWSStringMessage(out: ActorRef, msg:String, scenario: Scenario)
 
   case class SpcWSXmlMessage(out: ActorRef, session:ActorRef, msg:Elem)
   case class SpcWSMessage(out: ActorRef, session:ActorRef, msg:F2FMessage)

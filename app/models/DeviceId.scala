@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,4 @@
 
 package models
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import repository.Repo.Id
-
-final case class DeviceId(value: String) extends Id
-
-object DeviceId {
-  implicit val format: Format[DeviceId] = implicitly[Format[String]].inmap(DeviceId(_), _.value)
-  val headerName = "deviceID"
-}
+final case class DeviceId(value: String)

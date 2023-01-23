@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package langswitch
+package models
 
-case class Message(
-    english: String,
-    welsh:   Option[String]
-) {
+import play.api.libs.json.{Format, Json}
+import play.api.libs.functional.syntax._
 
-  def show(implicit language: Language): String = language match {
-    case Languages.English => english
-    case Languages.Welsh   => welsh.getOrElse(english)
+
+final case class CurrencyNum(value: String) {
+  def toCurrencyCode = value match{
+    case "826" => "GBP"
+    case "840" => "USD"
+    case "978" => "EUR"
+    case x => x
   }
 }
 
-object Message {
-
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  def apply(english: String, welsh: String = null): Message = Message(english, Option(welsh))
+object CurrencyNum {
+  implicit val format: Format[CurrencyNum] = Json.valueFormat
+  val Gbp = CurrencyNum("826")
+  val Usd = CurrencyNum("840")
+  val Eur = CurrencyNum("978")
 }

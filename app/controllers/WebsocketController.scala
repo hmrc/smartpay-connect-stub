@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
-import repository.StubRepository
+import scenario.{ScenarioRepo, ScenarioService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.RequestSupport
 
@@ -32,16 +32,18 @@ import javax.inject.{Inject, Singleton}
 class WebsocketController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      system: ActorSystem,
-                                     repository: StubRepository)(implicit mat: Materializer, actorSystem: ActorSystem)
+                                     scenarioService: ScenarioService)(implicit
+                                                                       mat: Materializer,
+                                                                       actorSystem: ActorSystem
+)
     extends FrontendBaseController {
 
   val scpParentActor = system.actorOf(SpcParentActor.props())
 
   def ws(): WebSocket = WebSocket.accept[String,String] { implicit request =>
-    val mayBeDeviceId = RequestSupport.hc(request.withBody()).deviceID
 
     ActorFlow.actorRef { out =>
-        SpcSessionActor.props(out, scpParentActor, mayBeDeviceId, repository)
+        SpcSessionActor.props(out, scpParentActor, scenarioService)
       }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package utils
 
 //import akka.http.scaladsl.model.headers.Language
 //import play.api.i18n._
-import langswitch.Language
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.Request
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -43,7 +42,6 @@ class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I
 object RequestSupport {
   def isLoggedIn(implicit request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
 
-  implicit def language(implicit messages: Messages): Language = Language(messages.lang)
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
   /**
