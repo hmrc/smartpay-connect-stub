@@ -84,7 +84,10 @@
                 RadioItem(
                     content = Text(scenario.description),
                     value = Some(scenario.toString),
-                    hint = if(form.data.values.toList.contains(scenario.toString)) Some(Hint(content = Text("Currently active scenario"))) else None,
+                    hint = if(form.data.values.toList.contains(scenario.toString)) Some(Hint(
+                        content = Text("Currently active scenario"),
+                        classes = "color-green"
+                    )) else None,
                     checked = form.data.values.toList.contains(scenario.toString),
                 )
 

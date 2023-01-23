@@ -160,7 +160,7 @@ class FallBackFlowUserActor(spcFlow:SpcFlow) extends Actor {
 
         val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
         val posDecisionMessage = PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
-        println(s"Wojciech!! sending posDecisionMessage:${posDecisionMessage}")
+        logger.debug(s"Sending posDecisionMessage:${posDecisionMessage}")
         sendScpReplyMessage(out, posDecisionMessage)
 
         context.become(handleTransactionCancelled(submittedData) orElse handleScpMessages)

@@ -16,6 +16,8 @@
 
 package models
 
+import play.api.Logger
+
 import scala.xml.{Attribute, Elem, Node}
 
 /**
@@ -57,13 +59,15 @@ object SpcXmlHelper {
 
   def addNode(to: Node, newNode: Node):Node = to match {
     case Elem(prefix, label, attributes, scope, child@_*) => Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
-    case _ => println("could not find node"); to
+    case _ =>
+      logger.warn("could not find node"); to
   }
 
+  private val logger = Logger(this.getClass)
 
   def addAttribute(to: Elem, attribute: Attribute):Elem = to match {
     case elem : Elem => elem % attribute
-    case _ => println("could not find node"); to
+    case _ => logger.warn("could not find node"); to
   }
 
   implicit class SuperNode(val to: Node) extends AnyVal {
