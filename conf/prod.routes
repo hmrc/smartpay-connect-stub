@@ -1,5 +1,13 @@
-# Add all the application routes to the app.routes file
-->         /smartpay-connect-stub        app.Routes
+GET         /assets/*file                                     controllers.Assets.versioned(path="/public", file: Asset)
 
-->         /                             health.Routes
-GET        /admin/metrics                com.kenshoo.play.metrics.MetricsController.metrics
+GET         /                                                 controllers.Default.redirect(to = "/smartpay-connect-stub/scenario")
+GET         /smartpay-connect-stub                            controllers.Default.redirect(to = "/smartpay-connect-stub/scenario")
+
+GET         /smartpay-connect-stub/scenario                   scenario.ScenarioController.showScenarios
+POST        /smartpay-connect-stub/scenario                   scenario.ScenarioController.submitScenario
+
+GET         /smartpay-connect-stub/ws                         controllers.WebsocketController.ws
+
+#redirect to provide backward compatibility, remove it after second half 2023
+GET         /smartpay-connect-stub/set-path-for-device        controllers.Default.redirect(to = "/smartpay-connect-stub/scenario")
+
