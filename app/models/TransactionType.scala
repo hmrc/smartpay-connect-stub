@@ -30,8 +30,8 @@ object TransactionType {
 
   def apply(value: String): TransactionType = {
     value match {
-      case "purchase"        => Purchase
-      case x                => throw new RuntimeException(s"Unknown TransactionType: $x")
+      case "purchase" => Purchase
+      case x          => throw new RuntimeException(s"Unknown TransactionType: $x")
     }
   }
 }

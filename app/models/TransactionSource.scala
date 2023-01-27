@@ -33,9 +33,9 @@ object TransactionSource {
 
   def apply(category: String): TransactionSource = {
     category match {
-      case "icc"          => Icc
-      case "keyed"       => Keyed
-      case x                   => throw new RuntimeException(s"Unknown TransactionSource: $x")
+      case "icc"   => Icc
+      case "keyed" => Keyed
+      case x       => throw new RuntimeException(s"Unknown TransactionSource: $x")
     }
   }
 }

@@ -16,7 +16,6 @@
 
 package scenario
 
-
 import play.api.libs.json.{Format, Json}
 import repository.Id
 

@@ -21,7 +21,6 @@ package models
  *
  */
 
-
 import play.api.libs.json.{Format, JsError, JsNumber, JsSuccess, Reads, Writes}
 
 import java.text.NumberFormat

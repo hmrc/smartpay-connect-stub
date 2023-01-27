@@ -22,7 +22,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.libs.json.Json
 
-class ScenarioSpec extends AnyFreeSpec with Matchers{
+class ScenarioSpec extends AnyFreeSpec with Matchers {
 
   "json" in {
     val json = Json.obj("SuccessChipAndPin" -> Json.obj())

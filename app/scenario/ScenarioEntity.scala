@@ -23,9 +23,9 @@ import repository.HasId
  * We have to wrap Scenario and id into extra class so it can be stored in mongo.
  */
 final case class ScenarioEntity(
-                                 _id: ScenarioId,
-                                 scenario: Scenario
-                               ) extends HasId[ScenarioId]
+    _id:      ScenarioId,
+    scenario: Scenario
+) extends HasId[ScenarioId]
 
 object ScenarioEntity {
   implicit val format: OFormat[ScenarioEntity] = Json.format[ScenarioEntity]

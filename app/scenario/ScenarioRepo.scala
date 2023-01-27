@@ -23,11 +23,10 @@ import uk.gov.hmrc.mongo.MongoComponent
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-
 @Singleton
-final class ScenarioRepo @Inject()(
-                                       mongoComponent: MongoComponent
-                                      )(implicit ec: ExecutionContext)
+final class ScenarioRepo @Inject() (
+    mongoComponent: MongoComponent
+)(implicit ec: ExecutionContext)
   extends Repo[ScenarioId.currentScenario.type, ScenarioEntity](
     collectionName = "scenario",
     mongoComponent = mongoComponent,

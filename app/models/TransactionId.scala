@@ -28,4 +28,3 @@ object TransactionId {
   implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
 }
 
-

@@ -60,5 +60,3 @@ object TransactionDecisions extends Enum[TransactionDecision] {
   override def values: immutable.IndexedSeq[TransactionDecision] = findValues
 }
 
-
-

@@ -20,7 +20,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import utils.RequestSupport
 
-
 object ViewUtils {
 
   def title(form: Form[_], title: String, section: Option[String] = None)(implicit request: RequestSupport, messages: Messages): String =

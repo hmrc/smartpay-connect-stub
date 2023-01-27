@@ -16,7 +16,6 @@
 
 package models
 
-
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
@@ -50,5 +49,4 @@ object CardVerificationMethod {
   final case object failed extends CardVerificationMethod
   final case object unknown extends CardVerificationMethod
 }
-
 

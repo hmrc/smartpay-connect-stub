@@ -22,7 +22,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ViewConfig @Inject()(
+class ViewConfig @Inject() (
     val config:     Configuration,
     servicesConfig: ServicesConfig
 ) {

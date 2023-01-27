@@ -26,35 +26,32 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ScenarioController @Inject() (
-                                     val controllerComponents: MessagesControllerComponents,
-                                     scenarioService: ScenarioService,
-                                     scenariosView: ScenariosView)(implicit
-                                                                   executionContext: ExecutionContext)
+    val controllerComponents: MessagesControllerComponents,
+    scenarioService:          ScenarioService,
+    scenariosView:            ScenariosView)(implicit executionContext: ExecutionContext)
   extends FrontendBaseController {
 
   def showScenarios: Action[AnyContent] = Action.async { implicit request =>
-     scenarioService.getScenario().map { scenario =>
-       Ok(scenariosView(scenario, ScenarioForm.form.fill(scenario)))
-     }
+    scenarioService.getScenario().map { scenario =>
+      Ok(scenariosView(scenario, ScenarioForm.form.fill(scenario)))
+    }
   }
-
 
   def submitScenario: Action[AnyContent] = Action.async { implicit request =>
 
-
-    def processForm(currentScenario: Scenario): Future[Result] = ScenarioForm
-      .form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(Ok(scenariosView(currentScenario, formWithErrors))),
-        (scenario: Scenario) => scenarioService.setScenario(scenario).map { _ =>
+      def processForm(currentScenario: Scenario): Future[Result] = ScenarioForm
+        .form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(Ok(scenariosView(currentScenario, formWithErrors))),
+          (scenario: Scenario) => scenarioService.setScenario(scenario).map { _ =>
             Redirect(routes.ScenarioController.showScenarios)
           }
-      )
+        )
 
     for {
       currentScenario <- scenarioService.getScenario()
-      result <-processForm(currentScenario)
+      result <- processForm(currentScenario)
     } yield result
 
   }

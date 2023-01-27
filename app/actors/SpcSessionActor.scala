@@ -28,7 +28,7 @@ import scala.concurrent.Future
  * When websocket close actor is terminated
  */
 object SpcSessionActor {
-  def props(out: ActorRef, spcParentActor: ActorRef, scenarioService: ScenarioService):Props = Props(new SpcSessionActor(out,spcParentActor, scenarioService))
+  def props(out: ActorRef, spcParentActor: ActorRef, scenarioService: ScenarioService): Props = Props(new SpcSessionActor(out, spcParentActor, scenarioService))
 }
 
 class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, scenarioService: ScenarioService)
@@ -68,7 +68,7 @@ class SpcSessionActor(out: ActorRef, spcParentActor: ActorRef, scenarioService: 
     case x => logger.error(s"SpcSessionActor in state waitForStubPath received unhadled message: $x")
   }
 
-  private def withScenario(scenario: Scenario): Receive ={
+  private def withScenario(scenario: Scenario): Receive = {
     case request: String =>
       logger.debug(s"SpcSessionActor $self processing with StubPath $scenario")
       spcParentActor ! SpcWSStringMessage(out, request, scenario)

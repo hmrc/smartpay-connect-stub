@@ -26,14 +26,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DefaultController @Inject() (
-                                     val controllerComponents: MessagesControllerComponents,
-                                     scenarioService: ScenarioService,
-                                     scenariosView: ScenariosView)(implicit
-                                                                   executionContext: ExecutionContext)
+    val controllerComponents: MessagesControllerComponents,
+    scenarioService:          ScenarioService,
+    scenariosView:            ScenariosView)(implicit executionContext: ExecutionContext)
   extends FrontendBaseController {
 
-
-  def default() = Action {implicit request =>
+  def default() = Action { implicit request =>
     Redirect(scenario.routes.ScenarioController.showScenarios)
   }
 

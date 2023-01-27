@@ -19,7 +19,6 @@ package models
 import play.api.libs.json.Format
 import play.api.libs.functional.syntax._
 
-
 final case class Country(value: String)
 
 object Country {

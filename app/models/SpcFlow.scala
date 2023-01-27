@@ -17,24 +17,23 @@
 package models
 
 case class SpcFlow(
-                     paymentCard: PaymentCard,
-                     paymentResult: PaymentResult,
-                     receiptNodeName: ReceiptTypeName,
-                     transactionResult: TranResult,
-                     cardVerificationMethod: CardVerificationMethod,
-                     transactionSource: TransactionSource,
-                     displayMessagesValidation: Seq[(InteractionEvent,InteractionPrompt)],
-                     displayMessagesAuthentication: Seq[(InteractionEvent,InteractionPrompt)]
-                   )
-
+    paymentCard:                   PaymentCard,
+    paymentResult:                 PaymentResult,
+    receiptNodeName:               ReceiptTypeName,
+    transactionResult:             TranResult,
+    cardVerificationMethod:        CardVerificationMethod,
+    transactionSource:             TransactionSource,
+    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+)
 
 case class SpcFlowNoReceipt(
-                    paymentCard: PaymentCard,
-                    paymentResult: PaymentResult,
-                    transactionResult: TranResult,
-                    cardVerificationMethod: CardVerificationMethod,
-                    transactionSource: TransactionSource,
-                    displayMessagesValidation: Seq[(InteractionEvent,InteractionPrompt)],
-                    displayMessagesAuthentication: Seq[(InteractionEvent,InteractionPrompt)]
-                  )
+    paymentCard:                   PaymentCard,
+    paymentResult:                 PaymentResult,
+    transactionResult:             TranResult,
+    cardVerificationMethod:        CardVerificationMethod,
+    transactionSource:             TransactionSource,
+    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+)
 

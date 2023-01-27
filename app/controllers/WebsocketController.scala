@@ -17,7 +17,7 @@
 package controllers
 
 import actors.{SpcParentActor, SpcSessionActor}
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
@@ -27,23 +27,21 @@ import utils.RequestSupport
 
 import javax.inject.{Inject, Singleton}
 
-
 @Singleton()
-class WebsocketController @Inject()(
-                                     val controllerComponents: MessagesControllerComponents,
-                                     system: ActorSystem,
-                                     scenarioService: ScenarioService)(implicit
-                                                                       mat: Materializer,
-                                                                       actorSystem: ActorSystem
+class WebsocketController @Inject() (
+    val controllerComponents: MessagesControllerComponents,
+    system:                   ActorSystem,
+    scenarioService:          ScenarioService)(implicit mat: Materializer,
+                                               actorSystem: ActorSystem
 )
-    extends FrontendBaseController {
+  extends FrontendBaseController {
 
-  val scpParentActor = system.actorOf(SpcParentActor.props())
+  private val scpParentActor: ActorRef = system.actorOf(SpcParentActor.props())
 
-  def ws(): WebSocket = WebSocket.accept[String,String] { implicit request =>
+  def ws(): WebSocket = WebSocket.accept[String, String] { implicit request =>
 
     ActorFlow.actorRef { out =>
-        SpcSessionActor.props(out, scpParentActor, scenarioService)
-      }
+      SpcSessionActor.props(out, scpParentActor, scenarioService)
+    }
   }
 }

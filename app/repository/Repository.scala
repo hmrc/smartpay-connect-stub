@@ -26,15 +26,15 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class Repo[ID <: Id, A](
-                                               collectionName: String,
-                                               mongoComponent: MongoComponent,
-                                               indexes:        Seq[IndexModel],
-                                               extraCodecs:    Seq[Codec[_]],
-                                               replaceIndexes: Boolean         = false
-                                             )(implicit manifest: Manifest[A],
-                                               domainFormat:     OFormat[A],
-                                               executionContext: ExecutionContext
-                                             )
+    collectionName: String,
+    mongoComponent: MongoComponent,
+    indexes:        Seq[IndexModel],
+    extraCodecs:    Seq[Codec[_]],
+    replaceIndexes: Boolean         = false
+)(implicit manifest: Manifest[A],
+  domainFormat:     OFormat[A],
+  executionContext: ExecutionContext
+)
   extends PlayMongoRepository[A](
     mongoComponent = mongoComponent,
     collectionName = collectionName,

@@ -30,8 +30,8 @@ object TransactionCustomer {
 
   def apply(value: String): TransactionCustomer = {
     value match {
-      case "present"        => Present
-      case x                => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
+      case "present" => Present
+      case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
     }
   }
 }

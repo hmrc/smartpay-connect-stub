@@ -42,32 +42,29 @@ object Scenario extends Enum[Scenario] {
   final case object SuccessBrokenReceipt extends Scenario { val value = "success_broken_receipt"; val description = "Success chip & pin with broken receipt. (Not real example but F2F should handle that)" }
   final case object SuccessNoReceipt extends Scenario { val value = "success_no_receipt"; val description = "Success chip & pin with no receipt." }
   //FlowType8, ReceiptType 5
-//  final case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
-//  //FlowType8, ReceiptType 5
-//  final case object SuccessNoVerificationPreAuth2 extends StubPath { val value = "success_no_verification_pre_auth2"; val description = "Success no chip & pin card with no authCode, startDate on receipt" }
-//  //FlowType4, ReceiptType 8
-//  final case object SuccessContactlessEMV3 extends StubPath { val value = "success_contactless_EMV3"; val description = "Success contactlessEMV card with availableSpent additionally on receipt" }
+  //  final case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
+  //  //FlowType8, ReceiptType 5
+  //  final case object SuccessNoVerificationPreAuth2 extends StubPath { val value = "success_no_verification_pre_auth2"; val description = "Success no chip & pin card with no authCode, startDate on receipt" }
+  //  //FlowType4, ReceiptType 8
+  //  final case object SuccessContactlessEMV3 extends StubPath { val value = "success_contactless_EMV3"; val description = "Success contactlessEMV card with availableSpent additionally on receipt" }
 
   //FlowType5 ReceiptType3
-  final case object DeclinedNotAuthorisedNotVerified extends Scenario { val value =  "declined_no_verification_no_authorisation" ; val description = "Declined/Not Authorised for chip & pin card with authCode missing on receipt"}
-  final case object DeclinedNotAuthorisedNotVerified2 extends Scenario { val value =  "declined_no_verification_no_authorisation2" ; val description = "Declined/Not Authorised for chip & pin card with authCode and startDate missing on receipt"}
-
+  final case object DeclinedNotAuthorisedNotVerified extends Scenario { val value = "declined_no_verification_no_authorisation"; val description = "Declined/Not Authorised for chip & pin card with authCode missing on receipt" }
+  final case object DeclinedNotAuthorisedNotVerified2 extends Scenario { val value = "declined_no_verification_no_authorisation2"; val description = "Declined/Not Authorised for chip & pin card with authCode and startDate missing on receipt" }
 
   //FlowType7 ReceiptType4
-  final case object DeclinedInvalidCard extends Scenario { val value =  "declined_invalid_card" ; val description = "Declined/Not Authorised invalid card with terminalId missing on receipt"}
+  final case object DeclinedInvalidCard extends Scenario { val value = "declined_invalid_card"; val description = "Declined/Not Authorised invalid card with terminalId missing on receipt" }
   //FlowType7 ReceiptType9
-  final case object DeclinedInvalidCard2 extends Scenario { val value =  "declined_invalid_card2" ; val description = "Declined/Not Authorised invalid card with authCode, terminalId, seqNumber missing on receipt"}
+  final case object DeclinedInvalidCard2 extends Scenario { val value = "declined_invalid_card2"; val description = "Declined/Not Authorised invalid card with authCode, terminalId, seqNumber missing on receipt" }
 
-
-  final case object DeclinedValidationFailed extends Scenario { val value =  "declined_validation_failed" ; val description = "Declined/No Validation with availableSpent and startDate missing on receipt"}
-  final case object DeclinedBinCheckFailed extends Scenario { val value =  "declined_bin_check_failed" ; val description = "Declined/Bin check failed"}
+  final case object DeclinedValidationFailed extends Scenario { val value = "declined_validation_failed"; val description = "Declined/No Validation with availableSpent and startDate missing on receipt" }
+  final case object DeclinedBinCheckFailed extends Scenario { val value = "declined_bin_check_failed"; val description = "Declined/Bin check failed" }
   final case object DeclinedNoReceipt extends Scenario { val value = "declined_no_receipt"; val description = "Declined no receipt" }
 
   final case object FallbackPosDecision extends Scenario { val value = "fallback_pos_decision"; val description = "Fallback after posDecision" }
 
-
-//  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
-//  final case object CancelledOnPedIcc extends StubPath { val value =  "cancelled_ped_icc" ; val description = "Chip&Pin path with transaction cancelled by user on ped"}
-//  final case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
+  //  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
+  //  final case object CancelledOnPedIcc extends StubPath { val value =  "cancelled_ped_icc" ; val description = "Chip&Pin path with transaction cancelled by user on ped"}
+  //  final case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
   override def values: immutable.IndexedSeq[Scenario] = findValues
 }
