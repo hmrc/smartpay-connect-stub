@@ -27,7 +27,6 @@ trait F2FMessage {
   val name: String
 }
 
-
 sealed trait SpcMessage extends F2FMessage
 
 sealed trait SpcRequestMessage extends SpcMessage {
@@ -37,7 +36,6 @@ sealed trait SpcRequestMessage extends SpcMessage {
 sealed trait SpcResponseMessage extends SpcMessage {
   def toXml: Node
   def toXmlString: String = toXml.toString()
-
 
 }
 
@@ -61,8 +59,8 @@ final case class PedLogOnResponse(headerNode: HeaderNode, messageNode: MessageNo
       { messageNode.toXml }
       <POI_MSG type="interaction">
         <INTERACTION name="pedLogOnResponse">
-          {errors.toXml}
-          <RESULT>{result.toString}</RESULT>
+          { errors.toXml }
+          <RESULT>{ result.toString }</RESULT>
         </INTERACTION>
       </POI_MSG>
     </RLSOLVE_MSG>
@@ -89,11 +87,11 @@ object SubmitPayment {
 final case class SubmitPaymentResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, name: String = SubmitPaymentResponse.name) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="submittal">
-      <SUBMIT name="submitPaymentResponse">
-        <RESULT>{result.toString}</RESULT>
-      </SUBMIT>
-    </POI_MSG>
+      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="submittal">
+                                                 <SUBMIT name="submitPaymentResponse">
+                                                   <RESULT>{ result.toString }</RESULT>
+                                                 </SUBMIT>
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 
@@ -118,8 +116,8 @@ final case class PosDecisionMessage(headerNode: HeaderNode, messageNode: Message
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
-      { transNode.toXml }
-    </POI_MSG>
+                                                 { transNode.toXml }
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 
@@ -133,8 +131,8 @@ final case class PosDisplayMessage(headerNode: HeaderNode, messageNode: MessageN
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
-      { interactionNode.toXml }
-    </POI_MSG>
+                                                 { interactionNode.toXml }
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 
@@ -148,16 +146,16 @@ final case class UpdatePaymentEnhanced(headerNode: HeaderNode, messageNode: Mess
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
-      <TRANS name="updatePaymentEnhanced">
-        <PAYMENT>
-          <ACQUIRER id="X">XXXX</ACQUIRER>
-          <BANK id="X">XXXXXX-XXXXX-XXXXXX</BANK>
-          <MERCHANT number={StubUtil.MERCHANT_NUMBER} />
-          { transactionNode.toXml }
-          { cardNode.toXml }
-      </PAYMENT>
-      </TRANS>
-    </POI_MSG>
+                                                 <TRANS name="updatePaymentEnhanced">
+                                                   <PAYMENT>
+                                                     <ACQUIRER id="X">XXXX</ACQUIRER>
+                                                     <BANK id="X">XXXXXX-XXXXX-XXXXXX</BANK>
+                                                     <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
+                                                     { transactionNode.toXml }
+                                                     { cardNode.toXml }
+                                                   </PAYMENT>
+                                                 </TRANS>
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 
@@ -180,16 +178,16 @@ object UpdatePaymentEnhancedResponse {
 }
 
 final case class ProcessTransactionResponse(
-                                             headerNode: HeaderNode,
-                                             messageNode: MessageNode,
-                                             ptrTransactionNode: PtrTransactionNode,
-                                             ptrCardNode: PtrResponseCardNode,
-                                             result: TranResult,
-                                             paymentResult: PaymentResult,
-                                             receiptNodeCustomerO: Option[ReceiptNode],
-                                             receiptNodeMerchantO: Option[ReceiptNode],
-                                             errorsNode: ErrorsNode,
-                                             name: String = ProcessTransactionResponse.name) extends SpcResponseMessage {
+    headerNode:           HeaderNode,
+    messageNode:          MessageNode,
+    ptrTransactionNode:   PtrTransactionNode,
+    ptrCardNode:          PtrResponseCardNode,
+    result:               TranResult,
+    paymentResult:        PaymentResult,
+    receiptNodeCustomerO: Option[ReceiptNode],
+    receiptNodeMerchantO: Option[ReceiptNode],
+    errorsNode:           ErrorsNode,
+    name:                 String              = ProcessTransactionResponse.name) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }
@@ -206,7 +204,7 @@ final case class ProcessTransactionResponse(
             <PAYMENT_RESULT>{ paymentResult.toString }</PAYMENT_RESULT>
             <ACQUIRER id="X">XXXXXX</ACQUIRER>
             <BANK id="X">XXXXXXXXX</BANK>
-            <MERCHANT number={StubUtil.MERCHANT_NUMBER}/>
+            <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
             <HOST_RESP responseCode="XX"><![CDATA[ NOT AUTHORISED ]]></HOST_RESP>
             { ptrTransactionNode.toXml }
             { ptrCardNode.toXml }
@@ -228,10 +226,10 @@ final case class PosPrintReceipt(headerNode: HeaderNode, messageNode: MessageNod
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
-      <INTERACTION name="posPrintReceipt">
-        { receiptNode.toXml }
-      </INTERACTION>
-    </POI_MSG>
+                                                 <INTERACTION name="posPrintReceipt">
+                                                   { receiptNode.toXml }
+                                                 </INTERACTION>
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 }
@@ -278,10 +276,10 @@ final case class FinaliseResponse(headerNode: HeaderNode, messageNode: MessageNo
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
-      <TRANS name="finaliseResponse">
-        <RESULT>{ result.toString }</RESULT>
-      </TRANS>
-    </POI_MSG>
+                                                 <TRANS name="finaliseResponse">
+                                                   <RESULT>{ result.toString }</RESULT>
+                                                 </TRANS>
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 
@@ -306,10 +304,10 @@ final case class PedLogOffResponse(headerNode: HeaderNode, messageNode: MessageN
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
       { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
-      <INTERACTION name="pedLogOffResponse">
-        <RESULT>{ result.toString }</RESULT>
-      </INTERACTION>
-    </POI_MSG>
+                                                 <INTERACTION name="pedLogOffResponse">
+                                                   <RESULT>{ result.toString }</RESULT>
+                                                 </INTERACTION>
+                                               </POI_MSG>
     </RLSOLVE_MSG>
   }
 

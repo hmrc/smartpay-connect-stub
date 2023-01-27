@@ -33,15 +33,15 @@ object InteractionPrompt {
 
   def apply(value: String): InteractionPrompt = {
     value match {
-      case "Customer To Insert Or Swipe Card" => InsertOrSwipeCard
-      case "Connecting to Acquirer"           => ConnectingToAcquirer
-      case "Processing Transaction"           => ProcessingTransaction
-      case "Customer To Reinsert Card"        => CustomerReinsertCard
-      case "Customer To Select Application On PED" => SelectAppOnPed
-      case "Customer To Enter PIN"            => CustomerEnterPin
-      case "Customer To Enter PIN - PIN Incorrect" => PinIncorrect
+      case "Customer To Insert Or Swipe Card"       => InsertOrSwipeCard
+      case "Connecting to Acquirer"                 => ConnectingToAcquirer
+      case "Processing Transaction"                 => ProcessingTransaction
+      case "Customer To Reinsert Card"              => CustomerReinsertCard
+      case "Customer To Select Application On PED"  => SelectAppOnPed
+      case "Customer To Enter PIN"                  => CustomerEnterPin
+      case "Customer To Enter PIN - PIN Incorrect"  => PinIncorrect
       case "Customer To Insert Card In Chip Reader" => InsertCardInChipReader
-      case x                                  => throw new RuntimeException(s"Unknown InteractionPrompt: $x")
+      case x                                        => throw new RuntimeException(s"Unknown InteractionPrompt: $x")
     }
   }
 }

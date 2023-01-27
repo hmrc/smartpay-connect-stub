@@ -38,7 +38,6 @@ class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I
   //implicit def language(implicit messages: Messages): Language = Language(messages.lang)
 }
 
-
 object RequestSupport {
   def isLoggedIn(implicit request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
 
@@ -52,5 +51,5 @@ object RequestSupport {
     def headerCarrier(implicit request: Request[_]): HeaderCarrier = hc(request)
   }
 
-//  implicit def language(implicit messages: Messages): Language = Language(messages.lang)
+  //  implicit def language(implicit messages: Messages): Language = Language(messages.lang)
 }

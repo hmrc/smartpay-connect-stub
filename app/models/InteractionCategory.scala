@@ -52,5 +52,3 @@ object InteractionCategories extends Enum[InteractionCategory] {
   override def values: immutable.IndexedSeq[InteractionCategory] = findValues
 }
 
-
-

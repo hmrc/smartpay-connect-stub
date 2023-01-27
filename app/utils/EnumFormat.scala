@@ -19,8 +19,6 @@ package utils
 import enumeratum.{Enum, EnumEntry}
 import play.api.libs.json._
 
-
-
 object EnumFormat {
   def apply[T <: EnumEntry](e: Enum[T]): Format[T] = Format(
     Reads {

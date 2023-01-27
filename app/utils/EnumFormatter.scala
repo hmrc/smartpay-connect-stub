@@ -20,7 +20,6 @@ import play.api.data.FormError
 import play.api.data.format.Formatter
 import enumeratum.{Enum, EnumEntry}
 
-
 object EnumFormatter {
 
   def format[A <: EnumEntry](

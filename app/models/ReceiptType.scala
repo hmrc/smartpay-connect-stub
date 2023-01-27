@@ -69,4 +69,3 @@ object ReceiptTypes extends Enum[ReceiptType] {
   override def values: immutable.IndexedSeq[ReceiptType] = findValues
 }
 
-

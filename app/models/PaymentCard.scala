@@ -20,19 +20,19 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.text.SimpleDateFormat
 
-case class PaymentCard (currency: CurrencyNum,
-                        country:Country,
-                        endDate: String,
-                        startDate:String,
-                        pan:String,
-                        cardSchema: CardSchema,
-                        seqNum:String,
-                        availableSpend: Option[AmountInPence]) {
+case class PaymentCard(currency:       CurrencyNum,
+                       country:        Country,
+                       endDate:        String,
+                       startDate:      String,
+                       pan:            String,
+                       cardSchema:     CardSchema,
+                       seqNum:         String,
+                       availableSpend: Option[AmountInPence]) {
 
   def receiptPan: String = pan.take(6) + pan.drop(6).replaceAll(".(?=.{4})", "*")
   def receiptPanMasked: String = "*** Data Removed for Security ***"
-  def receiptStart: String = new SimpleDateFormat("MM/yy").format( new SimpleDateFormat("yyyy-MM-dd").parse(startDate).getTime)
-  def receiptEnd: String = new SimpleDateFormat("MM/yy").format( new SimpleDateFormat("yyyy-MM-dd").parse(endDate).getTime)
+  def receiptStart: String = new SimpleDateFormat("MM/yy").format(new SimpleDateFormat("yyyy-MM-dd").parse(startDate).getTime)
+  def receiptEnd: String = new SimpleDateFormat("MM/yy").format(new SimpleDateFormat("yyyy-MM-dd").parse(endDate).getTime)
   def receiptEndMasked: String = "****-**"
 
 }

@@ -35,8 +35,8 @@ object SpcXmlHelper {
         }
       case "submittal" =>
         (node \\ "SUBMIT" \ "@name").text match {
-          case SubmitPayment.name         => Some(SubmitPayment.fromXml(node))
-          case _                          => None
+          case SubmitPayment.name => Some(SubmitPayment.fromXml(node))
+          case _                  => None
         }
       case "transactional" =>
         (node \\ "TRANS" \ "@name").text match {
@@ -52,25 +52,24 @@ object SpcXmlHelper {
     }
   }
 
-  def getSpcXmlMessageNode(node:Node):MessageNode= {
+  def getSpcXmlMessageNode(node: Node): MessageNode = {
     MessageNode.fromXml(node)
   }
 
-
-  def addNode(to: Node, newNode: Node):Node = to match {
-    case Elem(prefix, label, attributes, scope, child@_*) => Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
+  def addNode(to: Node, newNode: Node): Node = to match {
+    case Elem(prefix, label, attributes, scope, child @ _*) => Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
     case _ =>
       logger.warn("could not find node"); to
   }
 
   private val logger = Logger(this.getClass)
 
-  def addAttribute(to: Elem, attribute: Attribute):Elem = to match {
-    case elem : Elem => elem % attribute
-    case _ => logger.warn("could not find node"); to
+  def addAttribute(to: Elem, attribute: Attribute): Elem = to match {
+    case elem: Elem => elem % attribute
+    case _          => logger.warn("could not find node"); to
   }
 
   implicit class SuperNode(val to: Node) extends AnyVal {
-    def maybeAddNode(maybeNewNode: Option[Node]):Node  =  maybeNewNode.fold(to)(newNode=> addNode(to, newNode))
+    def maybeAddNode(maybeNewNode: Option[Node]): Node = maybeNewNode.fold(to)(newNode => addNode(to, newNode))
   }
 }

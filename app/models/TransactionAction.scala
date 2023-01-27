@@ -30,8 +30,8 @@ object TransactionAction {
 
   def apply(value: String): TransactionAction = {
     value match {
-      case "auth_n_settle"        => AuthorizeAndSettle
-      case x                => throw new RuntimeException(s"Unknown TransactionAction: $x")
+      case "auth_n_settle" => AuthorizeAndSettle
+      case x               => throw new RuntimeException(s"Unknown TransactionAction: $x")
     }
   }
 }
