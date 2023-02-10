@@ -87,7 +87,7 @@ class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
       val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out, pedLogOnResponse)
 
-      context.become(handleSubmitPayment orElse handleScpMessages)
+      context.become(handleSubmitPayment orElse handlePedLogOff orElse handleScpMessages)
       context.stop(session)
   }
 
