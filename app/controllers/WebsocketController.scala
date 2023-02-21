@@ -21,9 +21,8 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
-import scenario.{ScenarioRepo, ScenarioService}
+import scenario.ScenarioService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.RequestSupport
 
 import javax.inject.{Inject, Singleton}
 

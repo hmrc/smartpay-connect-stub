@@ -19,7 +19,7 @@ package actors
 import akka.actor.{Actor, ActorRef, Props, Stash}
 import akka.pattern.pipe
 import play.api.Logger
-import scenario.{Scenario, ScenarioRepo, ScenarioService}
+import scenario.{Scenario, ScenarioService}
 
 import scala.concurrent.Future
 

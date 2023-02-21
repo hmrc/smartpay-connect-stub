@@ -138,7 +138,7 @@ class StandardMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out, updatePaymentEnhanced)
 
-      context.become(handleUpdatePaymentEnhancedResponse(submittedData) orElse handleScpMessages)
+      context.become(handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData) orElse handleScpMessages)
       context.stop(session)
   }
 
@@ -203,6 +203,37 @@ class StandardMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
         paymentResult        = spcFlow.paymentResult,
         receiptNodeCustomerO = Some(clientReceiptNode),
         receiptNodeMerchantO = Some(merchantReceiptNode),
+        errorsNode           = ErrorsNode(Seq.empty))
+      sendScpReplyMessage(out, processTransactionResponse)
+
+      context.become(handleFinalise orElse handleScpMessages)
+      context.stop(session)
+
+  }
+
+  def handleTransactionCancelled(submittedData: SubmittedData): Receive = {
+    case SpcWSMessage(out, session, cancelTransaction: CancelTransaction) =>
+      logger.debug(s"User Actor $self got SpcMessage cancelTransaction message $cancelTransaction")
+
+      //processTransactionResponse
+      val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+
+      val ptrTransactionNode = PtrTransactionNode(
+        amountNode      = amountNode,
+        verification    = spcFlow.cardVerificationMethod,
+        transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
+        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
+      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+
+      val processTransactionResponse = ProcessTransactionResponse(
+        headerNode           = HeaderNode(),
+        messageNode          = cancelTransaction.messageNode,
+        ptrTransactionNode   = ptrTransactionNode,
+        ptrCardNode          = cardNode,
+        result               = spcFlow.transactionResult,
+        paymentResult        = PaymentResults.cancelled,
+        receiptNodeCustomerO = None,
+        receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
       sendScpReplyMessage(out, processTransactionResponse)
 
