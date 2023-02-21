@@ -15,15 +15,13 @@
  */
 
 package controllers
-import forms.ScenarioForm
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.MessagesControllerComponents
 import scenario.ScenarioService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ScenariosView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class DefaultController @Inject() (
     val controllerComponents: MessagesControllerComponents,

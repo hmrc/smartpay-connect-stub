@@ -16,8 +16,7 @@
 
 package scenario
 
-import play.api.libs.json.{Json, OFormat}
-import repository.{HasId, Repo}
+import repository.Repo
 import uk.gov.hmrc.mongo.MongoComponent
 
 import javax.inject.{Inject, Singleton}
