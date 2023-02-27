@@ -20,11 +20,17 @@ import enumeratum.{Enum, EnumEntry}
 import play.api.libs.json._
 
 object EnumFormat {
+
+  @SuppressWarnings(Array(
+    "org.wartremover.warts.Product",
+    "org.wartremover.warts.Serializable"
+  )) //TODO: delete that and use enumeratum-play-json instead of it
   def apply[T <: EnumEntry](e: Enum[T]): Format[T] = Format(
     Reads {
-      case JsString(value) => e.withNameOption(value).map(JsSuccess(_)).getOrElse(JsError(s"Unknown ${e.getClass.getSimpleName} value: $value"))
+      case JsString(value) => e.withNameOption(value).map[JsResult[T]](JsSuccess(_)).getOrElse(JsError(s"Unknown ${e.getClass.getSimpleName} value: ${value}"))
       case _               => JsError("Can only parse String")
     },
     Writes(v => JsString(v.entryName))
   )
 }
+

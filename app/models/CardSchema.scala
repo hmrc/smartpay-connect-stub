@@ -23,6 +23,6 @@ final case class CardSchema(value: String)
 
 object CardSchema {
   implicit val format: Format[CardSchema] = implicitly[Format[String]].inmap(CardSchema(_), _.value)
-  val VisaCredit = CardSchema("Visa Credit")
-  val MasterDebit = CardSchema("Mastercard Debit")
+  val VisaCredit: CardSchema = CardSchema("Visa Credit")
+  val MasterDebit: CardSchema = CardSchema("Mastercard Debit")
 }

@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 
 object ViewUtils {
 
-  def title(form: Form[_], title: String, section: Option[String] = None)(implicit messages: Messages): String =
+  def title(form: Form[_], section: Option[String] = None)(implicit messages: Messages): String =
     titleNoForm(
       title   = s"${errorPrefix(form)} XXX",
       section = section

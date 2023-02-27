@@ -24,6 +24,7 @@ import scala.xml.{Attribute, Elem, Node}
  * SPC- Smart Pay Connect helper functions
  */
 object SpcXmlHelper {
+
   def getSpcXmlMessage(node: Node): Option[SpcMessage] = {
     (node \\ "POI_MSG" \ "@type").text match {
       case "interaction" =>

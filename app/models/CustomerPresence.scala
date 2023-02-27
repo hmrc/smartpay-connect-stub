@@ -23,6 +23,8 @@ import play.api.libs.json.OFormat
 sealed trait CustomerPresence extends EnumEntry
 
 object CustomerPresence {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[CustomerPresence] = derived.oformat[CustomerPresence]()
 
   def apply(value: String): CustomerPresence = {

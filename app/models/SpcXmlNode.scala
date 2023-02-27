@@ -90,7 +90,7 @@ final case class TransactionNode(amountNode: AmountNode, transactionSource: Tran
 
 object TransactionNode {
   def fromXml(node: Node): TransactionNode = {
-    val transactionSourceO = (node \\ "TRANSACTION" \ "@source").headOption.map(x => TransactionSource(x.text)).get
+    val transactionSourceO: TransactionSource = (node \\ "TRANSACTION" \ "@source").headOption.map(x => TransactionSource(x.text)).getOrElse(sys.error("invalid xml"))
     val amountNode = AmountNode.fromXml(node)
     TransactionNode(amountNode, transactionSourceO)
   }
@@ -128,6 +128,8 @@ final case class PdTransNode(decision: TransactionDecision, name: String = PdTra
 }
 
 object PdTransNode {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[PdTransNode] = Json.format[PdTransNode]
   def fromXml(node: Node): PdTransNode = {
     val transactionDecision = TransactionDecision((node \\ "TRANS" \ "DECISION" \ "@type").text)
@@ -182,7 +184,7 @@ trait ReceiptNode {
 
 trait ReceiptNotEmptyNode extends ReceiptNode {
 
-  val spcFlow: SpcFlow
+  val spcFlow: SpcFlowData
   val submittedData: SubmittedData
   val totalAmount: AmountInPence
   val finalAmount: Option[AmountInPence]
@@ -272,7 +274,7 @@ trait ReceiptEmptyNode extends ReceiptNode {
 
 trait ReceiptBrokenNode extends ReceiptNode {
 
-  val spcFlow: SpcFlow
+  val spcFlow: SpcFlowData
   val submittedData: SubmittedData
   val totalAmount: AmountInPence
   val finalAmount: Option[AmountInPence]
@@ -346,7 +348,7 @@ object ReceiptTypeName {
 
 object ReceiptNode {
   import ReceiptTypeName._
-  def createReceiptNode(submittedData: SubmittedData, spcFlow: SpcFlow, totalAmount: AmountInPence, finalAmount: Option[AmountInPence]): ReceiptNode = {
+  def createReceiptNode(submittedData: SubmittedData, spcFlow: SpcFlowData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence]): ReceiptNode = {
     spcFlow.receiptNodeName match {
       case ReceiptType1Name  => ReceiptType1Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType2Name  => ReceiptType2Node(spcFlow, submittedData, totalAmount, finalAmount)
@@ -365,7 +367,7 @@ object ReceiptNode {
 }
 
 final case class ReceiptType1Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -374,7 +376,7 @@ final case class ReceiptType1Node(
 }
 
 final case class ReceiptType2Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -384,7 +386,7 @@ final case class ReceiptType2Node(
 }
 
 final case class ReceiptType3Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -394,7 +396,7 @@ final case class ReceiptType3Node(
 }
 
 final case class ReceiptType4Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -405,7 +407,7 @@ final case class ReceiptType4Node(
 }
 
 final case class ReceiptType5Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -414,7 +416,7 @@ final case class ReceiptType5Node(
 }
 
 final case class ReceiptType6Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -424,7 +426,7 @@ final case class ReceiptType6Node(
 }
 
 final case class ReceiptType7Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -436,7 +438,7 @@ final case class ReceiptType7Node(
 }
 
 final case class ReceiptType8Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -446,7 +448,7 @@ final case class ReceiptType8Node(
 }
 
 final case class ReceiptType9Node(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -460,14 +462,14 @@ final case class ReceiptType9Node(
 final case class ReceiptTypeEmptyNode() extends SpcXmlNode with ReceiptEmptyNode
 
 final case class ReceiptTypeBrokenNode(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode with ReceiptBrokenNode
 
 final case class ReceiptMerchantNode(
-    spcFlow:       SpcFlow,
+    spcFlow:       SpcFlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -489,6 +491,7 @@ final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode
 }
 
 object ErrorsNode {
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
   def fromXml(node: Node): ErrorsNode = {
     val errors = (node \\ "TRANS" \ "ERRORS").headOption.map(_.map(ErrorNode.fromXml))
@@ -504,6 +507,8 @@ final case class ErrorNode(code: String, description: String, name: String = Err
 }
 
 object ErrorNode {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[ErrorNode] = Json.format[ErrorNode]
   def fromXml(node: Node): ErrorNode = {
     val code = (node \\ "ERROR" \ "@code").text
@@ -525,7 +530,7 @@ final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
 
 object HeaderNode {
   implicit val format: OFormat[HeaderNode] = Json.format[HeaderNode]
-  def fromXml(node: Node): HeaderNode = {
+  def fromXml(): HeaderNode = {
     HeaderNode()
   }
   val name = "HeaderNode"

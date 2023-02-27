@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package actors
+package flow
 
-import scala.concurrent.duration._
+import behaviour.Behaviour.B
 
-object CountDown {
-
-  val value = 10.minutes
+trait MessageFlow {
+  def initialBehaviour: B
 }

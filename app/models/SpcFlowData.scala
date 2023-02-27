@@ -16,7 +16,7 @@
 
 package models
 
-case class SpcFlow(
+final case class SpcFlowData(
     paymentCard:                   PaymentCard,
     paymentResult:                 PaymentResult,
     receiptNodeName:               ReceiptTypeName,
@@ -27,7 +27,7 @@ case class SpcFlow(
     displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
 )
 
-case class SpcFlowNoReceipt(
+final case class SpcFlowDataNoReceipt(
     paymentCard:                   PaymentCard,
     paymentResult:                 PaymentResult,
     transactionResult:             TranResult,

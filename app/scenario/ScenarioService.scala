@@ -17,23 +17,16 @@
 package scenario
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
-class ScenarioService @Inject() (scenarioRepo: ScenarioRepo)(implicit ec: ExecutionContext) {
+class ScenarioService @Inject() () {
 
-  private val id: ScenarioId.currentScenario.type = ScenarioId.currentScenario
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
+  private var scenarioVar: Scenario = Scenario.default
 
-  def setScenario(scenario: Scenario): Future[Unit] = {
-    scenarioRepo
-      .upsert(id, ScenarioEntity(id, scenario))
-      .map(_ => ())
+  def setScenario(scenario: Scenario): Unit = {
+    scenarioVar = scenario
   }
 
-  def getScenario(): Future[Scenario] = {
-    scenarioRepo
-      .findById(id)
-      .map(_.map(_.scenario))
-      .map(_.getOrElse(Scenario.default))
-  }
+  def getScenario(): Scenario = scenarioVar
 
 }
