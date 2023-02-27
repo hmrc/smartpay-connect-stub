@@ -4,7 +4,6 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "smartpay-connect-stub"
 
-val silencerVersion = "1.7.5"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -12,20 +11,13 @@ lazy val microservice = Project(appName, file("."))
 //  .settings(DefaultBuildSettings.defaultSettings(): _*)
   .settings(
     majorVersion                     := 0,
-    scalaVersion                     := "2.12.14",
+    scalaVersion                     := "2.13.10",
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
-    // ***************
-    // Use the silencer plugin to suppress warnings
-    scalacOptions += "-P:silencer:pathFilters=routes",
     libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.beachape"   %% "enumeratum"                        % "1.6.1",
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+      "com.beachape"   %% "enumeratum"                        % "1.7.2"
     ),
-    // ***************
     PlayKeys.playDefaultPort := 9263,
     TwirlKeys.templateImports ++= Seq()
   )
-  .settings(publishingSettings: _*)
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(ScalariformSettings())

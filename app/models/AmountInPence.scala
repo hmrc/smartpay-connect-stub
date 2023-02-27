@@ -41,10 +41,10 @@ object AmountInPence {
   def apply(str: String): AmountInPence = {
     str match {
       case s if s.isEmpty => AmountInPence(0)
-      case s              => AmountInPence((BigDecimal(s.replace(",", "")).doubleValue() * 100).round)
+      case s              => AmountInPence((BigDecimal(s.replace(",", "")).doubleValue * 100).round)
     }
   }
-  def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence((bigDecimal.doubleValue() * 100).round)
+  def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence((bigDecimal.doubleValue * 100).round)
 
   def fromScpAmount(str: String): AmountInPence = {
     str match {
@@ -58,9 +58,9 @@ object AmountInPence {
   //  implicit val format: OFormat[AmountInPence] = Json.format[AmountInPence]
   implicit val format: Format[AmountInPence] = Format(
     Reads {
-      case JsNumber(n) if n.isWhole() => JsSuccess(AmountInPence(n.toLong))
-      case JsNumber(_)                => JsError("Expected positive integer but got non-integral number")
-      case other                      => JsError(s"Expected positive integer but got type ${other.getClass.getSimpleName}")
+      case JsNumber(n) if n.isWhole => JsSuccess(AmountInPence(n.toLong))
+      case JsNumber(_)              => JsError("Expected positive integer but got non-integral number")
+      case other                    => JsError(s"Expected positive integer but got type ${other.getClass.getSimpleName}")
     },
     Writes(a => JsNumber(BigDecimal(a.value)))
   )
