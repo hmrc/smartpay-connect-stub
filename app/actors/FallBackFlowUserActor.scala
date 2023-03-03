@@ -132,7 +132,7 @@ class FallBackFlowUserActor(spcFlow: SpcFlow) extends Actor {
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out, updatePaymentEnhanced)
 
-      context.become(handleUpdatePaymentEnhancedResponse(submittedData) orElse handleScpMessages)
+      context.become(handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData) orElse handleScpMessages)
       context.stop(session)
   }
 
@@ -184,7 +184,7 @@ class FallBackFlowUserActor(spcFlow: SpcFlow) extends Actor {
         ptrTransactionNode   = ptrTransactionNode,
         ptrCardNode          = cardNode,
         result               = spcFlow.transactionResult,
-        paymentResult        = spcFlow.paymentResult,
+        paymentResult        = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
