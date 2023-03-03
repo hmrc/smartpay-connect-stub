@@ -196,7 +196,7 @@ class NoReceiptMessageFlowUserActor(spcFlowNoReceipt: SpcFlowNoReceipt) extends 
         ptrTransactionNode   = ptrTransactionNode,
         ptrCardNode          = cardNode,
         result               = spcFlowNoReceipt.transactionResult,
-        paymentResult        = spcFlowNoReceipt.paymentResult,
+        paymentResult        = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))

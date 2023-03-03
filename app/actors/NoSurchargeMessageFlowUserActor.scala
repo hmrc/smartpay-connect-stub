@@ -200,7 +200,7 @@ class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
         ptrTransactionNode   = ptrTransactionNode,
         ptrCardNode          = cardNode,
         result               = spcFlow.transactionResult,
-        paymentResult        = spcFlow.paymentResult,
+        paymentResult        = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
