@@ -125,50 +125,6 @@ class SpcParentActor extends Actor {
             )
             context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
 
-          case SuccessEmptyReceipt =>
-            logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
-
-          case SuccessBrokenReceipt =>
-            logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              receiptNodeName               = ReceiptTypeName.ReceiptTypeBroken,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
-
           case SuccessNoReceipt =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
             val spcFlowNoReceipt = SpcFlowNoReceipt(
