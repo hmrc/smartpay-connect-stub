@@ -44,6 +44,7 @@ object SpcXmlHelper {
           case UpdatePaymentEnhancedResponse.name => Some(UpdatePaymentEnhancedResponse.fromXml(node))
           case Finalise.name                      => Some(Finalise.fromXml(node))
           case CancelTransaction.name             => Some(CancelTransaction.fromXml(node))
+          case GetTransactionDetails.name         => Some(GetTransactionDetails.fromXml(node))
           case CompleteTransaction.name           => Some(CompleteTransaction.fromXml(node))
           case _                                  => None
         }
