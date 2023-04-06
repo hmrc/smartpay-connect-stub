@@ -359,3 +359,69 @@ object ErrorMessage {
 
   val name: String = "error"
 }
+
+final case class GetTransactionDetails(messageNode: MessageNode, name: String = GetTransactionDetails.name) extends SpcRequestMessage {
+  def toXml: Node = {
+    <RLSOLVE_MSG version="5.0">
+      { messageNode.toXml }
+      <POI_MSG type="transactional">
+        <TRANS name="getTransactionDetails"/>
+      </POI_MSG>
+    </RLSOLVE_MSG>
+  }
+
+}
+
+object GetTransactionDetails {
+  def fromXml(node: Node): GetTransactionDetails = {
+    val messageNode = MessageNode.fromXml(node)
+    GetTransactionDetails(messageNode)
+  }
+
+  val name: String = "getTransactionDetails"
+}
+
+final case class GetTransactionDetailsResponse(
+    headerNode:           HeaderNode,
+    messageNode:          MessageNode,
+    ptrTransactionNode:   PtrTransactionNode,
+    ptrCardNode:          PtrResponseCardNode,
+    result:               TranResult,
+    paymentResult:        PaymentResult,
+    receiptNodeCustomerO: Option[ReceiptNode],
+    receiptNodeMerchantO: Option[ReceiptNode],
+    errorsNode:           ErrorsNode,
+    name:                 String              = GetTransactionDetailsResponse.name) extends SpcResponseMessage {
+  def toXml: Node = {
+    <RLSOLVE_MSG version="5.0">
+      { headerNode.toXml }{ messageNode.toXml }
+      <POI_MSG type="transactional">
+        <TRANS name="getTransactionDetailsResponse">
+          { errorsNode.toXml }
+          <RESULT>{ result.toString }</RESULT>
+          <INTERFACE>
+            <TERMINAL serialNumber="XXXXXXXXXXXXXXXXX">
+              <TERMINAL_TYPE>XX</TERMINAL_TYPE>
+            </TERMINAL>
+          </INTERFACE>
+          <PAYMENT>
+            <PAYMENT_RESULT>{ paymentResult.toString }</PAYMENT_RESULT>
+            <ACQUIRER id="X">XXXXXX</ACQUIRER>
+            <BANK id="X">XXXXXXXXX</BANK>
+            <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
+            <HOST_RESP responseCode="XX"><![CDATA[ NOT AUTHORISED ]]></HOST_RESP>
+            { ptrTransactionNode.toXml }
+            { ptrCardNode.toXml }
+          </PAYMENT>
+          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)) }
+          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)) }
+        </TRANS>
+      </POI_MSG>
+    </RLSOLVE_MSG>
+  }
+
+}
+
+object GetTransactionDetailsResponse {
+  val name: String = "getTransactionDetailsResponse"
+}
