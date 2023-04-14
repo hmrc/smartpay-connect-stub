@@ -483,7 +483,7 @@ final case class ReceiptMerchantNode(
 final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode.name) extends SpcXmlNode {
   def toXml: Node = {
     <ERRORS>
-      { errorNode.foreach(_.toXml) }
+      { errorNode.map(_.toXml) }
     </ERRORS>
   }
 }

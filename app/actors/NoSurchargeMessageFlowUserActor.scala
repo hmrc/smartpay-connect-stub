@@ -25,10 +25,10 @@ import play.api.Logger
 import scala.concurrent.ExecutionContextExecutor
 
 object NoSurchargeMessageFlowUserActor {
-  def props(spcFlow: SpcFlow): Props = Props(new NoSurchargeMessageFlowUserActor(spcFlow))
+  def props(spcFlow: SpcFlow, errorsNode: ErrorsNode): Props = Props(new NoSurchargeMessageFlowUserActor(spcFlow, errorsNode))
 }
 
-class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
+class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow, errorsNode: ErrorsNode) extends Actor {
   import SpcParentActor._
 
   var schedule: Cancellable = startCountDown()
@@ -172,7 +172,7 @@ class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
         paymentResult        = spcFlow.paymentResult,
         receiptNodeCustomerO = Some(clientReceiptNode),
         receiptNodeMerchantO = Some(merchantReceiptNode),
-        errorsNode           = ErrorsNode(Seq.empty))
+        errorsNode           = errorsNode)
       sendScpReplyMessage(out, processTransactionResponse)
 
       context.become(handleFinalise orElse handleScpMessages)
