@@ -254,7 +254,9 @@ class SpcParentActor extends Actor {
               ),
               displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
             )
-            context.actorOf(NoSurchargeMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            val errorsNode = ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed")))
+
+            context.actorOf(NoSurchargeMessageFlowUserActor.props(spcFlow, errorsNode), s"${transNum.value}")
 
           case DeclinedBinCheckFailed =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
