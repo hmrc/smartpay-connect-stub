@@ -37,8 +37,7 @@ class WebsocketController @Inject() (
 
   private val scpParentActor: ActorRef = system.actorOf(SpcParentActor.props())
 
-  def ws(): WebSocket = WebSocket.accept[String, String] { implicit request =>
-
+  def ws(): WebSocket = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
       SpcSessionActor.props(out, scpParentActor, scenarioService)
     }

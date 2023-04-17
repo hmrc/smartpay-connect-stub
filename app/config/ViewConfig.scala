@@ -26,8 +26,6 @@ class ViewConfig @Inject() (
     val config:     Configuration,
     servicesConfig: ServicesConfig
 ) {
-  //private val contactBaseUrl = servicesConfig.baseUrl("face-to-face-frontend")
-  private val serviceIdentifier = "MyService"
   val appName: String = servicesConfig.getString("appName")
   val frontendBaseUrl: String = servicesConfig.getString("urls.frontend-base")
   val supportLanguages: Boolean = true

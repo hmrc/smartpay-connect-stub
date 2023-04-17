@@ -30,12 +30,12 @@ object RandomDataGenerator {
 
   private def randomAlphaNumeric(length: Int): String = alphaNumeric.take(length).mkString
 
-  private def alphaNumeric: Stream[Char] = {
+  private def alphaNumeric: LazyList[Char] = {
       def nextAlphaNumeric: Char = {
         val chars = "0123456789abcdefghijklmnopqrstuvwxyz"
         chars charAt (self nextInt chars.length)
       }
-    Stream continually nextAlphaNumeric
+    LazyList continually nextAlphaNumeric
   }
 
 }

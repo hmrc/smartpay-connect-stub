@@ -29,7 +29,7 @@ import java.util.Locale
 final case class AmountInPence(value: Long) {
   def formatInPounds: String = NumberFormat.getCurrencyInstance(Locale.UK).format(inPounds)
 
-  def formatInDecimal: String = inPounds.formatted("%,1.2f")
+  def formatInDecimal: String = "%,1.2f".format(inPounds)
 
   def inPounds: BigDecimal = AmountInPence.toPounds(this)
 
