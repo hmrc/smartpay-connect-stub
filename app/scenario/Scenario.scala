@@ -58,6 +58,7 @@ object Scenario extends Enum[Scenario] {
   final case object DeclinedValidationFailed extends Scenario { val value = "declined_validation_failed"; val description = "Declined/No Validation with availableSpent and startDate missing on receipt" }
   final case object DeclinedBinCheckFailed extends Scenario { val value = "declined_bin_check_failed"; val description = "Declined/Bin check failed" }
   final case object DeclinedNoReceipt extends Scenario { val value = "declined_no_receipt"; val description = "Declined no receipt" }
+  final case object DeclinedPedDisconnected extends Scenario { val value = "declined_ped_disconnected"; val description = "Declined PED disconnected" }
 
   final case object FallbackPosDecision extends Scenario { val value = "fallback_pos_decision"; val description = "Fallback after posDecision" }
 

@@ -258,6 +258,22 @@ class SpcParentActor extends Actor {
 
             context.actorOf(NoSurchargeMessageFlowUserActor.props(spcFlow, errorsNode), s"${transNum.value}")
 
+          case DeclinedPedDisconnected =>
+            logger.debug(s"Parent actor is going to create PedDisconnectedMessageFlowUserActor for stubPath:$stubPath")
+            val spcFlowNoReceipt = SpcFlowNoReceipt(
+              paymentCard                   = StubUtil.VisaCredit,
+              paymentResult                 = PaymentResults.declined,
+              transactionResult             = TranResults.SuccessResult,
+              cardVerificationMethod        = CardVerificationMethod.not_performed,
+              transactionSource             = TransactionSources.Icc,
+              displayMessagesValidation     = Seq.empty,
+              displayMessagesAuthentication = Seq.empty
+            )
+
+            val errorsNode = ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure")))
+
+            context.actorOf(PedDisconnectedMessageFlowUserActor.props(spcFlowNoReceipt, errorsNode), s"${transNum.value}")
+
           case DeclinedBinCheckFailed =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
             val spcFlow: SpcFlow = SpcFlow(
