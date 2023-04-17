@@ -131,19 +131,8 @@ class SpcParentActor extends Actor {
 
           case DeclinedPedDisconnected =>
             logger.debug(s"Parent actor is going to create PedDisconnectedMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlowNoReceipt = SpcFlowNoReceipt(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq.empty,
-              displayMessagesAuthentication = Seq.empty
-            )
-
             val errorsNode = ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure")))
-
-            context.actorOf(PedDisconnectedMessageFlowUserActor.props(spcFlowNoReceipt, errorsNode), s"${transNum.value}")
+            context.actorOf(PedDisconnectedMessageFlowUserActor.props(SpcFlows.declinedPedDisconnected, errorsNode), s"${transNum.value}")
 
           case DeclinedBinCheckFailed =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
@@ -367,6 +356,16 @@ object SpcFlows {
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
   )
 
+  val declinedPedDisconnected: SpcFlowNoReceipt = SpcFlowNoReceipt(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq.empty,
+    displayMessagesAuthentication = Seq.empty
+  )
+
   val declinedBinCheckFailedFlow: SpcFlow = SpcFlow(
     paymentCard                   = StubUtil.VisaCredit_BinCheckFail,
     paymentResult                 = PaymentResults.cancelled,
@@ -430,7 +429,7 @@ object SpcFlows {
   val cancelledOnPedIccFlow: SpcFlow = SpcFlow(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
+    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
     transactionResult             = TranResults.SuccessResult,
     cardVerificationMethod        = CardVerificationMethod.not_performed,
     transactionSource             = TransactionSources.Icc,
@@ -441,7 +440,7 @@ object SpcFlows {
   val cancelledByBarclaycardFlow: SpcFlow = SpcFlow(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
+    receiptNodeName               = ReceiptTypeName.ReceiptTypeBroken,
     transactionResult             = TranResults.FailureResult,
     cardVerificationMethod        = CardVerificationMethod.pin,
     transactionSource             = TransactionSources.Icc,
