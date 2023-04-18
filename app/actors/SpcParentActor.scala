@@ -296,8 +296,8 @@ object SpcFlows {
 
   val declinedNotAuthorisedNotVerifiedFlow: SpcFlow = SpcFlow(
     paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType3Name,
     transactionResult             = TranResults.SuccessResult,
     cardVerificationMethod        = CardVerificationMethod.not_performed,
     transactionSource             = TransactionSources.Icc,
