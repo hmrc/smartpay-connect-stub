@@ -18,11 +18,10 @@ package views
 
 import play.api.data.Form
 import play.api.i18n.Messages
-import utils.RequestSupport
 
 object ViewUtils {
 
-  def title(form: Form[_], title: String, section: Option[String] = None)(implicit request: RequestSupport, messages: Messages): String =
+  def title(form: Form[_], title: String, section: Option[String] = None)(implicit messages: Messages): String =
     titleNoForm(
       title   = s"${errorPrefix(form)} XXX",
       section = section
@@ -31,7 +30,7 @@ object ViewUtils {
   def titleNoForm(title: String, section: Option[String] = None)(implicit messages: Messages): String =
     s"${messages(title)} - ${section.fold("")(messages(_) + " - ")}XXX - XXX"
 
-  def errorPrefix(form: Form[_])(implicit messages: Messages): String = {
+  def errorPrefix(form: Form[_]): String = {
     if (form.hasErrors || form.hasGlobalErrors) "XXX" else ""
   }
 }

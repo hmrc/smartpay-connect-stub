@@ -17,7 +17,6 @@
 package models
 
 import play.api.libs.json.{Format, Json}
-import play.api.libs.functional.syntax._
 
 final case class CurrencyNum(value: String) {
   def toCurrencyCode = value match {

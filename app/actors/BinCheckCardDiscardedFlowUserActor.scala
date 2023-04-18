@@ -17,18 +17,18 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
-import models.InteractionCategories.{CardReader, OnlineCategory}
+import models.InteractionCategories.CardReader
 import models.TranResults.SuccessResult
 import models._
 import play.api.Logger
 
 import scala.concurrent.ExecutionContextExecutor
 
-object BinCheckCardDisacrtedFlowUserActor {
-  def props(spcFlow: SpcFlow): Props = Props(new BinCheckCardDisacrtedFlowUserActor(spcFlow))
+object BinCheckCardDiscardedFlowUserActor {
+  def props(spcFlow: SpcFlow): Props = Props(new BinCheckCardDiscardedFlowUserActor(spcFlow))
 }
 
-class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
+class BinCheckCardDiscardedFlowUserActor(spcFlow: SpcFlow) extends Actor {
   import SpcParentActor._
 
   var schedule: Cancellable = startCountDown()

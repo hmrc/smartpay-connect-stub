@@ -63,7 +63,8 @@ object Scenario extends Enum[Scenario] {
   final case object FallbackPosDecision extends Scenario { val value = "fallback_pos_decision"; val description = "Fallback after posDecision" }
 
   //  final case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
-  //  final case object CancelledOnPedIcc extends StubPath { val value =  "cancelled_ped_icc" ; val description = "Chip&Pin path with transaction cancelled by user on ped"}
+  final case object CancelledOnPedIcc extends Scenario { val value = "cancelled_ped_icc"; val description = "Chip&Pin path with transaction cancelled by user on ped" }
+  final case object CancelledByBarclaycard extends Scenario { val value = "cancelled_by_barclaycard"; val description = "Chip&Pin path with transaction cancelled by Barclaycard" }
   //  final case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
   override def values: immutable.IndexedSeq[Scenario] = findValues
 }

@@ -27,9 +27,9 @@ import scala.xml.{Elem, XML}
 object SpcParentActor {
   def props(): Props = Props(new SpcParentActor())
 
-  case class SpcWSStringMessage(out: ActorRef, msg: String, scenario: Scenario)
-  case class SpcWSXmlMessage(out: ActorRef, session: ActorRef, msg: Elem)
-  case class SpcWSMessage(out: ActorRef, session: ActorRef, msg: F2FMessage)
+  final case class SpcWSStringMessage(out: ActorRef, msg: String, scenario: Scenario)
+  final case class SpcWSXmlMessage(out: ActorRef, session: ActorRef, msg: Elem)
+  final case class SpcWSMessage(out: ActorRef, session: ActorRef, msg: F2FMessage)
 }
 
 class SpcParentActor extends Actor {
@@ -62,89 +62,19 @@ class SpcParentActor extends Actor {
 
           case SuccessChipAndPin =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.successChipAndPinFlow), s"${transNum.value}")
 
           case SuccessChipAndPinMulti =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              receiptNodeName               = ReceiptTypeName.ReceiptType2Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.SelectAppOnPed),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.FailedRetry, InteractionPrompts.PinIncorrect),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.successChipAndPinMultiFlow), s"${transNum.value}")
 
           case SuccessNoVerification =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.successNoVerificationFlow), s"${transNum.value}")
 
           case SuccessNoReceipt =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlowNoReceipt = SpcFlowNoReceipt(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.OnlineResult,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(NoReceiptMessageFlowUserActor.props(spcFlowNoReceipt), s"${transNum.value}")
+            context.actorOf(NoReceiptMessageFlowUserActor.props(SpcFlows.successNoReceiptFlow), s"${transNum.value}")
 
           //          case SuccessContactlessEMV =>
           //            logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
@@ -184,112 +114,29 @@ class SpcParentActor extends Actor {
 
           case DeclinedNotAuthorisedNotVerified =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              receiptNodeName               = ReceiptTypeName.ReceiptType3Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.declinedNotAuthorisedNotVerifiedFlow), s"${transNum.value}")
 
           case DeclinedInvalidCard =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.unknown,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.declinedInvalidCardFlow), s"${transNum.value}")
 
           case DeclinedNotAuthorisedNotVerified2 =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              receiptNodeName               = ReceiptTypeName.ReceiptType6Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.declinedNotAuthorisedNotVerified2Flow), s"${transNum.value}")
 
           case DeclinedValidationFailed =>
             logger.debug(s"Parent actor is going to create NoSurchargeMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              receiptNodeName               = ReceiptTypeName.ReceiptType7Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Fallforward, InteractionPrompts.InsertCardInChipReader)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
             val errorsNode = ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed")))
-
-            context.actorOf(NoSurchargeMessageFlowUserActor.props(spcFlow, errorsNode), s"${transNum.value}")
+            context.actorOf(NoSurchargeMessageFlowUserActor.props(SpcFlows.declinedValidationFailedFlow, errorsNode), s"${transNum.value}")
 
           case DeclinedPedDisconnected =>
             logger.debug(s"Parent actor is going to create PedDisconnectedMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlowNoReceipt = SpcFlowNoReceipt(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.not_performed,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq.empty,
-              displayMessagesAuthentication = Seq.empty
-            )
-
             val errorsNode = ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure")))
-
-            context.actorOf(PedDisconnectedMessageFlowUserActor.props(spcFlowNoReceipt, errorsNode), s"${transNum.value}")
+            context.actorOf(PedDisconnectedMessageFlowUserActor.props(SpcFlows.declinedPedDisconnected, errorsNode), s"${transNum.value}")
 
           case DeclinedBinCheckFailed =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit_BinCheckFail,
-              paymentResult                 = PaymentResults.cancelled,
-              receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
-            context.actorOf(BinCheckCardDisacrtedFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(BinCheckCardDiscardedFlowUserActor.props(SpcFlows.declinedBinCheckFailedFlow), s"${transNum.value}")
 
           //          case SuccessContactlessEMV3 =>
           //            logger.debug(s"Parent actor is going to create NoSurchargeMessageFlowUserActor for stubPath:$stubPath")
@@ -312,69 +159,24 @@ class SpcParentActor extends Actor {
 
           case DeclinedInvalidCard2 =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              receiptNodeName               = ReceiptTypeName.ReceiptType9Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.unknown,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
-            context.actorOf(StandardMessageFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.declinedInvalidCard2), s"${transNum.value}")
 
           case DeclinedNoReceipt =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlowNoReceipt = SpcFlowNoReceipt(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.declined,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-            )
-            context.actorOf(NoReceiptMessageFlowUserActor.props(spcFlowNoReceipt), s"${transNum.value}")
+            context.actorOf(NoReceiptMessageFlowUserActor.props(SpcFlows.declinedNoReceiptFlow), s"${transNum.value}")
 
           case FallbackPosDecision =>
             logger.debug(s"Parent actor is going to create StandardMessageFlowUserActor for stubPath:$stubPath")
-            val spcFlow: SpcFlow = SpcFlow(
-              paymentCard                   = StubUtil.VisaCredit,
-              paymentResult                 = PaymentResults.cancelled,
-              receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-              transactionResult             = TranResults.SuccessResult,
-              cardVerificationMethod        = CardVerificationMethod.pin,
-              transactionSource             = TransactionSources.Icc,
-              displayMessagesValidation     = Seq(
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-              ),
-              displayMessagesAuthentication = Seq(
-                (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-                (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-                (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-              )
-            )
-            context.actorOf(FallBackFlowUserActor.props(spcFlow), s"${transNum.value}")
+            context.actorOf(FallBackFlowUserActor.props(SpcFlows.fallbackPosDecisionFlow), s"${transNum.value}")
 
-          //          case CancelledOnPedIcc =>
-          //            logger.debug(s"Parent actor is going to create CancelledOnPedIcc for stubPath:$stubPath")
-          //            context.actorOf(CancelledIccUserActor.props(),s"${transNum.value}")
-          //          case CardDeclinedIcc =>
-          //            logger.debug(s"Parent actor is going to create CardDeclinedIccUserActor for stubPath:$stubPath")
-          //            context.actorOf(CardDeclinedIccUserActor.props(),s"${transNum.value}")
-          //          //TODO default set for now until all path implemented
-          //          case IncorrectPinIcc =>
-          //            logger.debug(s"Parent actor is going to create IncorrectPinIcc for stubPath:$stubPath")
-          //            context.actorOf(IncorrectPinCardRemovedUserActor.props(),s"${transNum.value}")
+          case CancelledOnPedIcc =>
+            logger.debug(s"Parent actor is going to create CancelledOnPedIcc for stubPath:$stubPath")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.cancelledOnPedIccFlow), s"${transNum.value}")
+
+          case CancelledByBarclaycard =>
+            logger.debug(s"Parent actor is going to create CancelledByBarclaycard for stubPath:$stubPath")
+            context.actorOf(StandardMessageFlowUserActor.props(SpcFlows.cancelledByBarclaycardFlow), s"${transNum.value}")
+
           case _ =>
             logger.debug(s"Parent actor is going to create Default for stubPath:$stubPath")
             val spcFlow: SpcFlow = SpcFlow(
@@ -414,4 +216,235 @@ class SpcParentActor extends Actor {
   }
 
   private lazy val logger = Logger(SpcParentActor.getClass)
+}
+
+object SpcFlows {
+
+  val successChipAndPinFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.OnlineResult,
+    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+    )
+  )
+
+  val successChipAndPinMultiFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.OnlineResult,
+    receiptNodeName               = ReceiptTypeName.ReceiptType2Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.SelectAppOnPed),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+      (InteractionEvents.FailedRetry, InteractionPrompts.PinIncorrect),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+    )
+  )
+
+  val successNoVerificationFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.OnlineResult,
+    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+    )
+  )
+
+  val successNoReceiptFlow: SpcFlowNoReceipt = SpcFlowNoReceipt(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.OnlineResult,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+    )
+  )
+
+  val declinedNotAuthorisedNotVerifiedFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.cancelled,
+    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+    )
+  )
+
+  val declinedInvalidCardFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.unknown,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val declinedNotAuthorisedNotVerified2Flow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType6Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val declinedValidationFailedFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType7Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Fallforward, InteractionPrompts.InsertCardInChipReader)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val declinedPedDisconnected: SpcFlowNoReceipt = SpcFlowNoReceipt(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq.empty,
+    displayMessagesAuthentication = Seq.empty
+  )
+
+  val declinedBinCheckFailedFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit_BinCheckFail,
+    paymentResult                 = PaymentResults.cancelled,
+    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val declinedInvalidCard2: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType9Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.unknown,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val declinedNoReceiptFlow: SpcFlowNoReceipt = SpcFlowNoReceipt(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val fallbackPosDecisionFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.cancelled,
+    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+    )
+  )
+
+  val cancelledOnPedIccFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.cancelled,
+    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.not_performed,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq.empty[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  )
+
+  val cancelledByBarclaycardFlow: SpcFlow = SpcFlow(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.cancelled,
+    receiptNodeName               = ReceiptTypeName.ReceiptTypeBroken,
+    transactionResult             = TranResults.FailureResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
+    displayMessagesAuthentication = Seq((InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer), (InteractionEvents.StartedEvent, InteractionPrompts.PinIncorrect))
+  )
 }

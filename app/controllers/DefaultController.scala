@@ -15,21 +15,20 @@
  */
 
 package controllers
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import scenario.ScenarioService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ScenariosView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class DefaultController @Inject() (
     val controllerComponents: MessagesControllerComponents,
     scenarioService:          ScenarioService,
-    scenariosView:            ScenariosView)(implicit executionContext: ExecutionContext)
-  extends FrontendBaseController {
+    scenariosView:            ScenariosView
+) extends FrontendBaseController {
 
-  def default() = Action { implicit request =>
+  def default(): Action[AnyContent] = Action { _ =>
     Redirect(scenario.routes.ScenarioController.showScenarios)
   }
 
