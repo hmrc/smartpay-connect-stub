@@ -16,6 +16,9 @@
 
 package models
 
+import models.spc.ReceiptTypeName
+import models.spc.parts.{InteractionEvent, InteractionPrompt, PaymentResult, TransactionSource}
+
 case class SpcFlow(
     paymentCard:                   PaymentCard,
     paymentResult:                 PaymentResult,

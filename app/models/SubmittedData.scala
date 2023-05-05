@@ -16,11 +16,13 @@
 
 package models
 
+import models.spc.parts.CurrencyNum
+
 case class SubmittedData(
     totalAmount:         AmountInPence,
     country:             Country,
     currency:            CurrencyNum,
-    transactionNumber:   TransactionId,
+    transactionNumber:   TransactionNumber,
     transactionDateTime: Long
 )
 

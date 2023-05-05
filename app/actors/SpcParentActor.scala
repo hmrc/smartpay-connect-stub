@@ -17,10 +17,12 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
-import scenario.Scenario._
 import models._
+import models.spc.SpcExtensionMethods.SpcRequestMessageExt
+import models.spc.{ReceiptTypeName, SpcParsingService, SpcRequestMessage}
 import play.api.Logger
 import scenario.Scenario
+import scenario.Scenario._
 
 import scala.xml.{Elem, XML}
 
@@ -29,7 +31,7 @@ object SpcParentActor {
 
   case class SpcWSStringMessage(out: ActorRef, msg: String, scenario: Scenario)
   case class SpcWSXmlMessage(out: ActorRef, session: ActorRef, msg: Elem)
-  case class SpcWSMessage(out: ActorRef, session: ActorRef, msg: F2FMessage)
+  case class SpcWSMessage(out: ActorRef, session: ActorRef, msg: SpcRequestMessage)
 }
 
 class SpcParentActor extends Actor {
@@ -45,15 +47,16 @@ class SpcParentActor extends Actor {
     super.preStart()
   }
 
-  def receive: Receive = handleScpMessages(Map.empty[TransactionId, ActorRef])
+  def receive: Receive = handleScpMessages(Map.empty[TransactionNumber, ActorRef])
 
-  private def handleScpMessages(userActors: Map[TransactionId, ActorRef]): Receive = {
+  private def handleScpMessages(userActors: Map[TransactionNumber, ActorRef]): Receive = {
     case SpcWSStringMessage(out, request, stubPath) =>
       val session = context.sender()
       logger.debug(s"Parent Actor got message $request")
       logger.debug(s"Parent Actor userActors $userActors")
       val xmlMsg: Elem = XML.loadString(request)
-      val transNum = SpcXmlHelper.getSpcXmlMessageNode(xmlMsg).transNum
+      val transNum = SpcParsingService.parseSpcRequestMessage(xmlMsg).messageNode.transactionNumber
+
 
       userActors.get(transNum).fold {
         logger.debug(s"Parent actor is going to create user actor with name ${transNum.value}")

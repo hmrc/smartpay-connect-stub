@@ -16,15 +16,15 @@
 
 package models
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Format
-
-/**
- * Transaction id used by smartpay connect.
- */
-final case class TransactionId(value: String)
-
-object TransactionId {
-  implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
-}
-
+//import play.api.libs.functional.syntax._
+//import play.api.libs.json.Format
+//
+///**
+// * Transaction id used by smartpay connect.
+// */
+//final case class TransactionId(value: String)
+//
+//object TransactionId {
+//  implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
+//}
+//

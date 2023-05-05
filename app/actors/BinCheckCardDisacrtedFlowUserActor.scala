@@ -17,9 +17,13 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
-import models.InteractionCategories.{CardReader, OnlineCategory}
+import akka.util.Timeout
+import models.{SpcFlow, StubUtil, SubmittedData}
 import models.TranResults.SuccessResult
-import models._
+import models.spc.SpcExtensionMethods.SpcRequestMessageExt
+import models.spc._
+import models.spc.parts.InteractionCategories.CardReader
+import models.spc.parts._
 import play.api.Logger
 
 import scala.concurrent.ExecutionContextExecutor
@@ -55,13 +59,8 @@ class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
       logger.debug(s"User Actor $self got XML message $xmlMsg")
       schedule.cancel()
       schedule = startCountDown()
-      SpcXmlHelper.getSpcXmlMessage(xmlMsg) match {
-        case Some(scpXmlMessage) =>
-          self ! SpcWSMessage(out, session, scpXmlMessage)
-        case None =>
-          logger.error(s"User Actor received unknown message")
-          context.stop(self)
-      }
+      val scpXmlMessage = SpcParsingService.parseSpcRequestMessage(xmlMsg)
+      self ! SpcWSMessage(out, session, scpXmlMessage)
 
     case Timeout =>
       logger.error(s"User Actor $self timeout. Closing itself")
@@ -69,9 +68,9 @@ class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
     case SpcWSMessage(out, session, unexpected: SpcRequestMessage) =>
       logger.error(s"Unexpected SmartPay Connect message: $unexpected")
       //TODO - check actually what is teh error code
-      val errorNode = ErrorNode("XXXXXX", s"Unexpected message [${unexpected.name}] for selected stub flow")
+      val errorNode = ErrorNode("XXXXXX", s"Unexpected message [${unexpected}] for selected stub flow")
       val errorsNode = ErrorsNode(Seq(errorNode))
-      val errorResponse = ErrorMessage(HeaderNode(), unexpected.messageNode, errorsNode, SuccessResult)
+      val errorResponse = ErrorMessage(unexpected.messageNode, errorsNode)
       sendScpReplyMessage(out, errorResponse)
       context.stop(self)
 
@@ -98,7 +97,7 @@ class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
         currency            = submitPayment.transactionNode.amountNode.currency,
         country             = submitPayment.transactionNode.amountNode.country,
-        transactionNumber   = submitPayment.messageNode.transNum,
+        transactionNumber   = submitPayment.messageNode.transactionNumber,
         transactionDateTime = StubUtil.getCurrentDateTime
       )
 
@@ -141,7 +140,7 @@ class BinCheckCardDisacrtedFlowUserActor(spcFlow: SpcFlow) extends Actor {
       logger.debug(s"User Actor $self got SpcMessage updatePaymentEnhancedResponse message $cancelTransaction")
 
       //processTransactionResponse
-      val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+      val amountNode = spc.AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
         amountNode      = amountNode,

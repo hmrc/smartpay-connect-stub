@@ -1,180 +1,180 @@
-/*
- * Copyright 2023 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+///*
+// * Copyright 2023 HM Revenue & Customs
+// *
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// *
+// *     http://www.apache.org/licenses/LICENSE-2.0
+// *
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
+//
+package models.spc
 
-package models
-
-import models.SpcXmlHelper._
-import play.api.libs.json._
-import utils.RandomDataGenerator
+import models._
+import models.spc.SpcExtensionMethods.SuperNode
+import models.spc.parts.SpcXmlNode
 
 import scala.xml.{Node, PCData}
-
-/**
- * SCP - Smart Pay Connect - XML nodes that are used to build messages
- */
-sealed trait SpcXmlNode {
-  def toXml: Node
-}
-
-final case class MessageNode(transNum: TransactionId, deviceId: DeviceId, sourceId: SourceId) extends SpcXmlNode {
-  def toXml: Node = {
-    <MESSAGE>
-      <TRANS_NUM>{ transNum.value }</TRANS_NUM>
-      <DEVICE_ID>{ deviceId.value }</DEVICE_ID>
-      <SOURCE_ID>{ sourceId.value }</SOURCE_ID>
-    </MESSAGE>
-  }
-}
-
-object MessageNode {
-  def fromXml(node: Node): MessageNode = {
-    val transNr = TransactionId((node \\ "MESSAGE" \ "TRANS_NUM").text)
-    val sourceId = SourceId((node \\ "MESSAGE" \ "SOURCE_ID").text)
-    val deviceId = DeviceId((node \\ "MESSAGE" \ "DEVICE_ID").text)
-    MessageNode(transNr, deviceId, sourceId)
-  }
-}
-
-final case class InteractionNode(category: InteractionCategory, event: InteractionEvent, prompt: InteractionPrompt) extends SpcXmlNode {
-  def toXml: Node = {
-    <INTERACTION name="posDisplayMessage">
-      <STATUS category={ category.toString } event={ event.toString }/>
-      <PROMPT>{ prompt.toString }</PROMPT>
-    </INTERACTION>
-  }
-}
-
-final case class AmountNode(totalAmount: AmountInPence, currency: CurrencyNum, country: Country, finalAmountO: Option[AmountInPence]) extends SpcXmlNode {
-  def toXml: Node = {
-    val totalAmountNode =
-      <AMOUNT currency={ currency.value } country={ country.value }>
-        <TOTAL>{ totalAmount.value }</TOTAL>
-      </AMOUNT>
-
-    finalAmountO.map{ finalAmount =>
-      SpcXmlHelper.addNode(totalAmountNode, { <FINAL>{ finalAmount.value }</FINAL> })
-    }.getOrElse(totalAmountNode)
-  }
-}
-
-object AmountNode {
-  def fromXml(node: Node): AmountNode = {
-    val totalAmount = AmountInPence.fromScpAmount((node \\ "AMOUNT" \ "TOTAL").text)
-    val currency = CurrencyNum((node \\ "AMOUNT" \ "@currency").text)
-    val country = Country((node \\ "AMOUNT" \ "@country").text)
-    val finalAmountO = (node \\ "AMOUNT" \ "FINAL").headOption.map(x => AmountInPence(x.text))
-    AmountNode(totalAmount, currency, country, finalAmountO)
-  }
-}
-
-final case class TransactionNode(amountNode: AmountNode, transactionSource: TransactionSource = TransactionSources.Icc) extends SpcXmlNode {
-  def toXml: Node = {
-    <TRANSACTION type={ TransactionTypes.Purchase.toString } action={ TransactionActions.AuthorizeAndSettle.toString } source={ transactionSource.toString } customer={ TransactionCustomers.Present.toString }>
-      { amountNode.toXml }
-    </TRANSACTION>
-  }
-}
-
-object TransactionNode {
-  def fromXml(node: Node): TransactionNode = {
-    val transactionSourceO = (node \\ "TRANSACTION" \ "@source").headOption.map(x => TransactionSource(x.text)).get
-    val amountNode = AmountNode.fromXml(node)
-    TransactionNode(amountNode, transactionSourceO)
-  }
-}
-
-//TODO - provide current date time in message
-final case class PtrTransactionNode(amountNode:        AmountNode,
-                                    transactionSource: TransactionSource      = TransactionSources.Icc,
-                                    verification:      CardVerificationMethod,
-                                    transactionDate:   String,
-                                    transactionTime:   String) extends SpcXmlNode {
-  def toXml: Node = {
-    <TRANSACTION action={ TransactionActions.AuthorizeAndSettle.toString } type={ TransactionTypes.Purchase.toString } source={ transactionSource.toString } customer={ TransactionCustomers.Present.toString } reference={ RandomDataGenerator.generateTransactionReference.value } date={ transactionDate } time={ transactionTime }>
-      <SCHEME_REF>XXXXXXXXXXXXXXXX</SCHEME_REF>
-      <AUTH_CODE>{ StubUtil.AUTH_CODE }</AUTH_CODE>
-      <CARDHOLDER_RESULT verification={ verification.toString }>XXXXXX</CARDHOLDER_RESULT>
-      <AUTH_REQ_CRYPTO>XXXXXXXXXXXXX</AUTH_REQ_CRYPTO>
-      <AUTH_RESP_CODE>XX</AUTH_RESP_CODE>
-      <STATUS_INFO>XXXX</STATUS_INFO>
-      <CRYPTO_INFO_DATA>XX</CRYPTO_INFO_DATA>
-      <TERMINAL_RESULT>XXXXXXXXX</TERMINAL_RESULT>
-      <UNPREDICTABLE_NUM>XXXXXXX</UNPREDICTABLE_NUM>
-      <CRYPTO_TRANSTYPE>XX</CRYPTO_TRANSTYPE>
-      { amountNode.toXml }
-    </TRANSACTION>
-  }
-}
-
-final case class PdTransNode(decision: TransactionDecision, name: String = PdTransNode.name) extends SpcXmlNode {
-  def toXml: Node = {
-    <TRANS name="posDecision">
-      <DECISION type={ decision.decisionType }>{ decision.decisionDesc }</DECISION>
-    </TRANS>
-  }
-}
-
-object PdTransNode {
-  implicit val format: OFormat[PdTransNode] = Json.format[PdTransNode]
-  def fromXml(node: Node): PdTransNode = {
-    val transactionDecision = TransactionDecision((node \\ "TRANS" \ "DECISION" \ "@type").text)
-    PdTransNode(transactionDecision)
-  }
-  val name = "PdTransNode"
-}
-
-final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
-  def toXml: Node = {
-    <CARD range="X" currency={ paymentCard.currency.value } country={ paymentCard.country.value }>
-      <PAN end={ paymentCard.receiptEndMasked } start={ paymentCard.startDate } seqNum={ paymentCard.seqNum }>{ paymentCard.receiptPan }</PAN>
-      <APPLICATION id={ StubUtil.APPLICATION_ID }>
-        { paymentCard.cardSchema.value }
-      </APPLICATION>
-      <TOKENS>
-        <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
-      </TOKENS>
-    </CARD>
-  }
-}
-
-final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
-  def toXml: Node = {
-    <CARD range="X" currency={ paymentCard.currency.value } country={ paymentCard.country.value }>
-      <PAN end={ paymentCard.endDate } start={ paymentCard.startDate } seqNum={ paymentCard.seqNum }>{ paymentCard.pan }</PAN>
-      <APPLICATION id={ StubUtil.APPLICATION_ID } version="XXXXX">
-        { paymentCard.cardSchema.value }
-        <INTERCHANGE_PROFILE>XXXX</INTERCHANGE_PROFILE>
-        <TRANSACTION_COUNTER>XXXX</TRANSACTION_COUNTER>
-        <USAGE_CONTROL>XXXX</USAGE_CONTROL>
-        <ACTION_CODES>
-          <DENIAL>XXXXXXXXXX</DENIAL>
-          <ONLINE>XXXXXXXXXX</ONLINE>
-          <DEFAULT>XXXXXXXXXX</DEFAULT>
-        </ACTION_CODES>
-        <DISCRETIONARY_DATA>
-          <ISSUER_SUPPLIEDDATA>XXXXXXXXXXXXXXXXXXXXXXXX</ISSUER_SUPPLIEDDATA>
-        </DISCRETIONARY_DATA>
-      </APPLICATION>
-      <TOKENS>
-        <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
-      </TOKENS>
-    </CARD>
-  }
-}
-
+//
+///**
+// * SCP - Smart Pay Connect - XML nodes that are used to build messages
+// */
+//sealed trait SpcXmlNode {
+//  def toXml: Node
+//}
+//
+//final case class MessageNode(transNum: TransactionId, deviceId: DeviceId, sourceId: SourceId) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <MESSAGE>
+//      <TRANS_NUM>{ transNum.value }</TRANS_NUM>
+//      <DEVICE_ID>{ deviceId.value }</DEVICE_ID>
+//      <SOURCE_ID>{ sourceId.value }</SOURCE_ID>
+//    </MESSAGE>
+//  }
+//}
+//
+//object MessageNode {
+//  def fromXml(node: Node): MessageNode = {
+//    val transNr = TransactionId((node \\ "MESSAGE" \ "TRANS_NUM").text)
+//    val sourceId = SourceId((node \\ "MESSAGE" \ "SOURCE_ID").text)
+//    val deviceId = DeviceId((node \\ "MESSAGE" \ "DEVICE_ID").text)
+//    MessageNode(transNr, deviceId, sourceId)
+//  }
+//}
+//
+//final case class InteractionNode(category: InteractionCategory, event: InteractionEvent, prompt: InteractionPrompt) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <INTERACTION name="posDisplayMessage">
+//      <STATUS category={ category.toString } event={ event.toString }/>
+//      <PROMPT>{ prompt.toString }</PROMPT>
+//    </INTERACTION>
+//  }
+//}
+//
+//final case class AmountNode(totalAmount: AmountInPence, currency: CurrencyNum, country: Country, finalAmountO: Option[AmountInPence]) extends SpcXmlNode {
+//  def toXml: Node = {
+//    val totalAmountNode =
+//      <AMOUNT currency={ currency.value } country={ country.value }>
+//        <TOTAL>{ totalAmount.value }</TOTAL>
+//      </AMOUNT>
+//
+//    finalAmountO.map{ finalAmount =>
+//      SpcXmlHelper.addNode(totalAmountNode, { <FINAL>{ finalAmount.value }</FINAL> })
+//    }.getOrElse(totalAmountNode)
+//  }
+//}
+//
+//object AmountNode {
+//  def fromXml(node: Node): AmountNode = {
+//    val totalAmount = AmountInPence.fromScpAmount((node \\ "AMOUNT" \ "TOTAL").text)
+//    val currency = CurrencyNum((node \\ "AMOUNT" \ "@currency").text)
+//    val country = Country((node \\ "AMOUNT" \ "@country").text)
+//    val finalAmountO = (node \\ "AMOUNT" \ "FINAL").headOption.map(x => AmountInPence(x.text))
+//    AmountNode(totalAmount, currency, country, finalAmountO)
+//  }
+//}
+//
+//final case class TransactionNode(amountNode: AmountNode, transactionSource: TransactionSource = TransactionSources.Icc) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <TRANSACTION type={ TransactionTypes.Purchase.toString } action={ TransactionActions.AuthorizeAndSettle.toString } source={ transactionSource.toString } customer={ TransactionCustomers.Present.toString }>
+//      { amountNode.toXml }
+//    </TRANSACTION>
+//  }
+//}
+//
+//object TransactionNode {
+//  def fromXml(node: Node): TransactionNode = {
+//    val transactionSourceO = (node \\ "TRANSACTION" \ "@source").headOption.map(x => TransactionSource(x.text)).get
+//    val amountNode = AmountNode.fromXml(node)
+//    spc.TransactionNode(amountNode, transactionSourceO)
+//  }
+//}
+//
+////TODO - provide current date time in message
+//final case class PtrTransactionNode(amountNode:        AmountNode,
+//                                    transactionSource: TransactionSource      = TransactionSources.Icc,
+//                                    verification:      CardVerificationMethod,
+//                                    transactionDate:   String,
+//                                    transactionTime:   String) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <TRANSACTION action={ TransactionActions.AuthorizeAndSettle.toString } type={ TransactionTypes.Purchase.toString } source={ transactionSource.toString } customer={ TransactionCustomers.Present.toString } reference={ RandomDataGenerator.generateTransactionReference.value } date={ transactionDate } time={ transactionTime }>
+//      <SCHEME_REF>XXXXXXXXXXXXXXXX</SCHEME_REF>
+//      <AUTH_CODE>{ StubUtil.AUTH_CODE }</AUTH_CODE>
+//      <CARDHOLDER_RESULT verification={ verification.toString }>XXXXXX</CARDHOLDER_RESULT>
+//      <AUTH_REQ_CRYPTO>XXXXXXXXXXXXX</AUTH_REQ_CRYPTO>
+//      <AUTH_RESP_CODE>XX</AUTH_RESP_CODE>
+//      <STATUS_INFO>XXXX</STATUS_INFO>
+//      <CRYPTO_INFO_DATA>XX</CRYPTO_INFO_DATA>
+//      <TERMINAL_RESULT>XXXXXXXXX</TERMINAL_RESULT>
+//      <UNPREDICTABLE_NUM>XXXXXXX</UNPREDICTABLE_NUM>
+//      <CRYPTO_TRANSTYPE>XX</CRYPTO_TRANSTYPE>
+//      { amountNode.toXml }
+//    </TRANSACTION>
+//  }
+//}
+//
+//final case class PdTransNode(decision: TransactionDecision, name: String = PdTransNode.name) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <TRANS name="posDecision">
+//      <DECISION type={ decision.decisionType }>{ decision.decisionDesc }</DECISION>
+//    </TRANS>
+//  }
+//}
+//
+//object PdTransNode {
+//  implicit val format: OFormat[PdTransNode] = Json.format[PdTransNode]
+//  def fromXml(node: Node): PdTransNode = {
+//    val transactionDecision = TransactionDecision((node \\ "TRANS" \ "DECISION" \ "@type").text)
+//    PdTransNode(transactionDecision)
+//  }
+//  val name = "PdTransNode"
+//}
+//
+//final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <CARD range="X" currency={ paymentCard.currency.value } country={ paymentCard.country.value }>
+//      <PAN end={ paymentCard.receiptEndMasked } start={ paymentCard.startDate } seqNum={ paymentCard.seqNum }>{ paymentCard.receiptPan }</PAN>
+//      <APPLICATION id={ StubUtil.APPLICATION_ID }>
+//        { paymentCard.cardSchema.value }
+//      </APPLICATION>
+//      <TOKENS>
+//        <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
+//      </TOKENS>
+//    </CARD>
+//  }
+//}
+//
+//final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <CARD range="X" currency={ paymentCard.currency.value } country={ paymentCard.country.value }>
+//      <PAN end={ paymentCard.endDate } start={ paymentCard.startDate } seqNum={ paymentCard.seqNum }>{ paymentCard.pan }</PAN>
+//      <APPLICATION id={ StubUtil.APPLICATION_ID } version="XXXXX">
+//        { paymentCard.cardSchema.value }
+//        <INTERCHANGE_PROFILE>XXXX</INTERCHANGE_PROFILE>
+//        <TRANSACTION_COUNTER>XXXX</TRANSACTION_COUNTER>
+//        <USAGE_CONTROL>XXXX</USAGE_CONTROL>
+//        <ACTION_CODES>
+//          <DENIAL>XXXXXXXXXX</DENIAL>
+//          <ONLINE>XXXXXXXXXX</ONLINE>
+//          <DEFAULT>XXXXXXXXXX</DEFAULT>
+//        </ACTION_CODES>
+//        <DISCRETIONARY_DATA>
+//          <ISSUER_SUPPLIEDDATA>XXXXXXXXXXXXXXXXXXXXXXXX</ISSUER_SUPPLIEDDATA>
+//        </DISCRETIONARY_DATA>
+//      </APPLICATION>
+//      <TOKENS>
+//        <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
+//      </TOKENS>
+//    </CARD>
+//  }
+//}
+//
 trait ReceiptNode {
   def toXml: Node
   def toXml(receiptType: ReceiptType): Node
@@ -204,7 +204,7 @@ trait ReceiptNotEmptyNode extends ReceiptNode {
       <APPLICATION_ID>{ StubUtil.APPLICATION_ID }</APPLICATION_ID>
       <CARD_SCHEME>{ spcFlow.paymentCard.cardSchema.value }</CARD_SCHEME>
       <CURRENCY_CODE>{ submittedData.currency.toCurrencyCode }</CURRENCY_CODE>
-      <CUSTOMER_PRESENCE>{ CustomerPresence.present.toString }</CUSTOMER_PRESENCE>
+      <CUSTOMER_PRESENCE>{ CustomerPresence.Present.toString }</CUSTOMER_PRESENCE>
       <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
       <MERCHANT_NUMBER>{ StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
       <PAN_NUMBER>{ getPanNumber }</PAN_NUMBER>
@@ -478,56 +478,56 @@ final case class ReceiptMerchantNode(
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybeTerminalId: Option[String] = None
 }
-
-//TODO - DO parse all errors
-final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode.name) extends SpcXmlNode {
-  def toXml: Node = {
-    <ERRORS>
-      { errorNode.foreach(_.toXml) }
-    </ERRORS>
-  }
-}
-
-object ErrorsNode {
-  implicit val format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
-  def fromXml(node: Node): ErrorsNode = {
-    val errors = (node \\ "TRANS" \ "ERRORS").headOption.map(_.map(ErrorNode.fromXml))
-    ErrorsNode(errors.getOrElse(Seq.empty[ErrorNode]))
-  }
-  val name = "ErrorsNode"
-}
-
-final case class ErrorNode(code: String, description: String, name: String = ErrorNode.name) extends SpcXmlNode {
-  def toXml: Node = {
-    <ERROR code={ code }>{ description }</ERROR>
-  }
-}
-
-object ErrorNode {
-  implicit val format: OFormat[ErrorNode] = Json.format[ErrorNode]
-  def fromXml(node: Node): ErrorNode = {
-    val code = (node \\ "ERROR" \ "@code").text
-    val description = (node \\ "ERROR").text
-    ErrorNode(code, description)
-  }
-  val name = "ErrorNode"
-}
-
-final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
-  def toXml: Node = {
-    <HEADER>
-      <BUILD>
-        <VERSION>{ StubUtil.VERSION }</VERSION>
-      </BUILD>
-    </HEADER>
-  }
-}
-
-object HeaderNode {
-  implicit val format: OFormat[HeaderNode] = Json.format[HeaderNode]
-  def fromXml(node: Node): HeaderNode = {
-    HeaderNode()
-  }
-  val name = "HeaderNode"
-}
-
+//
+////TODO - DO parse all errors
+//final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode.name) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <ERRORS>
+//      { errorNode.foreach(_.toXml) }
+//    </ERRORS>
+//  }
+//}
+//
+//object ErrorsNode {
+//  implicit val format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
+//  def fromXml(node: Node): ErrorsNode = {
+//    val errors = (node \\ "TRANS" \ "ERRORS").headOption.map(_.map(ErrorNode.fromXml))
+//    ErrorsNode(errors.getOrElse(Seq.empty[ErrorNode]))
+//  }
+//  val name = "ErrorsNode"
+//}
+//
+//final case class ErrorNode(code: String, description: String, name: String = ErrorNode.name) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <ERROR code={ code }>{ description }</ERROR>
+//  }
+//}
+//
+//object ErrorNode {
+//  implicit val format: OFormat[ErrorNode] = Json.format[ErrorNode]
+//  def fromXml(node: Node): ErrorNode = {
+//    val code = (node \\ "ERROR" \ "@code").text
+//    val description = (node \\ "ERROR").text
+//    ErrorNode(code, description)
+//  }
+//  val name = "ErrorNode"
+//}
+//
+//final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
+//  def toXml: Node = {
+//    <HEADER>
+//      <BUILD>
+//        <VERSION>{ StubUtil.VERSION }</VERSION>
+//      </BUILD>
+//    </HEADER>
+//  }
+//}
+//
+//object HeaderNode {
+//  implicit val format: OFormat[HeaderNode] = Json.format[HeaderNode]
+//  def fromXml(node: Node): HeaderNode = {
+//    HeaderNode()
+//  }
+//  val name = "HeaderNode"
+//}
+//

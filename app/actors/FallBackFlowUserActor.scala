@@ -19,7 +19,8 @@ package actors
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult
-import models._
+import models.{spc, _}
+import models.spc.{AmountNode, CancelTransaction, ErrorMessage, ErrorNode, ErrorsNode, Finalise, FinaliseResponse, HeaderNode, InteractionNode, PdTransNode, PedLogOff, PedLogOffResponse, PedLogOn, PedLogOnResponse, PosDecisionMessage, PosDisplayMessage, PosPrintReceipt, ProcessTransaction, ProcessTransactionResponse, PtrResponseCardNode, PtrTransactionNode, ReceiptMerchantNode, SpcRequestMessage, SpcResponseMessage, SpcXmlHelper, SubmitPayment, SubmitPaymentResponse, TransactionNode, UpdatePaymentEnhanced, UpdatePaymentEnhancedResponse, UpeCardNode}
 import play.api.Logger
 
 import scala.concurrent.ExecutionContextExecutor
@@ -145,8 +146,8 @@ class FallBackFlowUserActor(spcFlow: SpcFlow) extends Actor {
       //Display sequence - card Authentication
       spcFlow.displayMessagesAuthentication.foreach {
         case (interactionEvents, interactionPrompt) =>
-          val interactionNode = InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
-          val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
+          val interactionNode = spc.InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
+          val posDisplayMessageInsertCard = spc.PosDisplayMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
           sendScpReplyMessage(out, posDisplayMessageInsertCard)
       }
 
@@ -169,7 +170,7 @@ class FallBackFlowUserActor(spcFlow: SpcFlow) extends Actor {
       logger.debug(s"User Actor $self got SpcMessage cancelTransaction message $cancelTransaction")
 
       //processTransactionResponse
-      val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+      val amountNode = spc.AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
         amountNode      = amountNode,

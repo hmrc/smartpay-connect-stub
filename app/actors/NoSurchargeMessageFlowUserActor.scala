@@ -19,7 +19,8 @@ package actors
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import models.InteractionCategories.CardReader
 import models.TranResults.SuccessResult
-import models._
+import models.{spc, _}
+import models.spc.{AmountNode, CancelTransaction, ErrorMessage, ErrorNode, ErrorsNode, Finalise, FinaliseResponse, HeaderNode, InteractionNode, PedLogOff, PedLogOffResponse, PedLogOn, PedLogOnResponse, PosDisplayMessage, PosPrintReceipt, PosPrintReceiptResponse, ProcessTransaction, ProcessTransactionResponse, PtrResponseCardNode, PtrTransactionNode, ReceiptMerchantNode, ReceiptNode, SpcRequestMessage, SpcResponseMessage, SpcXmlHelper, SubmitPayment, SubmitPaymentResponse}
 import play.api.Logger
 
 import scala.concurrent.ExecutionContextExecutor
@@ -141,7 +142,7 @@ class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
       //PosPrintReceipt client
       val clientReceiptNode = ReceiptNode.createReceiptNode(submittedData, spcFlow, submittedData.totalAmount, finalAmount)
 
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), posPrintReceiptResponse.messageNode, clientReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
+      val posPrintReceipt = spc.PosPrintReceipt(HeaderNode(), posPrintReceiptResponse.messageNode, clientReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
       sendScpReplyMessage(out, posPrintReceipt)
 
       context.become(handlePosPrintReceiptResponseWithPtr(submittedData, finalAmount, merchantReceiptNode, clientReceiptNode) orElse handleScpMessages)
@@ -185,16 +186,16 @@ class NoSurchargeMessageFlowUserActor(spcFlow: SpcFlow) extends Actor {
       logger.debug(s"User Actor $self got SpcMessage cancelTransaction message $cancelTransaction")
 
       //processTransactionResponse
-      val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+      val amountNode = spc.AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
-      val ptrTransactionNode = PtrTransactionNode(
+      val ptrTransactionNode = spc.PtrTransactionNode(
         amountNode      = amountNode,
         verification    = spcFlow.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
         transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+      val cardNode = spc.PtrResponseCardNode(spcFlow.paymentCard)
 
-      val processTransactionResponse = ProcessTransactionResponse(
+      val processTransactionResponse = spc.ProcessTransactionResponse(
         headerNode           = HeaderNode(),
         messageNode          = cancelTransaction.messageNode,
         ptrTransactionNode   = ptrTransactionNode,

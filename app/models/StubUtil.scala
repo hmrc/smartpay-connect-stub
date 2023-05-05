@@ -16,6 +16,9 @@
 
 package models
 
+import models.spc.ErrorNode
+import models.spc.parts.ErrorNode
+
 import java.text.SimpleDateFormat
 import java.util.Date
 

@@ -12,3 +12,6 @@ GET         /smartpay-connect-stub/ws                         controllers.Websoc
 #redirect to provide backward compatibility, remove it after second half 2023
 GET         /smartpay-connect-stub/set-path-for-device        controllers.Default.redirect(to = "/smartpay-connect-stub/scenario")
 
+POST        /smartpay-connect-stub/send-message               controllers.SpcRestController.sendMessage()
+POST        /smartpay-connect-stub/get-recent                 controllers.SpcRestController.getRecent()
+
