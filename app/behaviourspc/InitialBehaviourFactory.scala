@@ -14,50 +14,50 @@
  * limitations under the License.
  */
 
-package actors
+package behaviourspc
 
-import flow.MessageFlow
+import flow.InitialBehaviour
 import scenario.Scenario._
 import models._
 import scenario.Scenario
 
-object FlowFactory {
+object InitialBehaviourFactory {
 
-  def makeFlow(scenario: Scenario): MessageFlow = {
+  def makeFlow(scenario: Scenario): InitialBehaviour = {
     scenario match {
-      case Scenario.SuccessChipAndPin        => successChipAndPinFlow
-      case Scenario.SuccessChipAndPinMulti   => successChipAndPinMultiFlow
-      case Scenario.SuccessNoVerification    => successNoVerificationFlow
-      case SuccessNoReceipt                  => successNoReceiptFlow
-      case DeclinedNotAuthorisedNotVerified  => declinedNotAuthorisedNotVerifiedFlow
-      case DeclinedInvalidCard               => declinedInvalidCardFlow
-      case DeclinedNotAuthorisedNotVerified2 => declinedNotAuthorisedNotVerified2Flow
-      case DeclinedValidationFailed          => declinedValidationFailedFlow
-      case DeclinedPedDisconnected           => declinedPedDisconnectedFlow
-      case DeclinedBinCheckFailed            => declinedBinCheckFailedFlow
-      case DeclinedInvalidCard2              => declinedInvalidCard2Flow
-      case DeclinedNoReceipt                 => declinedNoReceiptFlow
-      case FallbackPosDecision               => fallbackPosDecisionFlow
-      case CancelledOnPedIcc                 => cancelledOnPedIccFlow
-      case CancelledByBarclaycard            => cancelledByBarclaycardFlow
+      case Scenario.SuccessChipAndPin        => successChipAndPinInitialBehaviour
+      case Scenario.SuccessChipAndPinMulti   => successChipAndPinMultiInitialBehaviour
+      case Scenario.SuccessNoVerification    => successNoVerificationInitialBehaviour
+      case SuccessNoReceipt                  => successNoReceiptInitialBehaviour
+      case DeclinedNotAuthorisedNotVerified  => declinedNotAuthorisedNotVerifiedInitialBehaviour
+      case DeclinedInvalidCard               => declinedInvalidCardInitialBehaviour
+      case DeclinedNotAuthorisedNotVerified2 => declinedNotAuthorisedNotVerified2InitialBehaviour
+      case DeclinedValidationFailed          => declinedValidationFailedInitialBehaviour
+      case DeclinedPedDisconnected           => declinedPedDisconnectedInitialBehaviour
+      case DeclinedBinCheckFailed            => declinedBinCheckFailedInitialBehaviour
+      case DeclinedInvalidCard2              => declinedInvalidCard2InitialBehaviour
+      case DeclinedNoReceipt                 => declinedNoReceiptInitialBehaviour
+      case FallbackPosDecision               => fallbackPosDecisionInitialBehaviour
+      case CancelledOnPedIcc                 => cancelledOnPedIccInitialBehaviour
+      case CancelledByBarclaycard            => cancelledByBarclaycardInitialBehaviour
     }
   }
 
-  private val successChipAndPinFlow = new StandardMessageFlow(FlowData.successChipAndPinFlowData)
-  private val successChipAndPinMultiFlow = new StandardMessageFlow(FlowData.successChipAndPinMultiFlowData)
-  private val successNoVerificationFlow = new StandardMessageFlow(FlowData.successNoVerificationFlow)
-  private val successNoReceiptFlow = new NoReceiptMessageFlow(FlowData.successNoReceiptFlow)
-  private val declinedNotAuthorisedNotVerifiedFlow = new StandardMessageFlow(FlowData.declinedNotAuthorisedNotVerifiedFlow)
-  private val declinedNotAuthorisedNotVerified2Flow = new StandardMessageFlow(FlowData.declinedNotAuthorisedNotVerified2Flow)
-  private val declinedValidationFailedFlow = new NoSurchargeMessageFlowUserActor(FlowData.declinedValidationFailedFlow, ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed"))))
-  private val declinedPedDisconnectedFlow = new PedDisconnectedMessageFlowUserActor(FlowData.declinedPedDisconnected, ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure"))))
-  private val declinedBinCheckFailedFlow = new BinCheckCardDiscardedFlowUserActor(FlowData.declinedBinCheckFailedFlow)
-  private val declinedInvalidCard2Flow = new StandardMessageFlow(FlowData.declinedInvalidCard2)
-  private val declinedNoReceiptFlow = new NoReceiptMessageFlow(FlowData.declinedNoReceiptFlow)
-  private val fallbackPosDecisionFlow = new FallBackFlowUserActor(FlowData.fallbackPosDecisionFlow)
-  private val cancelledOnPedIccFlow = new StandardMessageFlow(FlowData.cancelledOnPedIccFlow)
-  private val cancelledByBarclaycardFlow = new StandardMessageFlow(FlowData.cancelledByBarclaycardFlow)
-  private val declinedInvalidCardFlow = new StandardMessageFlow(FlowData.declinedInvalidCardFlow)
+  private val successChipAndPinInitialBehaviour = new StandardInitialBehaviour(FlowData.successChipAndPinFlowData)
+  private val successChipAndPinMultiInitialBehaviour = new StandardInitialBehaviour(FlowData.successChipAndPinMultiFlowData)
+  private val successNoVerificationInitialBehaviour = new StandardInitialBehaviour(FlowData.successNoVerificationFlow)
+  private val successNoReceiptInitialBehaviour = new NoReceiptInitialBehaviour(FlowData.successNoReceiptFlow)
+  private val declinedNotAuthorisedNotVerifiedInitialBehaviour = new StandardInitialBehaviour(FlowData.declinedNotAuthorisedNotVerifiedFlow)
+  private val declinedNotAuthorisedNotVerified2InitialBehaviour = new StandardInitialBehaviour(FlowData.declinedNotAuthorisedNotVerified2Flow)
+  private val declinedValidationFailedInitialBehaviour = new NoSurchargeInitialBehaviour(FlowData.declinedValidationFailedFlow, ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed"))))
+  private val declinedPedDisconnectedInitialBehaviour = new PedDisconnectedInitialBehaviour(FlowData.declinedPedDisconnected, ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure"))))
+  private val declinedBinCheckFailedInitialBehaviour = new BinCheckCardDiscardedInitialBehaviour(FlowData.declinedBinCheckFailedFlow)
+  private val declinedInvalidCard2InitialBehaviour = new StandardInitialBehaviour(FlowData.declinedInvalidCard2)
+  private val declinedNoReceiptInitialBehaviour = new NoReceiptInitialBehaviour(FlowData.declinedNoReceiptFlow)
+  private val fallbackPosDecisionInitialBehaviour = new FallBackInitialBehaviour(FlowData.fallbackPosDecisionFlow)
+  private val cancelledOnPedIccInitialBehaviour = new StandardInitialBehaviour(FlowData.cancelledOnPedIccFlow)
+  private val cancelledByBarclaycardInitialBehaviour = new StandardInitialBehaviour(FlowData.cancelledByBarclaycardFlow)
+  private val declinedInvalidCardInitialBehaviour = new StandardInitialBehaviour(FlowData.declinedInvalidCardFlow)
 }
 
 object FlowData {

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package flow
+import behaviour.{BDefined, BDone, Behaviour}
+import models.{SpcRequestMessage, SpcResponseMessage}
 
-import behaviour.Behaviour.B
+package object behaviourspc {
 
-trait MessageFlow {
-  def initialBehaviour: B
+  type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
+  def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(pf)
+  val done: Behaviour[SpcRequestMessage, Nothing] = BDone
 }

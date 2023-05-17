@@ -16,8 +16,7 @@
 
 package controllers
 
-import actors.FlowFactory
-import behaviour.Behaviour.B
+import behaviourspc.{SpcBehaviour, InitialBehaviourFactory}
 import behaviour.{BDefined, BDone, Behaviour}
 import models.TranResults.SuccessResult
 import models._
@@ -42,18 +41,18 @@ class StubController @Inject() (
   def pingSpc(): Action[AnyContent] = Action(Ok)
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  var behaviours: Map[TransactionId, B] = Map()
+  var behaviours: Map[TransactionId, SpcBehaviour] = Map()
 
-  private def getBehaviour(transactionId: TransactionId): B = behaviours.getOrElse(
+  private def getBehaviour(transactionId: TransactionId): SpcBehaviour = behaviours.getOrElse(
     transactionId,
-    FlowFactory.makeFlow(scenarioService.getScenario()).initialBehaviour
+    InitialBehaviourFactory.makeFlow(scenarioService.getScenario()).initialBehaviour
   )
 
   private def removeBehaviour(transactionId: TransactionId): Unit = {
     behaviours = behaviours.removed(transactionId)
   }
 
-  private def updateBehaviour(transactionId: TransactionId, behaviour: B): Unit = {
+  private def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit = {
     behaviours = behaviours.updated(transactionId, behaviour)
   }
 

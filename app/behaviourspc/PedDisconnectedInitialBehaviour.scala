@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package actors
+package behaviourspc
 
-import behaviour.Behaviour.{B, behave, done}
-import flow.MessageFlow
+import flow.InitialBehaviour
 import models.TranResults.SuccessResult
 import models._
 
-class PedDisconnectedMessageFlowUserActor(spcFlow: SpcFlowDataNoReceipt, errorsNode: ErrorsNode) extends MessageFlow {
+class PedDisconnectedInitialBehaviour(spcFlow: SpcFlowDataNoReceipt, errorsNode: ErrorsNode) extends InitialBehaviour {
 
-  val initialBehaviour: B = handlePedLogOn
+  val initialBehaviour: SpcBehaviour = handlePedLogOn
 
-  private lazy val handlePedLogOn: B = behave {
+  private lazy val handlePedLogOn: SpcBehaviour = behave {
     case pedLogOn: PedLogOn =>
 
       val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
       (List(
         pedLogOnResponse),
-        handleSubmitPayment orElse handlePedLogOff
+        handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
   }
 
-  private lazy val handleSubmitPayment: B = behave {
+  private lazy val handleSubmitPayment: SpcBehaviour = behave {
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -53,7 +52,7 @@ class PedDisconnectedMessageFlowUserActor(spcFlow: SpcFlowDataNoReceipt, errorsN
   }
 
   //Do not send updatePaymentEnhanced but got to print message instead
-  private def handleProcessTransaction(submittedData: SubmittedData): B = behave {
+  private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave {
 
     case processTransaction: ProcessTransaction =>
       //processTransactionResponse
@@ -78,11 +77,11 @@ class PedDisconnectedMessageFlowUserActor(spcFlow: SpcFlowDataNoReceipt, errorsN
         errorsNode           = errorsNode)
       (
         List(processTransactionResponse),
-        handleFinalise
+        CommonBehaviours.handleFinalise
       )
   }
 
-  private def handleTransactionCancelled(submittedData: SubmittedData): B = behave {
+  private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave {
     case cancelTransaction: CancelTransaction =>
       //processTransactionResponse
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
@@ -106,27 +105,8 @@ class PedDisconnectedMessageFlowUserActor(spcFlow: SpcFlowDataNoReceipt, errorsN
         errorsNode           = ErrorsNode(Seq.empty))
       (
         List(processTransactionResponse),
-        handleFinalise
+        CommonBehaviours.handleFinalise
       )
   }
 
-  private lazy val handleFinalise: B = behave {
-    case finalise: Finalise =>
-
-      val finaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
-      (
-        List(finaliseResponse),
-        handlePedLogOff
-      )
-  }
-
-  private lazy val handlePedLogOff: B = behave {
-    case pedLogOff: PedLogOff =>
-      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
-      (
-        List(pedLogOffResponse),
-        done
-      )
-
-  }
 }

@@ -59,7 +59,7 @@
     </logger>
 
     <logger name="application" level="DEBUG"/>
-    <logger name="reactivemongo.core.actors.MongoDBSystem" level="WARN"/>
+    <logger name="reactivemongo.core.behaviourspc.MongoDBSystem" level="WARN"/>
 
     <logger name="connector" level="TRACE">
         <appender-ref ref="STDOUT"/>

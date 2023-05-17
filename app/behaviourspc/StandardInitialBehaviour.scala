@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package actors
+package behaviourspc
 
-import behaviour.Behaviour.{B, behave, done}
-import flow.MessageFlow
+import flow.InitialBehaviour
 import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult
 import models._
 
-class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
+class StandardInitialBehaviour(flowData: SpcFlowData) extends InitialBehaviour {
 
-  val initialBehaviour: B = handlePedLogOn
+  val initialBehaviour: SpcBehaviour = handlePedLogOn
 
-  private lazy val handlePedLogOn: B = behave {
+  private lazy val handlePedLogOn: SpcBehaviour = behave {
     case pedLogOn: PedLogOn =>
       (
         List(PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
-        handleSubmitPayment orElse handlePedLogOff
+        handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
   }
 
-  private lazy val handleSubmitPayment: B = behave {
+  private lazy val handleSubmitPayment: SpcBehaviour = behave {
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -52,7 +51,7 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
   }
 
   //sends UpdatePaymentEnhanced
-  private def handleProcessTransaction(submittedData: SubmittedData): B = behave{
+  private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave{
 
     case processTransaction: ProcessTransaction =>
 
@@ -77,7 +76,7 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
       )
   }
 
-  private def handleUpdatePaymentEnhancedResponse(submittedData: SubmittedData): B = behave {
+  private def handleUpdatePaymentEnhancedResponse(submittedData: SubmittedData): SpcBehaviour = behave {
     case updatePaymentEnhancedResponse: UpdatePaymentEnhancedResponse =>
       val finalAmount = updatePaymentEnhancedResponse.amountNode.finalAmountO
       val totalAmount = updatePaymentEnhancedResponse.amountNode.totalAmount
@@ -101,7 +100,7 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
       )
   }
 
-  private def handlePosPrintReceiptResponse(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode): B = behave{
+  private def handlePosPrintReceiptResponse(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode): SpcBehaviour = behave{
     case posPrintReceiptResponse: PosPrintReceiptResponse =>
 
       //PosPrintReceipt client
@@ -114,7 +113,7 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
       )
   }
 
-  private def handlePosPrintReceiptResponseWithPtr(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode, clientReceiptNode: ReceiptNode): B = behave{
+  private def handlePosPrintReceiptResponseWithPtr(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode, clientReceiptNode: ReceiptNode): SpcBehaviour = behave{
     case posPrintReceiptResponse: PosPrintReceiptResponse =>
 
       //processTransactionResponse
@@ -139,11 +138,11 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
         errorsNode           = ErrorsNode(Seq.empty))
 
       (List(processTransactionResponse),
-        handleFinalise
+        CommonBehaviours.handleFinalise
       )
   }
 
-  private def handleTransactionCancelled(submittedData: SubmittedData): B = behave{
+  private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave{
     case cancelTransaction: CancelTransaction =>
 
       //processTransactionResponse
@@ -168,25 +167,9 @@ class StandardMessageFlow(flowData: SpcFlowData) extends MessageFlow {
         errorsNode           = ErrorsNode(Seq.empty))
 
       (List(processTransactionResponse),
-        handleFinalise
+        CommonBehaviours.handleFinalise
       )
   }
 
-  private lazy val handleFinalise: B = behave {
-    case finalise: Finalise =>
 
-      val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
-      (List(finaliseResponse),
-        handlePedLogOff
-      )
-  }
-
-  private lazy val handlePedLogOff: B = behave{
-    case pedLogOff: PedLogOff =>
-      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
-      (
-        List(pedLogOffResponse),
-        done
-      )
-  }
 }
