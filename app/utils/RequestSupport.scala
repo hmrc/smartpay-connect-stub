@@ -48,7 +48,10 @@ object RequestSupport {
 
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
-  def deviceId(implicit request: Request[_]): DeviceId = hc.deviceID.fold(DeviceId.couldNotFindDeviceId)(DeviceId.apply)
+  def deviceId(implicit request: Request[_]): DeviceId = {
+    val maybeDeviceId = hc.deviceID
+    maybeDeviceId.fold(DeviceId.couldNotFindDeviceId)(DeviceId.apply)
+  }
   /**
    * This is because we want to give responsibility of creation of [[HeaderCarrier]] to the platform code.
    * If they refactor how hc is created our code will pick it up automatically.

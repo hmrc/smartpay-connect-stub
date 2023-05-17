@@ -20,22 +20,38 @@ import models.TransactionId
 import scenario.ScenarioService
 import utils.DeviceId
 
+import scala.collection.concurrent.TrieMap
+
 object BehaviourService {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  private var behaviours: Map[TransactionId, SpcBehaviour] = Map()
+  private val behaviours: TrieMap[TransactionId, SpcBehaviour] = TrieMap()
 
-  def getBehaviour(transactionId: TransactionId, deviceId: DeviceId): SpcBehaviour = behaviours.getOrElse(
-    transactionId,
-    SpcFlows.getFlow(ScenarioService.getScenario(deviceId)).initialBehaviour
-  )
+  def getBehaviour(transactionId: TransactionId, deviceId: DeviceId): SpcBehaviour = {
+    val scenario = ScenarioService.getScenario(deviceId)
+    val maybeBehaviour: Option[SpcBehaviour] = behaviours.get(
+      transactionId
+    )
+
+    val behaviour: SpcBehaviour = maybeBehaviour match {
+      case Some(b) => b
+      case None =>
+        val b: SpcBehaviour = SpcFlows.getFlow(scenario).initialBehaviour
+        updateBehaviour(transactionId, b)
+        b
+    }
+
+    behaviour
+
+  }
 
   def removeBehaviour(transactionId: TransactionId): Unit = {
-    behaviours = behaviours.removed(transactionId)
+    val r = behaviours.remove(transactionId)
+    println(r)
+    ()
   }
 
   def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit = {
-    behaviours = behaviours.updated(transactionId, behaviour)
+    behaviours.update(transactionId, behaviour)
   }
 
 }

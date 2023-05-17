@@ -18,15 +18,16 @@ package scenario
 
 import utils.DeviceId
 
+import scala.collection.concurrent.TrieMap
+
 object ScenarioService {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  private var scenarioVar: Map[DeviceId, Scenario] = Map()
+  private val scenarios: TrieMap[DeviceId, Scenario] = TrieMap()
 
   def setScenario(deviceId: DeviceId, scenario: Scenario): Unit = {
-    scenarioVar = scenarioVar.updated(deviceId, scenario)
+    scenarios.update(deviceId, scenario)
   }
 
-  def getScenario(deviceId: DeviceId): Scenario = scenarioVar.getOrElse(deviceId, Scenario.default)
+  def getScenario(deviceId: DeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
 
 }
