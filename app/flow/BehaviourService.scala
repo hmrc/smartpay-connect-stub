@@ -14,19 +14,28 @@
  * limitations under the License.
  */
 
-package scenario
+package flow
 
+import models.TransactionId
+import scenario.ScenarioService
 import utils.DeviceId
 
-object ScenarioService {
+object BehaviourService {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  private var scenarioVar: Map[DeviceId, Scenario] = Map()
+  private var behaviours: Map[TransactionId, SpcBehaviour] = Map()
 
-  def setScenario(deviceId: DeviceId, scenario: Scenario): Unit = {
-    scenarioVar = scenarioVar.updated(deviceId, scenario)
+  def getBehaviour(transactionId: TransactionId, deviceId: DeviceId): SpcBehaviour = behaviours.getOrElse(
+    transactionId,
+    SpcFlows.getFlow(ScenarioService.getScenario(deviceId)).initialBehaviour
+  )
+
+  def removeBehaviour(transactionId: TransactionId): Unit = {
+    behaviours = behaviours.removed(transactionId)
   }
 
-  def getScenario(deviceId: DeviceId): Scenario = scenarioVar.getOrElse(deviceId, Scenario.default)
+  def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit = {
+    behaviours = behaviours.updated(transactionId, behaviour)
+  }
 
 }

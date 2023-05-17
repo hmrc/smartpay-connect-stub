@@ -16,14 +16,14 @@
 
 package controllers
 
-import flow.{SpcBehaviour, SpcFlows}
 import behaviour.{BDefined, BDone, Behaviour}
+import flow.{BehaviourService, SpcBehaviour}
 import models.TranResults.SuccessResult
 import models._
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
-import scenario.ScenarioService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.RequestSupport.deviceId
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -32,35 +32,19 @@ import scala.xml.Elem
 
 @Singleton()
 class StubController @Inject() (
-    val controllerComponents: MessagesControllerComponents,
-    scenarioService:          ScenarioService)(implicit ec: ExecutionContext)
+    val controllerComponents: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends FrontendBaseController {
 
   def ping(): Action[AnyContent] = Action(Ok)
 
   def pingSpc(): Action[AnyContent] = Action(Ok)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  var behaviours: Map[TransactionId, SpcBehaviour] = Map()
+  def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { implicit request =>
 
-  private def getBehaviour(transactionId: TransactionId): SpcBehaviour = behaviours.getOrElse(
-    transactionId,
-    SpcFlows.getFlow(scenarioService.getScenario()).initialBehaviour
-  )
-
-  private def removeBehaviour(transactionId: TransactionId): Unit = {
-    behaviours = behaviours.removed(transactionId)
-  }
-
-  private def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit = {
-    behaviours = behaviours.updated(transactionId, behaviour)
-  }
-
-  def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { request =>
     val spcRequestMessage = request.body
     val transactionId: TransactionId = spcRequestMessage.messageNode.transNum
-    val behaviour = getBehaviour(transactionId)
-    val unexpected = (List(Help.unexpectedRequestResponse(spcRequestMessage)), BDone)
+    val behaviour: SpcBehaviour = BehaviourService.getBehaviour(transactionId, deviceId)
+    val unexpected: (List[SpcResponseMessage], BDone.type) = (List(Help.unexpectedRequestResponse(spcRequestMessage)), BDone)
 
     val (spcResponses: Seq[SpcResponseMessage], nextBehaviour: Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]) = behaviour match {
       case BDone        => unexpected
@@ -68,8 +52,8 @@ class StubController @Inject() (
     }
 
     nextBehaviour match {
-      case BDone             => removeBehaviour(transactionId)
-      case b: BDefined[_, _] => updateBehaviour(transactionId, b)
+      case BDone             => BehaviourService.removeBehaviour(transactionId)
+      case b: BDefined[_, _] => BehaviourService.updateBehaviour(transactionId, b)
     }
 
     Ok(Json.toJson(SendMessageResponse(spcResponses.map(_.toXmlString))))

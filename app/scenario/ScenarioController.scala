@@ -19,18 +19,18 @@ package scenario
 import forms.ScenarioForm
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.RequestSupport.deviceId
 import views.html.ScenariosView
 
 import javax.inject.Inject
 
 class ScenarioController @Inject() (
     val controllerComponents: MessagesControllerComponents,
-    scenarioService:          ScenarioService,
     scenariosView:            ScenariosView)
   extends FrontendBaseController {
 
   def showScenarios: Action[AnyContent] = Action { implicit request =>
-    val scenario = scenarioService.getScenario()
+    val scenario = ScenarioService.getScenario(deviceId)
     Ok(scenariosView(ScenarioForm.form.fill(scenario)))
   }
 
@@ -41,7 +41,7 @@ class ScenarioController @Inject() (
       .fold(
         formWithErrors => Ok(scenariosView(formWithErrors)),
         (scenario: Scenario) => {
-          scenarioService.setScenario(scenario)
+          ScenarioService.setScenario(deviceId, scenario)
           Redirect(routes.ScenarioController.showScenarios)
         }
       )
