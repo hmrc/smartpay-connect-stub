@@ -46,7 +46,6 @@ object BehaviourService {
 
   def removeBehaviour(transactionId: TransactionId): Unit = {
     val r = behaviours.remove(transactionId)
-    println(r)
     ()
   }
 
