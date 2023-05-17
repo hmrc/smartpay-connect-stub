@@ -16,7 +16,7 @@
 
 package models
 
-import behaviourspc.FlowData
+import flow.FlowData
 import models.SpcXmlHelper._
 import play.api.libs.json._
 import utils.RandomDataGenerator

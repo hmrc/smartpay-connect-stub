@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package behaviourspc
+package flow
 
 import scenario.Scenario._
 import models._

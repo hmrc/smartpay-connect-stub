@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package behaviourspc
+package flow
 
 import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult

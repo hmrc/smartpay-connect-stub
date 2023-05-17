@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
-package behaviourspc
-
+package flow
+import models.TranResults.SuccessResult
 import models._
 
-final case class FlowDataNoReceipt(
-    paymentCard:                   PaymentCard,
-    paymentResult:                 PaymentResult,
-    transactionResult:             TranResult,
-    cardVerificationMethod:        CardVerificationMethod,
-    transactionSource:             TransactionSource,
-    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
-)
+object CommonBehaviours {
+
+  lazy val handleFinalise: SpcBehaviour = behave {
+    case finalise: Finalise =>
+      val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
+      (List(finaliseResponse),
+        handlePedLogOff
+      )
+  }
+
+  lazy val handlePedLogOff: SpcBehaviour = behave {
+    case pedLogOff: PedLogOff =>
+      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
+      (
+        List(pedLogOffResponse),
+        done
+      )
+  }
+
+}

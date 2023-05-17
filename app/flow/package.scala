@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package behaviourspc
+import behaviour.{BDefined, BDone, Behaviour}
+import models.{SpcRequestMessage, SpcResponseMessage}
 
-import models._
+package object flow {
 
-final case class FlowData(
-    paymentCard:                   PaymentCard,
-    paymentResult:                 PaymentResult,
-    receiptNodeName:               ReceiptTypeName,
-    transactionResult:             TranResult,
-    cardVerificationMethod:        CardVerificationMethod,
-    transactionSource:             TransactionSource,
-    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
-)
+  type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
+
+  def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(pf)
+  val done: Behaviour[SpcRequestMessage, Nothing] = BDone
+}
 

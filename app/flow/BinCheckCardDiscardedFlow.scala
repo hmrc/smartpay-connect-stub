@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package behaviourspc
+package flow
 
+import models.InteractionCategories.CardReader
 import models.TranResults.SuccessResult
 import models._
 
-class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) extends Flow {
+class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
-  private lazy val handlePedLogOn: SpcBehaviour = behave {
+  private lazy val  handlePedLogOn: SpcBehaviour = behave {
     case pedLogOn: PedLogOn =>
-
       val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
-      (List(
-        pedLogOnResponse),
+      (
+        List(pedLogOnResponse),
         handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
   }
 
-  private lazy val handleSubmitPayment: SpcBehaviour = behave {
+  private lazy val  handleSubmitPayment: SpcBehaviour = behave{
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -46,37 +46,30 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
       val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
       (
         List(submitPaymentResponse),
-        handleProcessTransaction(paymentSubmittedData) orElse handleTransactionCancelled(paymentSubmittedData)
+        handleProcessTransaction(paymentSubmittedData)
       )
   }
 
-  //Do not send updatePaymentEnhanced but got to print message instead
+  //sends UpdatePaymentEnhanced
   private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave {
-
     case processTransaction: ProcessTransaction =>
-      //processTransactionResponse
+      //Display sequence - card validation
+      val interimResponses: Seq[PosDisplayMessage] = spcFlow.displayMessagesValidation.map{
+        case (interactionEvents, interactionPrompt) =>
+          val interactionNode = InteractionNode(category = CardReader, event = interactionEvents, prompt = interactionPrompt)
+          val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), processTransaction.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
+          posDisplayMessageInsertCard
+      }
+
+      //UpdatePaymentEnhanced
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+      val transactionNode = TransactionNode(amountNode = amountNode)
+      val cardNode = UpeCardNode(spcFlow.paymentCard)
+      val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
 
-      val ptrTransactionNode = PtrTransactionNode(
-        amountNode      = amountNode,
-        verification    = spcFlow.cardVerificationMethod,
-        transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
-        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
-
-      val processTransactionResponse = ProcessTransactionResponse(
-        headerNode           = HeaderNode(),
-        messageNode          = processTransaction.messageNode,
-        ptrTransactionNode   = ptrTransactionNode,
-        ptrCardNode          = cardNode,
-        result               = spcFlow.transactionResult,
-        paymentResult        = spcFlow.paymentResult,
-        receiptNodeCustomerO = None,
-        receiptNodeMerchantO = None,
-        errorsNode           = errorsNode)
       (
-        List(processTransactionResponse),
-        CommonBehaviours.handleFinalise
+        interimResponses :+[SpcResponseMessage] updatePaymentEnhanced,
+        handleTransactionCancelled(submittedData)
       )
   }
 
@@ -102,10 +95,7 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
-      (
-        List(processTransactionResponse),
-        CommonBehaviours.handleFinalise
-      )
+      (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
 
 }

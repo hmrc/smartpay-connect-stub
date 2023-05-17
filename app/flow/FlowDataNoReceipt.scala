@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package behaviourspc
+package flow
 
-trait Flow {
-  def initialBehaviour: SpcBehaviour
-}
+import models._
+
+final case class FlowDataNoReceipt(
+    paymentCard:                   PaymentCard,
+    paymentResult:                 PaymentResult,
+    transactionResult:             TranResult,
+    cardVerificationMethod:        CardVerificationMethod,
+    transactionSource:             TransactionSource,
+    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+)

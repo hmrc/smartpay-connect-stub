@@ -16,7 +16,7 @@
 
 package controllers
 
-import behaviourspc.{SpcBehaviour, SpcFlows}
+import flow.{SpcBehaviour, SpcFlows}
 import behaviour.{BDefined, BDone, Behaviour}
 import models.TranResults.SuccessResult
 import models._
