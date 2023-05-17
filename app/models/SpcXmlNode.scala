@@ -16,6 +16,7 @@
 
 package models
 
+import behaviourspc.FlowData
 import models.SpcXmlHelper._
 import play.api.libs.json._
 import utils.RandomDataGenerator
@@ -184,7 +185,7 @@ trait ReceiptNode {
 
 trait ReceiptNotEmptyNode extends ReceiptNode {
 
-  val spcFlow: SpcFlowData
+  val spcFlow: FlowData
   val submittedData: SubmittedData
   val totalAmount: AmountInPence
   val finalAmount: Option[AmountInPence]
@@ -274,7 +275,7 @@ trait ReceiptEmptyNode extends ReceiptNode {
 
 trait ReceiptBrokenNode extends ReceiptNode {
 
-  val spcFlow: SpcFlowData
+  val spcFlow: FlowData
   val submittedData: SubmittedData
   val totalAmount: AmountInPence
   val finalAmount: Option[AmountInPence]
@@ -348,7 +349,7 @@ object ReceiptTypeName {
 
 object ReceiptNode {
   import ReceiptTypeName._
-  def createReceiptNode(submittedData: SubmittedData, spcFlow: SpcFlowData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence]): ReceiptNode = {
+  def createReceiptNode(submittedData: SubmittedData, spcFlow: FlowData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence]): ReceiptNode = {
     spcFlow.receiptNodeName match {
       case ReceiptType1Name  => ReceiptType1Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType2Name  => ReceiptType2Node(spcFlow, submittedData, totalAmount, finalAmount)
@@ -367,7 +368,7 @@ object ReceiptNode {
 }
 
 final case class ReceiptType1Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -376,7 +377,7 @@ final case class ReceiptType1Node(
 }
 
 final case class ReceiptType2Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -386,7 +387,7 @@ final case class ReceiptType2Node(
 }
 
 final case class ReceiptType3Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -396,7 +397,7 @@ final case class ReceiptType3Node(
 }
 
 final case class ReceiptType4Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -407,7 +408,7 @@ final case class ReceiptType4Node(
 }
 
 final case class ReceiptType5Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -416,7 +417,7 @@ final case class ReceiptType5Node(
 }
 
 final case class ReceiptType6Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -426,7 +427,7 @@ final case class ReceiptType6Node(
 }
 
 final case class ReceiptType7Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -438,7 +439,7 @@ final case class ReceiptType7Node(
 }
 
 final case class ReceiptType8Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -448,7 +449,7 @@ final case class ReceiptType8Node(
 }
 
 final case class ReceiptType9Node(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
@@ -462,14 +463,14 @@ final case class ReceiptType9Node(
 final case class ReceiptTypeEmptyNode() extends SpcXmlNode with ReceiptEmptyNode
 
 final case class ReceiptTypeBrokenNode(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode with ReceiptBrokenNode
 
 final case class ReceiptMerchantNode(
-    spcFlow:       SpcFlowData,
+    spcFlow:       FlowData,
     submittedData: SubmittedData,
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]

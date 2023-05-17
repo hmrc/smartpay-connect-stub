@@ -76,7 +76,7 @@ object StubUtil {
   val MERCHANT_NUMBER: String = "6571327"
   val TERMINAL_ID: String = "90012002"
 
-  val incorrectMessageFlowErrorNode: ErrorNode = ErrorNode("100003", "Incorrect Message Flow")
+  val incorrectMessageFlowErrorNode: ErrorNode = ErrorNode("100003", "Incorrect Message behaviourspc.Flow")
 
   //That matching our test card
   val MasterDebit: PaymentCard = PaymentCard(CurrencyNum.Eur, Country.Bel, "2025-12-01", "2004-01-01", "5457210089020012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))

@@ -16,7 +16,7 @@
 
 package controllers
 
-import behaviourspc.{SpcBehaviour, InitialBehaviourFactory}
+import behaviourspc.{SpcBehaviour, SpcFlows}
 import behaviour.{BDefined, BDone, Behaviour}
 import models.TranResults.SuccessResult
 import models._
@@ -45,7 +45,7 @@ class StubController @Inject() (
 
   private def getBehaviour(transactionId: TransactionId): SpcBehaviour = behaviours.getOrElse(
     transactionId,
-    InitialBehaviourFactory.makeFlow(scenarioService.getScenario()).initialBehaviour
+    SpcFlows.getFlow(scenarioService.getScenario()).initialBehaviour
   )
 
   private def removeBehaviour(transactionId: TransactionId): Unit = {

@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package models
+package behaviourspc
 
-final case class SpcFlowData(
-    paymentCard:                   PaymentCard,
-    paymentResult:                 PaymentResult,
-    receiptNodeName:               ReceiptTypeName,
-    transactionResult:             TranResult,
-    cardVerificationMethod:        CardVerificationMethod,
-    transactionSource:             TransactionSource,
-    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
-)
+import models._
 
-final case class SpcFlowDataNoReceipt(
+final case class FlowDataNoReceipt(
     paymentCard:                   PaymentCard,
     paymentResult:                 PaymentResult,
     transactionResult:             TranResult,
@@ -36,4 +27,3 @@ final case class SpcFlowDataNoReceipt(
     displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
     displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
 )
-

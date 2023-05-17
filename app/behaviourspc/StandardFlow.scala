@@ -16,26 +16,23 @@
 
 package behaviourspc
 
-import flow.InitialBehaviour
 import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult
 import models._
 
-class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialBehaviour {
+class StandardFlow(flowData: FlowData) extends Flow {
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
   private lazy val handlePedLogOn: SpcBehaviour = behave {
     case pedLogOn: PedLogOn =>
-
-      val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
       (
-        List(pedLogOnResponse),
+        List(PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
         handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
   }
 
-  private def handleSubmitPayment: SpcBehaviour = behave {
+  private lazy val handleSubmitPayment: SpcBehaviour = behave {
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -46,14 +43,19 @@ class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialB
       )
 
       val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
-      (List(submitPaymentResponse), handleProcessTransaction(paymentSubmittedData))
+      (
+        List(submitPaymentResponse),
+        handleProcessTransaction(paymentSubmittedData)
+      )
   }
 
   //sends UpdatePaymentEnhanced
-  private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave {
+  private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave{
+
     case processTransaction: ProcessTransaction =>
+
       //Display sequence - card validation
-      val interimMessages = flowData.displayMessagesValidation.map{
+      val interimResponses = flowData.displayMessagesValidation.map {
         case (interactionEvents, interactionPrompt) =>
           val interactionNode = InteractionNode(category = CardReader, event = interactionEvents, prompt = interactionPrompt)
           val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), processTransaction.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
@@ -65,7 +67,12 @@ class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialB
       val transactionNode = TransactionNode(amountNode = amountNode)
       val cardNode = UpeCardNode(flowData.paymentCard)
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
-      (interimMessages :+[SpcResponseMessage] updatePaymentEnhanced, handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData))
+      val responses: Seq[SpcResponseMessage] = interimResponses :+[SpcResponseMessage] updatePaymentEnhanced
+
+      (
+        responses,
+        handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData)
+      )
   }
 
   private def handleUpdatePaymentEnhancedResponse(submittedData: SubmittedData): SpcBehaviour = behave {
@@ -74,12 +81,39 @@ class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialB
       val totalAmount = updatePaymentEnhancedResponse.amountNode.totalAmount
 
       //Display sequence - card Authentication
-      val interimMessages = flowData.displayMessagesAuthentication.map{
+      val interimResponses = flowData.displayMessagesAuthentication.map{
         case (interactionEvents, interactionPrompt) =>
           val interactionNode = InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
           val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
           posDisplayMessageInsertCard
       }
+
+      //PosPrintReceipt client
+      val merchantReceiptNode = ReceiptMerchantNode(flowData, submittedData, totalAmount, finalAmount)
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, merchantReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
+      val responses: Seq[SpcResponseMessage] = interimResponses :+[SpcResponseMessage] posPrintReceipt
+
+      (
+        responses,
+        handlePosPrintReceiptResponse(submittedData, totalAmount, finalAmount, merchantReceiptNode)
+      )
+  }
+
+  private def handlePosPrintReceiptResponse(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode): SpcBehaviour = behave{
+    case posPrintReceiptResponse: PosPrintReceiptResponse =>
+
+      //PosPrintReceipt client
+      val clientReceiptNode = ReceiptNode.createReceiptNode(submittedData, flowData, totalAmount, finalAmount)
+
+      val posPrintReceipt = PosPrintReceipt(HeaderNode(), posPrintReceiptResponse.messageNode, clientReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
+      (
+        List(posPrintReceipt),
+        handlePosPrintReceiptResponseWithPtr(submittedData, totalAmount, finalAmount, merchantReceiptNode, clientReceiptNode)
+      )
+  }
+
+  private def handlePosPrintReceiptResponseWithPtr(submittedData: SubmittedData, totalAmount: AmountInPence, finalAmount: Option[AmountInPence], merchantReceiptNode: ReceiptNode, clientReceiptNode: ReceiptNode): SpcBehaviour = behave{
+    case posPrintReceiptResponse: PosPrintReceiptResponse =>
 
       //processTransactionResponse
       val amountNode = AmountNode(totalAmount, submittedData.currency, submittedData.country, finalAmount)
@@ -93,18 +127,21 @@ class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialB
 
       val processTransactionResponse = ProcessTransactionResponse(
         headerNode           = HeaderNode(),
-        messageNode          = updatePaymentEnhancedResponse.messageNode,
+        messageNode          = posPrintReceiptResponse.messageNode,
         ptrTransactionNode   = ptrTransactionNode,
         ptrCardNode          = cardNode,
         result               = flowData.transactionResult,
         paymentResult        = flowData.paymentResult,
-        receiptNodeCustomerO = None,
-        receiptNodeMerchantO = None,
+        receiptNodeCustomerO = Some(clientReceiptNode),
+        receiptNodeMerchantO = Some(merchantReceiptNode),
         errorsNode           = ErrorsNode(Seq.empty))
-      (interimMessages :+[SpcResponseMessage] processTransactionResponse, CommonBehaviours.handleFinalise)
+
+      (List(processTransactionResponse),
+        CommonBehaviours.handleFinalise
+      )
   }
 
-  private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave {
+  private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave{
     case cancelTransaction: CancelTransaction =>
 
       //processTransactionResponse
@@ -128,7 +165,10 @@ class NoReceiptInitialBehaviour(flowData: SpcFlowDataNoReceipt) extends InitialB
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
 
-      (List(processTransactionResponse), CommonBehaviours.handleFinalise)
+      (List(processTransactionResponse),
+        CommonBehaviours.handleFinalise
+      )
   }
+
 
 }

@@ -16,53 +16,31 @@
 
 package behaviourspc
 
-import flow.InitialBehaviour
 import scenario.Scenario._
 import models._
 import scenario.Scenario
 
-object InitialBehaviourFactory {
+object SpcFlows {
 
-  def makeFlow(scenario: Scenario): InitialBehaviour = {
-    scenario match {
-      case Scenario.SuccessChipAndPin        => successChipAndPinInitialBehaviour
-      case Scenario.SuccessChipAndPinMulti   => successChipAndPinMultiInitialBehaviour
-      case Scenario.SuccessNoVerification    => successNoVerificationInitialBehaviour
-      case SuccessNoReceipt                  => successNoReceiptInitialBehaviour
-      case DeclinedNotAuthorisedNotVerified  => declinedNotAuthorisedNotVerifiedInitialBehaviour
-      case DeclinedInvalidCard               => declinedInvalidCardInitialBehaviour
-      case DeclinedNotAuthorisedNotVerified2 => declinedNotAuthorisedNotVerified2InitialBehaviour
-      case DeclinedValidationFailed          => declinedValidationFailedInitialBehaviour
-      case DeclinedPedDisconnected           => declinedPedDisconnectedInitialBehaviour
-      case DeclinedBinCheckFailed            => declinedBinCheckFailedInitialBehaviour
-      case DeclinedInvalidCard2              => declinedInvalidCard2InitialBehaviour
-      case DeclinedNoReceipt                 => declinedNoReceiptInitialBehaviour
-      case FallbackPosDecision               => fallbackPosDecisionInitialBehaviour
-      case CancelledOnPedIcc                 => cancelledOnPedIccInitialBehaviour
-      case CancelledByBarclaycard            => cancelledByBarclaycardInitialBehaviour
-    }
+  def getFlow(scenario: Scenario): Flow = scenario match {
+    case Scenario.SuccessChipAndPin        => successChipAndPinFlow
+    case Scenario.SuccessChipAndPinMulti   => successChipAndPinMultiFlow
+    case Scenario.SuccessNoVerification    => successNoVerificationFlow
+    case SuccessNoReceipt                  => successNoReceiptFlow
+    case DeclinedNotAuthorisedNotVerified  => declinedNotAuthorisedNotVerifiedFlow
+    case DeclinedInvalidCard               => declinedInvalidCardFlow
+    case DeclinedNotAuthorisedNotVerified2 => declinedNotAuthorisedNotVerified2Flow
+    case DeclinedValidationFailed          => declinedValidationFailedFlow
+    case DeclinedPedDisconnected           => declinedPedDisconnectedFlow
+    case DeclinedBinCheckFailed            => declinedBinCheckFailedFlow
+    case DeclinedInvalidCard2              => declinedInvalidCard2Flow
+    case DeclinedNoReceipt                 => declinedNoReceiptFlow
+    case FallbackPosDecision               => fallbackPosDecisionFlow
+    case CancelledOnPedIcc                 => cancelledOnPedIccFlow
+    case CancelledByBarclaycard            => cancelledByBarclaycardFlow
   }
 
-  private val successChipAndPinInitialBehaviour = new StandardInitialBehaviour(FlowData.successChipAndPinFlowData)
-  private val successChipAndPinMultiInitialBehaviour = new StandardInitialBehaviour(FlowData.successChipAndPinMultiFlowData)
-  private val successNoVerificationInitialBehaviour = new StandardInitialBehaviour(FlowData.successNoVerificationFlow)
-  private val successNoReceiptInitialBehaviour = new NoReceiptInitialBehaviour(FlowData.successNoReceiptFlow)
-  private val declinedNotAuthorisedNotVerifiedInitialBehaviour = new StandardInitialBehaviour(FlowData.declinedNotAuthorisedNotVerifiedFlow)
-  private val declinedNotAuthorisedNotVerified2InitialBehaviour = new StandardInitialBehaviour(FlowData.declinedNotAuthorisedNotVerified2Flow)
-  private val declinedValidationFailedInitialBehaviour = new NoSurchargeInitialBehaviour(FlowData.declinedValidationFailedFlow, ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed"))))
-  private val declinedPedDisconnectedInitialBehaviour = new PedDisconnectedInitialBehaviour(FlowData.declinedPedDisconnected, ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure"))))
-  private val declinedBinCheckFailedInitialBehaviour = new BinCheckCardDiscardedInitialBehaviour(FlowData.declinedBinCheckFailedFlow)
-  private val declinedInvalidCard2InitialBehaviour = new StandardInitialBehaviour(FlowData.declinedInvalidCard2)
-  private val declinedNoReceiptInitialBehaviour = new NoReceiptInitialBehaviour(FlowData.declinedNoReceiptFlow)
-  private val fallbackPosDecisionInitialBehaviour = new FallBackInitialBehaviour(FlowData.fallbackPosDecisionFlow)
-  private val cancelledOnPedIccInitialBehaviour = new StandardInitialBehaviour(FlowData.cancelledOnPedIccFlow)
-  private val cancelledByBarclaycardInitialBehaviour = new StandardInitialBehaviour(FlowData.cancelledByBarclaycardFlow)
-  private val declinedInvalidCardInitialBehaviour = new StandardInitialBehaviour(FlowData.declinedInvalidCardFlow)
-}
-
-object FlowData {
-
-  val successChipAndPinFlowData: SpcFlowData = SpcFlowData(
+  private val successChipAndPinFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.OnlineResult,
     receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
@@ -79,9 +57,8 @@ object FlowData {
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
     )
-  )
-
-  val successChipAndPinMultiFlowData: SpcFlowData = SpcFlowData(
+  ))
+  private val successChipAndPinMultiFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.OnlineResult,
     receiptNodeName               = ReceiptTypeName.ReceiptType2Name,
@@ -102,9 +79,8 @@ object FlowData {
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
-  )
-
-  val successNoVerificationFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val successNoVerificationFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.OnlineResult,
     receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
@@ -116,9 +92,8 @@ object FlowData {
       (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
-  )
-
-  val successNoReceiptFlow: SpcFlowDataNoReceipt = SpcFlowDataNoReceipt(
+  ))
+  private val successNoReceiptFlow = new NoReceiptFlow(FlowDataNoReceipt(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.OnlineResult,
     transactionResult             = TranResults.SuccessResult,
@@ -134,9 +109,8 @@ object FlowData {
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
     )
-  )
-
-  val declinedNotAuthorisedNotVerifiedFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val declinedNotAuthorisedNotVerifiedFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     receiptNodeName               = ReceiptTypeName.ReceiptType3Name,
@@ -152,23 +126,8 @@ object FlowData {
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
     )
-  )
-
-  val declinedInvalidCardFlow: SpcFlowData = SpcFlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.unknown,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val declinedNotAuthorisedNotVerified2Flow: SpcFlowData = SpcFlowData(
+  ))
+  private val declinedNotAuthorisedNotVerified2Flow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     receiptNodeName               = ReceiptTypeName.ReceiptType6Name,
@@ -180,9 +139,8 @@ object FlowData {
       (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
     ),
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val declinedValidationFailedFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val declinedValidationFailedFlow = new NoSurchargeFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     receiptNodeName               = ReceiptTypeName.ReceiptType7Name,
@@ -196,9 +154,8 @@ object FlowData {
       (InteractionEvents.Fallforward, InteractionPrompts.InsertCardInChipReader)
     ),
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val declinedPedDisconnected: SpcFlowDataNoReceipt = SpcFlowDataNoReceipt(
+  ), ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed"))))
+  private val declinedPedDisconnectedFlow = new PedDisconnectedFlow(FlowDataNoReceipt(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     transactionResult             = TranResults.SuccessResult,
@@ -206,9 +163,8 @@ object FlowData {
     transactionSource             = TransactionSources.Icc,
     displayMessagesValidation     = Seq.empty,
     displayMessagesAuthentication = Seq.empty
-  )
-
-  val declinedBinCheckFailedFlow: SpcFlowData = SpcFlowData(
+  ), ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure"))))
+  private val declinedBinCheckFailedFlow = new BinCheckCardDiscardedFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit_BinCheckFail,
     paymentResult                 = PaymentResults.cancelled,
     receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
@@ -220,9 +176,8 @@ object FlowData {
       (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
     ),
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val declinedInvalidCard2: SpcFlowData = SpcFlowData(
+  ))
+  private val declinedInvalidCard2Flow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     receiptNodeName               = ReceiptTypeName.ReceiptType9Name,
@@ -234,9 +189,8 @@ object FlowData {
       (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
     ),
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val declinedNoReceiptFlow: SpcFlowDataNoReceipt = SpcFlowDataNoReceipt(
+  ))
+  private val declinedNoReceiptFlow = new NoReceiptFlow(FlowDataNoReceipt(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.declined,
     transactionResult             = TranResults.SuccessResult,
@@ -247,9 +201,8 @@ object FlowData {
       (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
     ),
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val fallbackPosDecisionFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val fallbackPosDecisionFlow = new FallBackFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.cancelled,
     receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
@@ -266,9 +219,8 @@ object FlowData {
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
     )
-  )
-
-  val cancelledOnPedIccFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val cancelledOnPedIccFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.cancelled,
     receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
@@ -277,9 +229,8 @@ object FlowData {
     transactionSource             = TransactionSources.Icc,
     displayMessagesValidation     = Seq.empty[(InteractionEvent, InteractionPrompt)],
     displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  )
-
-  val cancelledByBarclaycardFlow: SpcFlowData = SpcFlowData(
+  ))
+  private val cancelledByBarclaycardFlow = new StandardFlow(FlowData(
     paymentCard                   = StubUtil.VisaCredit,
     paymentResult                 = PaymentResults.cancelled,
     receiptNodeName               = ReceiptTypeName.ReceiptTypeBroken,
@@ -288,5 +239,20 @@ object FlowData {
     transactionSource             = TransactionSources.Icc,
     displayMessagesValidation     = Seq[(InteractionEvent, InteractionPrompt)]((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
     displayMessagesAuthentication = Seq[(InteractionEvent, InteractionPrompt)]((InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer), (InteractionEvents.StartedEvent, InteractionPrompts.PinIncorrect))
-  )
+  ))
+
+  private val declinedInvalidCardFlow = new StandardFlow(FlowData(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.declined,
+    receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.unknown,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+  ))
+
 }

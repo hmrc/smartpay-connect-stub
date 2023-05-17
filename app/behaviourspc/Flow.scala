@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package flow
+package behaviourspc
 
-import behaviourspc.SpcBehaviour
-
-trait InitialBehaviour {
+trait Flow {
   def initialBehaviour: SpcBehaviour
 }
