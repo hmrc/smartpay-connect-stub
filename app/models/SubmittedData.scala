@@ -16,7 +16,7 @@
 
 package models
 
-case class SubmittedData(
+final case class SubmittedData(
     totalAmount:         AmountInPence,
     country:             Country,
     currency:            CurrencyNum,

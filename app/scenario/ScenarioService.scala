@@ -16,24 +16,18 @@
 
 package scenario
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import utils.DeviceId
 
-class ScenarioService @Inject() (scenarioRepo: ScenarioRepo)(implicit ec: ExecutionContext) {
+import scala.collection.concurrent.TrieMap
 
-  private val id: ScenarioId.currentScenario.type = ScenarioId.currentScenario
+object ScenarioService {
 
-  def setScenario(scenario: Scenario): Future[Unit] = {
-    scenarioRepo
-      .upsert(id, ScenarioEntity(id, scenario))
-      .map(_ => ())
+  private val scenarios: TrieMap[DeviceId, Scenario] = TrieMap()
+
+  def setScenario(deviceId: DeviceId, scenario: Scenario): Unit = {
+    scenarios.update(deviceId, scenario)
   }
 
-  def getScenario(): Future[Scenario] = {
-    scenarioRepo
-      .findById(id)
-      .map(_.map(_.scenario))
-      .map(_.getOrElse(Scenario.default))
-  }
+  def getScenario(deviceId: DeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
 
 }

@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-package models
+import behaviour.{BDefined, BDone, Behaviour}
+import models.{SpcRequestMessage, SpcResponseMessage}
 
-import enumeratum.EnumEntry
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+package object flow {
 
-sealed trait CustomerPresence extends EnumEntry
+  type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
 
-object CustomerPresence {
-
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[CustomerPresence] = derived.oformat[CustomerPresence]()
-
-  def apply(value: String): CustomerPresence = {
-    value match {
-      case "present" => present
-      case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
-    }
-  }
-
-  case object present extends CustomerPresence
+  def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(pf)
+  val done: Behaviour[SpcRequestMessage, Nothing] = BDone
 }
+

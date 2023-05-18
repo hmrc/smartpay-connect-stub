@@ -26,6 +26,7 @@ sealed trait CardVerificationMethod
 
 object CardVerificationMethod {
 
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[CardVerificationMethod] = derived.oformat[CardVerificationMethod]()
 
   def apply(category: String): CardVerificationMethod = {

@@ -68,26 +68,26 @@ object StubUtil {
 
   //  val securityReceipt = "*** Data Removed for Security ***"
 
-  val TRANSACTION_REFERENCE = TransactionReference("8c1d4648-a57a-4dbd-a272-DUMMY")
+  val TRANSACTION_REFERENCE: TransactionReference = TransactionReference("8c1d4648-a57a-4dbd-a272-DUMMY")
 
-  val APPLICATION_ID = "A0000000031010"
-  val AUTH_CODE = "150348"
-  val VERSION = "1.34.0"
-  val MERCHANT_NUMBER = "6571327"
-  val TERMINAL_ID = "90012002"
+  val APPLICATION_ID: String = "A0000000031010"
+  val AUTH_CODE: String = "150348"
+  val VERSION: String = "1.34.0"
+  val MERCHANT_NUMBER: String = "6571327"
+  val TERMINAL_ID: String = "90012002"
 
-  val incorrectMessageFlowErrorNode = ErrorNode("100003", "Incorrect Message Flow")
+  val incorrectMessageFlowErrorNode: ErrorNode = ErrorNode("100003", "Incorrect Message behaviourspc.Flow")
 
   //That matching our test card
-  val MasterDebit = PaymentCard(CurrencyNum.Eur, Country.Bel, "2025-12-01", "2004-01-01", "5457210089020012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))
-  val VisaCredit = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "4761730000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
-  val VisaCredit_BinCheckFail = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "9999930000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
+  val MasterDebit: PaymentCard = PaymentCard(CurrencyNum.Eur, Country.Bel, "2025-12-01", "2004-01-01", "5457210089020012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))
+  val VisaCredit: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "4761730000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
+  val VisaCredit_BinCheckFail: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "9999930000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
 
   def getCurrentDateTime: Long = new Date().getTime
-  def formatReceiptDate(datetime: Long) = new SimpleDateFormat("dd/MM/yyyy").format(datetime)
-  def formatReceiptTime(datetime: Long) = new SimpleDateFormat("HH:mm:ss").format(datetime)
-  def formatTransactionDate(datetime: Long) = new SimpleDateFormat("yyyy-MM-dd").format(datetime)
-  def formatTransactionTime(datetime: Long) = new SimpleDateFormat("HH:mm:ss").format(datetime)
+  def formatReceiptDate(datetime: Long): String = new SimpleDateFormat("dd/MM/yyyy").format(datetime)
+  def formatReceiptTime(datetime: Long): String = new SimpleDateFormat("HH:mm:ss").format(datetime)
+  def formatTransactionDate(datetime: Long): String = new SimpleDateFormat("yyyy-MM-dd").format(datetime)
+  def formatTransactionTime(datetime: Long): String = new SimpleDateFormat("HH:mm:ss").format(datetime)
 
   //  val merchantSignatureReceipt = ReceiptNode(
   //    receiptType            = ReceiptTypes.MerchantSignatureReceipt,

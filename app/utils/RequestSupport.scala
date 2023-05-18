@@ -38,11 +38,20 @@ class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I
   //implicit def language(implicit messages: Messages): Language = Language(messages.lang)
 }
 
+final case class DeviceId(value: String)
+object DeviceId {
+  val couldNotFindDeviceId: DeviceId = DeviceId("CouldNotFindDeviceId")
+}
+
 object RequestSupport {
   def isLoggedIn(implicit request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
 
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
+  def deviceId(implicit request: Request[_]): DeviceId = {
+    val maybeDeviceId = hc.deviceID
+    maybeDeviceId.fold(DeviceId.couldNotFindDeviceId)(DeviceId.apply)
+  }
   /**
    * This is because we want to give responsibility of creation of [[HeaderCarrier]] to the platform code.
    * If they refactor how hc is created our code will pick it up automatically.

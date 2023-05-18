@@ -28,5 +28,6 @@ final case class ScenarioEntity(
 ) extends HasId[ScenarioId]
 
 object ScenarioEntity {
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[ScenarioEntity] = Json.format[ScenarioEntity]
 }

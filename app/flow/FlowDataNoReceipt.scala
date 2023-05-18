@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package actors
+package flow
 
-import scala.concurrent.duration._
+import models._
 
-object CountDown {
-
-  val value = 10.minutes
-}
+final case class FlowDataNoReceipt(
+    paymentCard:                   PaymentCard,
+    paymentResult:                 PaymentResult,
+    transactionResult:             TranResult,
+    cardVerificationMethod:        CardVerificationMethod,
+    transactionSource:             TransactionSource,
+    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+)

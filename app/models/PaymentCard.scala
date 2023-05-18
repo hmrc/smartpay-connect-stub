@@ -20,14 +20,14 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.text.SimpleDateFormat
 
-case class PaymentCard(currency:       CurrencyNum,
-                       country:        Country,
-                       endDate:        String,
-                       startDate:      String,
-                       pan:            String,
-                       cardSchema:     CardSchema,
-                       seqNum:         String,
-                       availableSpend: Option[AmountInPence]) {
+final case class PaymentCard(currency:       CurrencyNum,
+                             country:        Country,
+                             endDate:        String,
+                             startDate:      String,
+                             pan:            String,
+                             cardSchema:     CardSchema,
+                             seqNum:         String,
+                             availableSpend: Option[AmountInPence]) {
 
   def receiptPan: String = pan.take(6) + pan.drop(6).replaceAll(".(?=.{4})", "*")
   def receiptPanMasked: String = "*** Data Removed for Security ***"
@@ -37,5 +37,6 @@ case class PaymentCard(currency:       CurrencyNum,
 
 }
 object PaymentCard {
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[PaymentCard] = Json.format[PaymentCard]
 }

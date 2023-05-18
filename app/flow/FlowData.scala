@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package config
+package flow
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import models._
 
-import javax.inject.{Inject, Singleton}
+final case class FlowData(
+    paymentCard:                   PaymentCard,
+    paymentResult:                 PaymentResult,
+    receiptNodeName:               ReceiptTypeName,
+    transactionResult:             TranResult,
+    cardVerificationMethod:        CardVerificationMethod,
+    transactionSource:             TransactionSource,
+    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+)
 
-@Singleton
-class ViewConfig @Inject() (
-    val config:     Configuration,
-    servicesConfig: ServicesConfig
-) {
-  val appName: String = servicesConfig.getString("appName")
-  val frontendBaseUrl: String = servicesConfig.getString("urls.frontend-base")
-  val supportLanguages: Boolean = true
-
-}

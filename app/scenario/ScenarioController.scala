@@ -17,41 +17,33 @@
 package scenario
 
 import forms.ScenarioForm
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.RequestSupport.deviceId
 import views.html.ScenariosView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class ScenarioController @Inject() (
     val controllerComponents: MessagesControllerComponents,
-    scenarioService:          ScenarioService,
-    scenariosView:            ScenariosView)(implicit executionContext: ExecutionContext)
+    scenariosView:            ScenariosView)
   extends FrontendBaseController {
 
-  def showScenarios: Action[AnyContent] = Action.async { implicit request =>
-    scenarioService.getScenario().map { scenario =>
-      Ok(scenariosView(scenario, ScenarioForm.form.fill(scenario)))
-    }
+  def showScenarios: Action[AnyContent] = Action { implicit request =>
+    val scenario = ScenarioService.getScenario(deviceId)
+    Ok(scenariosView(ScenarioForm.form.fill(scenario)))
   }
 
-  def submitScenario: Action[AnyContent] = Action.async { implicit request =>
-
-      def processForm(currentScenario: Scenario): Future[Result] = ScenarioForm
-        .form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(Ok(scenariosView(currentScenario, formWithErrors))),
-          (scenario: Scenario) => scenarioService.setScenario(scenario).map { _ =>
-            Redirect(routes.ScenarioController.showScenarios)
-          }
-        )
-
-    for {
-      currentScenario <- scenarioService.getScenario()
-      result <- processForm(currentScenario)
-    } yield result
-
+  def submitScenario: Action[AnyContent] = Action { implicit request =>
+    ScenarioForm
+      .form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(scenariosView(formWithErrors)),
+        (scenario: Scenario) => {
+          ScenarioService.setScenario(deviceId, scenario)
+          Redirect(routes.ScenarioController.showScenarios)
+        }
+      )
   }
 }

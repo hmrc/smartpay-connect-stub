@@ -19,7 +19,7 @@ package models
 import play.api.libs.json.{Format, Json}
 
 final case class CurrencyNum(value: String) {
-  def toCurrencyCode = value match {
+  def toCurrencyCode: String = value match {
     case "826" => "GBP"
     case "840" => "USD"
     case "978" => "EUR"
@@ -28,8 +28,11 @@ final case class CurrencyNum(value: String) {
 }
 
 object CurrencyNum {
+
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: Format[CurrencyNum] = Json.valueFormat
-  val Gbp = CurrencyNum("826")
-  val Usd = CurrencyNum("840")
-  val Eur = CurrencyNum("978")
+
+  val Gbp: CurrencyNum = CurrencyNum("826")
+  val Usd: CurrencyNum = CurrencyNum("840")
+  val Eur: CurrencyNum = CurrencyNum("978")
 }

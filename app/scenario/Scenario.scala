@@ -29,6 +29,7 @@ sealed trait Scenario extends enumeratum.EnumEntry {
 
 object Scenario extends Enum[Scenario] {
 
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[Scenario] = derived.oformat[Scenario]()
 
   val default: Scenario = SuccessChipAndPin

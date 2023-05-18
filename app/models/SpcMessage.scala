@@ -351,7 +351,7 @@ final case class ErrorMessage(headerNode: HeaderNode, messageNode: MessageNode, 
 
 object ErrorMessage {
   def fromXml(node: Node): ErrorMessage = {
-    val headerNode = HeaderNode.fromXml(node)
+    val headerNode = HeaderNode.fromXml()
     val messageNode = MessageNode.fromXml(node)
     val errorsNode = ErrorsNode.fromXml(node)
     ErrorMessage(headerNode, messageNode, errorsNode, SuccessResult)

@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package controllers
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import scenario.ScenarioService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ScenariosView
+package flow
+import models.TranResults.SuccessResult
+import models._
 
-import javax.inject.Inject
+object CommonBehaviours {
 
-class DefaultController @Inject() (
-    val controllerComponents: MessagesControllerComponents,
-    scenarioService:          ScenarioService,
-    scenariosView:            ScenariosView
-) extends FrontendBaseController {
+  lazy val handleFinalise: SpcBehaviour = behave {
+    case finalise: Finalise =>
+      val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
+      (List(finaliseResponse),
+        handlePedLogOff
+      )
+  }
 
-  def default(): Action[AnyContent] = Action { _ =>
-    Redirect(scenario.routes.ScenarioController.showScenarios)
+  lazy val handlePedLogOff: SpcBehaviour = behave {
+    case pedLogOff: PedLogOff =>
+      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
+      (
+        List(pedLogOffResponse),
+        done
+      )
   }
 
 }
