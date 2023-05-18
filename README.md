@@ -3,14 +3,6 @@
 
 The smartpay-connect-stub is a stub microservice used in the Face to Face (F2F) service. It emulates a group of Barclaycard related systems involved in taking a card payment. Those are _smartpay-connect-proxy_ and _smartpay-connect_, connected to a pin enabled device (PED). This service emulates the user interaction with the PED. Various scenarios can be chosen, which define user behaviour for successful and unsuccessful payments.
 
-# Websockets and MDTP
-
-:shrug: Unfortunately because this service exposes a websocket endpoint it can't be deployd to the MDTP platform. MDTP doesn't support such technology.
-Therefore this service has to always run on developer's machine.
-
-:exclamation: It also has to run locally when testing F2F on an integrated environment (like Development, QA or Staging).
-
-At the moment only Development and Staging are configured to connect to this stub. This is done in _face-to-face-frontend_ microservice via setting `smartpayConnectUrl` [property](https://github.com/hmrc/face-to-face-frontend/blob/main/conf/application.conf#L119) pointing to production microservice or this stub.
 
 # Architecture
 
@@ -19,22 +11,18 @@ A _browser_ gets the page from _face-to-face-frontend_. This page runs javascrip
 ```mermaid
 graph TD
 A(Browser) -->|GET page with javascript| F2F(face-to-face-frontend) 
-A <-->|websocket| B[smartpay-connect-stub]
+A <-->|rest API| B[smartpay-connect-stub]
 ```
 
 The sequence diagram:
 
 ```mermaid
 sequenceDiagram
-participant B as Browser
+participant B as BrowserJavascript
 participant SPCS as smartpay-connect-stub
 
-    B->>SPCS: open websocket connection
-    SPCS-->>B: opened
-
-    B->>SPCS: send message
-    SPCS->>B: receive messages (1-n)
-    SPCS-->>B: close connection
+    B->>SPCS: send request (spc message as a body)
+    SPCS->>B: receive response (list of 1-n messages)
 
 ```
 # How to run
