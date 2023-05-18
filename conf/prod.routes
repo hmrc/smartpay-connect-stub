@@ -9,5 +9,7 @@ POST        /smartpay-connect-stub/scenario                   scenario.ScenarioC
 
 GET         /smartpay-connect-stub/ping                      controllers.StubController.ping
 GET         /smartpay-connect-stub/ping-spc                  controllers.StubController.pingSpc
+
++nocsrf
 POST        /smartpay-connect-stub/send-message              controllers.StubController.sendMessage()
 
