@@ -40,8 +40,7 @@ class StubController @Inject() (
   def pingSpc(): Action[AnyContent] = Action(Ok)
 
   def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { implicit request =>
-
-    val spcRequestMessage = request.body
+    val spcRequestMessage: SpcRequestMessage = request.body
     val transactionId: TransactionId = spcRequestMessage.messageNode.transNum
     val behaviour: SpcBehaviour = BehaviourService.getBehaviour(transactionId, deviceId)
     val unexpected: (List[SpcResponseMessage], BDone.type) = (List(Help.unexpectedRequestResponse(spcRequestMessage)), BDone)
