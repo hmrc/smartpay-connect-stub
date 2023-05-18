@@ -44,6 +44,7 @@ object BehaviourService {
 
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def removeBehaviour(transactionId: TransactionId): Unit = {
     behaviours.remove(transactionId)
     ()
