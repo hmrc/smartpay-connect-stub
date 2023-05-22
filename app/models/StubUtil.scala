@@ -79,9 +79,9 @@ object StubUtil {
   val incorrectMessageFlowErrorNode: ErrorNode = ErrorNode("100003", "Incorrect Message behaviourspc.Flow")
 
   //That matching our test card
-  val MasterDebit: PaymentCard = PaymentCard(CurrencyNum.Eur, Country.Bel, "2025-12-01", "2004-01-01", "5457210089020012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))
-  val VisaCredit: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "4761730000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
-  val VisaCredit_BinCheckFail: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "9999930000000011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
+  val MasterDebit: PaymentCard = PaymentCard(CurrencyNum.Eur, Country.Bel, "2025-12-01", "2004-01-01", "545721******0012", CardSchema.MasterDebit, "01", Some(AmountInPence("99,999,999.99")))
+  val VisaCredit: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "476173******0011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
+  val VisaCredit_BinCheckFail: PaymentCard = PaymentCard(CurrencyNum.Usd, Country.Uk, "2025-12-01", "2004-01-01", "999993******0011", CardSchema.VisaCredit, "01", Some(AmountInPence("99,999,999.99")))
 
   def getCurrentDateTime: Long = new Date().getTime
   def formatReceiptDate(datetime: Long): String = new SimpleDateFormat("dd/MM/yyyy").format(datetime)
