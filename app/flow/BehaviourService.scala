@@ -16,9 +16,9 @@
 
 package flow
 
+import deviceid.DeviceId
 import models.TransactionId
 import scenario.ScenarioService
-import utils.DeviceId
 
 import scala.collection.concurrent.TrieMap
 

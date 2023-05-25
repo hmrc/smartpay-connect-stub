@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package scenario
+package deviceid
 
-import deviceid.DeviceId
+import utils.RandomDataGenerator
 
-import scala.collection.concurrent.TrieMap
+final case class DeviceId(value: String)
 
-object ScenarioService {
-
-  private val scenarios: TrieMap[DeviceId, Scenario] = TrieMap()
-
-  def setScenario(deviceId: DeviceId, scenario: Scenario): Unit = {
-    scenarios.update(deviceId, scenario)
-  }
-
-  def getScenario(deviceId: DeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
-
+object DeviceId {
+  def fresh(): DeviceId = DeviceId(RandomDataGenerator.randomAlphaNumeric(6))
+  val couldNotFindDeviceId: DeviceId = DeviceId("couldNotFindDeviceId")
+  val cookieName: String = "spcstubdi"
 }

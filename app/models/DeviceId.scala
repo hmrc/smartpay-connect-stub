@@ -16,4 +16,7 @@
 
 package models
 
+/**
+ * This class is relevant to smartpay connect model
+ */
 final case class DeviceId(value: String)
