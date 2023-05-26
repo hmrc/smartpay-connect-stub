@@ -16,7 +16,7 @@
 
 package flow
 
-import deviceid.DeviceId
+import deviceid.SpcStubDeviceId
 import models.TransactionId
 import scenario.ScenarioService
 
@@ -26,7 +26,7 @@ object BehaviourService {
 
   private val behaviours: TrieMap[TransactionId, SpcBehaviour] = TrieMap()
 
-  def getBehaviour(transactionId: TransactionId, deviceId: DeviceId): SpcBehaviour = {
+  def getBehaviour(transactionId: TransactionId, deviceId: SpcStubDeviceId): SpcBehaviour = {
     val scenario = ScenarioService.getScenario(deviceId)
     val maybeBehaviour: Option[SpcBehaviour] = behaviours.get(
       transactionId

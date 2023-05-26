@@ -29,8 +29,8 @@ class ScpStubDeviceIdFilter @Inject() ()(implicit val mat: Materializer, ec: Exe
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     rh
       .cookies
-      .find(_.name === DeviceId.cookieName)
-      .map(c => DeviceId(c.value))
+      .find(_.name === SpcStubDeviceId.cookieName)
+      .map(c => SpcStubDeviceId(c.value))
       .fold {
         val deviceIdCookie = makeDeviceIdCookie()
         val requestCookies: Cookies = rh.attrs(RequestAttrKey.Cookies).value
@@ -44,8 +44,8 @@ class ScpStubDeviceIdFilter @Inject() ()(implicit val mat: Materializer, ec: Exe
   }
 
   private def makeDeviceIdCookie(): Cookie = Cookie(
-    name   = DeviceId.cookieName,
-    value  = DeviceId.fresh().value,
+    name   = SpcStubDeviceId.cookieName,
+    value  = SpcStubDeviceId.fresh().value,
     maxAge = Some(315360000) //10 years
   )
 

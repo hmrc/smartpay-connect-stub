@@ -16,18 +16,18 @@
 
 package scenario
 
-import deviceid.DeviceId
+import deviceid.SpcStubDeviceId
 
 import scala.collection.concurrent.TrieMap
 
 object ScenarioService {
 
-  private val scenarios: TrieMap[DeviceId, Scenario] = TrieMap()
+  private val scenarios: TrieMap[SpcStubDeviceId, Scenario] = TrieMap()
 
-  def setScenario(deviceId: DeviceId, scenario: Scenario): Unit = {
+  def setScenario(deviceId: SpcStubDeviceId, scenario: Scenario): Unit = {
     scenarios.update(deviceId, scenario)
   }
 
-  def getScenario(deviceId: DeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
+  def getScenario(deviceId: SpcStubDeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
 
 }
