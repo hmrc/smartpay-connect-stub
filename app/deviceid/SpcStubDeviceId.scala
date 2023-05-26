@@ -20,7 +20,7 @@ import utils.RandomDataGenerator
 
 /**
  * This is dedicated for the stub device id. The reason of not relying
- * on standard platform's device id is that stride-auth-stub overrides.
+ * on standard platform's device id is that stride-auth-stub overrides it.
  * We need an identifier which is persisted between sessions.
  * It's for testing purposes only and should not affect any production functionality.
  */
