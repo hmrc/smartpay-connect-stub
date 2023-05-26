@@ -16,8 +16,10 @@
 
 package scenario
 
+import cats.implicits.catsSyntaxEq
+import deviceid.SpcStubDeviceId
 import forms.ScenarioForm
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Cookie, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.RequestSupport.deviceId
 import views.html.ScenariosView
@@ -31,8 +33,18 @@ class ScenarioController @Inject() (
 
   def showScenarios: Action[AnyContent] = Action { implicit request =>
     val scenario = ScenarioService.getScenario(deviceId)
-    Ok(scenariosView(ScenarioForm.form.fill(scenario)))
+    val result = Ok(scenariosView(ScenarioForm.form.fill(scenario)))
+    request
+      .cookies
+      .find(_.name === SpcStubDeviceId.cookieName)
+      .fold(result.withCookies(makeDeviceIdCookie()))(_ => result)
   }
+
+  private def makeDeviceIdCookie(): Cookie = Cookie(
+    name   = SpcStubDeviceId.cookieName,
+    value  = SpcStubDeviceId.fresh().value,
+    maxAge = Some(315360000) //10 years
+  )
 
   def submitScenario: Action[AnyContent] = Action { implicit request =>
     ScenarioForm
