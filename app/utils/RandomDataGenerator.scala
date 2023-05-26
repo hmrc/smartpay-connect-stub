@@ -18,17 +18,15 @@ package utils
 
 import models.TransactionReference
 
-import javax.inject.Singleton
 import scala.util.Random.self
 
-@Singleton
 object RandomDataGenerator {
 
   //7befa217-5291-49a1-98f5-d9dcaa13c6a3
   def generateTransactionReference: TransactionReference =
     TransactionReference(s"${randomAlphaNumeric(8)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(8)}")
 
-  private def randomAlphaNumeric(length: Int): String = alphaNumeric.take(length).mkString
+  def randomAlphaNumeric(length: Int): String = alphaNumeric.take(length).mkString
 
   private def alphaNumeric: LazyList[Char] = {
       def nextAlphaNumeric: Char = {
