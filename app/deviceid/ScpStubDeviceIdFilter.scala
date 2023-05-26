@@ -19,7 +19,6 @@ package deviceid
 import akka.stream.Materializer
 import cats.implicits.catsSyntaxEq
 import play.api.mvc._
-import play.api.mvc.request.{Cell, RequestAttrKey}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,17 +29,8 @@ class ScpStubDeviceIdFilter @Inject() ()(implicit val mat: Materializer, ec: Exe
     rh
       .cookies
       .find(_.name === SpcStubDeviceId.cookieName)
-      .map(c => SpcStubDeviceId(c.value))
-      .fold {
-        val deviceIdCookie = makeDeviceIdCookie()
-        val requestCookies: Cookies = rh.attrs(RequestAttrKey.Cookies).value
-        f(
-          rh.addAttr(
-            key   = RequestAttrKey.Cookies,
-            value = Cell(Cookies(deviceIdCookie +: requestCookies.toList))
-          )
-        ).map(_.withCookies(deviceIdCookie))
-      }(_ => f(rh))
+      //add SpcStubDeviceId if not there
+      .fold(f(rh).map(_.withCookies(makeDeviceIdCookie())))(_ => f(rh))
   }
 
   private def makeDeviceIdCookie(): Cookie = Cookie(
