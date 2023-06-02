@@ -39,6 +39,7 @@ object SpcFlows {
     case CancelledOnPedIcc                 => cancelledOnPedIccFlow
     case CancelledByBarclaycard            => cancelledByBarclaycardFlow
     case SuccessChipAndPinMasterCard       => successFlowWithMastercard
+    case SuccessNoMerchantNumberInReceipt  => successNoMerchantNumberInReceipt
   }
 
   private val successChipAndPinFlow = new StandardFlow(FlowData(
@@ -260,6 +261,25 @@ object SpcFlows {
     paymentCard                   = StubUtil.MasterDebit,
     paymentResult                 = PaymentResults.OnlineResult,
     receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
+    transactionResult             = TranResults.SuccessResult,
+    cardVerificationMethod        = CardVerificationMethod.pin,
+    transactionSource             = TransactionSources.Icc,
+    displayMessagesValidation     = Seq(
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+    ),
+    displayMessagesAuthentication = Seq(
+      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+    )
+  ))
+
+  private val successNoMerchantNumberInReceipt = new StandardFlow(FlowData(
+    paymentCard                   = StubUtil.VisaCredit,
+    paymentResult                 = PaymentResults.OnlineResult,
+    receiptNodeName               = ReceiptTypeName.ReceiptType10Name,
     transactionResult             = TranResults.SuccessResult,
     cardVerificationMethod        = CardVerificationMethod.pin,
     transactionSource             = TransactionSources.Icc,

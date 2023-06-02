@@ -199,6 +199,7 @@ trait ReceiptNotEmptyNode extends ReceiptNode {
   def maybeAvailableSpend: Option[AmountInPence] = spcFlow.paymentCard.availableSpend
   def maybePanSequence: Option[String] = Some(spcFlow.paymentCard.seqNum)
   def maybePanStartDate: Option[String] = Some(spcFlow.paymentCard.receiptStart)
+  def maybeMerchantNumber: Option[String] = Some(StubUtil.MERCHANT_NUMBER)
 
   val name: String = "ReceiptNode"
 
@@ -209,7 +210,6 @@ trait ReceiptNotEmptyNode extends ReceiptNode {
       <CURRENCY_CODE>{ submittedData.currency.toCurrencyCode }</CURRENCY_CODE>
       <CUSTOMER_PRESENCE>{ CustomerPresence.present.toString }</CUSTOMER_PRESENCE>
       <FINAL_AMOUNT>{ finalAmount.getOrElse(totalAmount).formatInDecimal }</FINAL_AMOUNT>
-      <MERCHANT_NUMBER>{ StubUtil.MERCHANT_NUMBER }</MERCHANT_NUMBER>
       <PAN_NUMBER>{ getPanNumber }</PAN_NUMBER>
       <PAN_EXPIRY>{ getEndDate }</PAN_EXPIRY>
       <TOKEN>XXXXXXXXXXXXXXXXX</TOKEN>
@@ -228,6 +228,7 @@ trait ReceiptNotEmptyNode extends ReceiptNode {
       .maybeAddNode(maybePanSequence.map(x => { <PAN_SEQUENCE>{ x }</PAN_SEQUENCE> }))
       .maybeAddNode(maybePanStartDate.map(x => { <PAN_START>{ x }</PAN_START> }))
       .maybeAddNode(maybeTerminalId.map(x => { <TERMINAL_ID>{ x }</TERMINAL_ID> }))
+      .maybeAddNode(maybeMerchantNumber.map(x => { <MERCHANT_NUMBER>{ x }</MERCHANT_NUMBER> }))
 
   }
 
@@ -342,6 +343,8 @@ object ReceiptTypeName {
 
   case object ReceiptType9Name extends ReceiptTypeName
 
+  case object ReceiptType10Name extends ReceiptTypeName
+
   case object ReceiptTypeEmpty extends ReceiptTypeName
 
   case object ReceiptTypeBroken extends ReceiptTypeName
@@ -360,6 +363,7 @@ object ReceiptNode {
       case ReceiptType7Name  => ReceiptType7Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType8Name  => ReceiptType8Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType9Name  => ReceiptType9Node(spcFlow, submittedData, totalAmount, finalAmount)
+      case ReceiptType10Name => ReceiptType10Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptTypeEmpty  => ReceiptTypeEmptyNode()
       case ReceiptTypeBroken => ReceiptTypeBrokenNode(spcFlow, submittedData, totalAmount, finalAmount)
     }
@@ -458,6 +462,15 @@ final case class ReceiptType9Node(
   override val maybeTerminalId: Option[String] = None
   override val maybeAuthCode: Option[String] = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
+}
+
+final case class ReceiptType10Node(
+    spcFlow:       FlowData,
+    submittedData: SubmittedData,
+    totalAmount:   AmountInPence,
+    finalAmount:   Option[AmountInPence]
+) extends SpcXmlNode with ReceiptNotEmptyNode {
+  override val maybeMerchantNumber: Option[String] = None
 }
 
 final case class ReceiptTypeEmptyNode() extends SpcXmlNode with ReceiptEmptyNode
