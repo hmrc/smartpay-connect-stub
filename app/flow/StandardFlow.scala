@@ -25,6 +25,11 @@ class StandardFlow(flowData: FlowData) extends Flow {
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
   private lazy val handlePedLogOn: SpcBehaviour = behave {
+    case getTerminalDetails: GetTerminalDetails =>
+      (
+        List(GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
+        handlePedLogOn orElse handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
+      )
     case pedLogOn: PedLogOn =>
       (
         List(PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))),

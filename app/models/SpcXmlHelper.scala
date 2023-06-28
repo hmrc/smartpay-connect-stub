@@ -27,6 +27,11 @@ object SpcXmlHelper {
 
   def getSpcXmlMessage(node: Node): Option[SpcMessage] = {
     (node \\ "POI_MSG" \ "@type").text match {
+      case "administrative" =>
+        (node \\ "ADMIN" \ "@name").text match {
+          case GetTerminalDetails.name => Some(GetTerminalDetails.fromXml(node))
+          case _                       => None
+        }
       case "interaction" =>
         (node \\ "INTERACTION" \ "@name").text match {
           case PedLogOn.name                => Some(PedLogOn.fromXml(node))
