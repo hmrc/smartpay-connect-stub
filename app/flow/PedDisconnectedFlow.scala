@@ -24,8 +24,12 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
   private lazy val handlePedLogOn: SpcBehaviour = behave {
+    case getTerminalDetails: GetTerminalDetails =>
+      (
+        List(GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
+        handlePedLogOn orElse handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
+      )
     case pedLogOn: PedLogOn =>
-
       val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
       (List(
         pedLogOnResponse),

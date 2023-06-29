@@ -41,6 +41,33 @@ sealed trait SpcResponseMessage extends SpcMessage {
 
 object SpcResponseMessage
 
+final case class GetTerminalDetails(messageNode: MessageNode, name: String = GetTerminalDetails.name) extends SpcRequestMessage
+
+object GetTerminalDetails {
+  def fromXml(node: Node): GetTerminalDetails = {
+    val messageNode = MessageNode.fromXml(node)
+    GetTerminalDetails(messageNode)
+  }
+
+  val name: String = "getTerminalDetails"
+}
+
+final case class GetTerminalDetailsResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, errors: ErrorsNode, name: String = PedLogOnResponse.name) extends SpcResponseMessage {
+  def toXml: Node = {
+    <RLSOLVE_MSG version="5.0">
+      { headerNode.toXml }
+      { messageNode.toXml }
+      <POI_MSG type="administrative">
+        <ADMIN name="getTerminalDetailsResponse">
+          { errors.toXml }
+          <RESULT>{ result.toString }</RESULT>
+        </ADMIN>
+      </POI_MSG>
+    </RLSOLVE_MSG>
+  }
+
+}
+
 final case class PedLogOn(messageNode: MessageNode, name: String = PedLogOn.name) extends SpcRequestMessage
 
 object PedLogOn {
