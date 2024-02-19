@@ -11,6 +11,7 @@ object WartRemoverSettings {
     wartremoverExcluded ++=
       (Compile / routes).value ++
         Seq(sourceManaged.value / "main" / "sbt-buildinfo" / "BuildInfo.scala")
+        ++ target.value.get // stops a weird wart remover error being thrown
   )
 
   lazy val wartRemoverSettingsCommon =
