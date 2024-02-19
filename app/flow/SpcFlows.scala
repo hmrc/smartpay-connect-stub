@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ object SpcFlows {
       (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
   private val successChipAndPinMultiFlow = new StandardFlow(FlowData(
@@ -109,7 +109,7 @@ object SpcFlows {
       (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
   private val declinedNotAuthorisedNotVerifiedFlow = new StandardFlow(FlowData(
@@ -126,7 +126,7 @@ object SpcFlows {
     ),
     displayMessagesAuthentication = Seq(
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
   private val declinedNotAuthorisedNotVerified2Flow = new StandardFlow(FlowData(
@@ -219,7 +219,7 @@ object SpcFlows {
       (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
   private val cancelledOnPedIccFlow = new StandardFlow(FlowData(
@@ -272,7 +272,7 @@ object SpcFlows {
       (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
 
@@ -291,7 +291,7 @@ object SpcFlows {
       (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
       (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
       (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
     )
   ))
 
