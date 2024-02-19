@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,7 @@
         requestSupport: RequestSupport
 )
 
-@(
-    form: Form[Scenario])(implicit
-    request: Request[_]
-)
+@(form: Form[Scenario])(implicit request: Request[_])
 
 @import requestSupport._
 
@@ -83,7 +80,7 @@
                         content = Text("Currently active scenario"),
                         classes = "color-green"
                     )) else None,
-                    checked = form.data.values.toList.contains(scenario.toString),
+                    checked = form.data.values.toList.contains(scenario.toString)
                 )
 
             },

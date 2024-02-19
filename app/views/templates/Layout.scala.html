@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 @import play.api.mvc.Request
 @import play.twirl.api.Html
-@import utils.RequestSupport
+@import _root_.utils.RequestSupport
 
 @this(
         govukLayout: GovukLayout,
@@ -83,9 +83,9 @@
 
 @govukLayout(
     pageTitle = Some(documentTitle),
-    headBlock = Some(hmrcHead(headBlock = Some(head), nonce = CSPNonce.get)),
+    headBlock = Some(hmrcHead(headBlock = Some(head))),
     headerBlock = Some(header),
-    scriptsBlock = Some(hmrcScripts(scriptsBlock = None, nonce = CSPNonce.get)),
+    scriptsBlock = Some(hmrcScripts(scriptsBlock = None)),
     beforeContentBlock = Some(beforeContentBlock),
     footerBlock = Some(hmrcStandardFooter())
 )(content)
