@@ -1,6 +1,6 @@
 $govuk-assets-path: "/assets/lib/govuk-frontend/govuk/assets/";
 
-@import "lib/govuk-frontend/govuk/all";
+@import "lib/govuk-frontend/dist/govuk/base";
 
 .govuk-header--telephone-payment-service .govuk-header__logo {
 	width: 33.33%;

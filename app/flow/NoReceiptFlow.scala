@@ -69,7 +69,7 @@ class NoReceiptFlow(flowData: FlowDataNoReceipt) extends Flow {
       val transactionNode = TransactionNode(amountNode = amountNode)
       val cardNode = UpeCardNode(flowData.paymentCard)
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
-      (interimMessages :+[SpcResponseMessage] updatePaymentEnhanced, handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData))
+      (interimMessages :+ updatePaymentEnhanced, handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData))
   }
 
   private def handleUpdatePaymentEnhancedResponse(submittedData: SubmittedData): SpcBehaviour = behave {
@@ -105,7 +105,7 @@ class NoReceiptFlow(flowData: FlowDataNoReceipt) extends Flow {
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
         errorsNode           = ErrorsNode(Seq.empty))
-      (interimMessages :+[SpcResponseMessage] processTransactionResponse, CommonBehaviours.handleFinalise)
+      (interimMessages :+ processTransactionResponse, CommonBehaviours.handleFinalise)
   }
 
   private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave {

@@ -72,7 +72,7 @@ class StandardFlow(flowData: FlowData) extends Flow {
       val transactionNode = TransactionNode(amountNode = amountNode)
       val cardNode = UpeCardNode(flowData.paymentCard)
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
-      val responses: Seq[SpcResponseMessage] = interimResponses :+[SpcResponseMessage] updatePaymentEnhanced
+      val responses: Seq[SpcResponseMessage] = interimResponses :+ updatePaymentEnhanced
 
       (
         responses,
@@ -96,7 +96,7 @@ class StandardFlow(flowData: FlowData) extends Flow {
       //PosPrintReceipt client
       val merchantReceiptNode = ReceiptMerchantNode(flowData, submittedData, totalAmount, finalAmount)
       val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, merchantReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
-      val responses: Seq[SpcResponseMessage] = interimResponses :+[SpcResponseMessage] posPrintReceipt
+      val responses: Seq[SpcResponseMessage] = interimResponses :+ posPrintReceipt
 
       (
         responses,
@@ -174,6 +174,5 @@ class StandardFlow(flowData: FlowData) extends Flow {
         CommonBehaviours.handleFinalise
       )
   }
-
 
 }
