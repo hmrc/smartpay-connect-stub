@@ -24,7 +24,7 @@ class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
-  private lazy val  handlePedLogOn: SpcBehaviour = behave {
+  private lazy val handlePedLogOn: SpcBehaviour = behave {
     case getTerminalDetails: GetTerminalDetails =>
       (
         List(GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
@@ -38,7 +38,7 @@ class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
       )
   }
 
-  private lazy val  handleSubmitPayment: SpcBehaviour = behave{
+  private lazy val handleSubmitPayment: SpcBehaviour = behave{
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -73,7 +73,7 @@ class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
 
       (
-        interimResponses :+[SpcResponseMessage] updatePaymentEnhanced,
+        interimResponses :+ updatePaymentEnhanced,
         handleTransactionCancelled(submittedData)
       )
   }

@@ -18,9 +18,9 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 
-@import play.api.mvc.Request
+@import play.api.mvc.RequestHeader
 @import play.twirl.api.Html
-@import _root_.utils.RequestSupport
+@import utils.RequestSupport
 
 @this(
         govukLayout: GovukLayout,
@@ -38,7 +38,7 @@
         hasErrors: Boolean = false
 )(
         contentBlock: Html)(implicit
-        request: Request[_]
+        request: RequestHeader
 )
 
 @import requestSupport._

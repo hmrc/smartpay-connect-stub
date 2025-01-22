@@ -1,16 +1,20 @@
 
-# About
+# About smartpay-connect-stub
 
-The smartpay-connect-stub is a stub microservice used in the Face to Face (F2F) service. It emulates a group of Barclaycard related systems involved in taking a card payment. Those are _smartpay-connect-proxy_ and _smartpay-connect_, connected to a pin enabled device (PED). This service emulates the user interaction with the PED. Various scenarios can be chosen, which define user behaviour for successful and unsuccessful payments.
-
+The smartpay-connect-stub is a stub microservice used in the Face to Face (F2F) service.
+It emulates a group of Barclaycard related systems involved in taking a card payment. Those are
+_smartpay-connect-proxy_ and _smartpay-connect_, connected to a pin enabled device (PED). This service emulates the
+user interaction with the PED. Various scenarios can be chosen, which define user behaviour for successful and
+unsuccessful payments.
 
 # Architecture
 
-A _browser_ gets the page from _face-to-face-frontend_. This page runs javascript which calls a websocket on the stubs:
+A _browser_ gets the page from _face-to-face-frontend_.
+This page runs javascript which calls a websocket on the stubs:
 
 ```mermaid
 graph TD
-A(Browser) -->|GET page with javascript| F2F(face-to-face-frontend) 
+A(Browser) -->|GET page with javascript| F2F(face-to-face-frontend)
 A <-->|rest API| B[smartpay-connect-stub]
 ```
 
@@ -23,8 +27,8 @@ participant SPCS as smartpay-connect-stub
 
     B->>SPCS: send request (spc message as a body)
     SPCS->>B: receive response (list of 1-n messages)
-
 ```
+
 # How to run
 
 ## Using sbt
@@ -40,8 +44,9 @@ sbt run
 To run the stub alone:
 
 ```
-sm --start SMARTPAY_CONNECT_STUB 
+sm --start SMARTPAY_CONNECT_STUB
 ```
+
 To run all F2F services including this service there is a `F2F_ALL` profile:
 
 ```
@@ -61,6 +66,7 @@ The default scenario is 'success with chip@pin'.
 When you want to select a different path, you will need to set it each time by following the configuration steps above.
 
 # Other documentation
+
 * https://confluence.tools.tax.service.gov.uk/display/OPS/F2F+Payments
 * https://confluence.tools.tax.service.gov.uk/display/Payments/Face+to+Face+Payments
 * https://confluence.tools.tax.service.gov.uk/display/Payments/smartpay-connect-proxy

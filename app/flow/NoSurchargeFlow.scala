@@ -35,7 +35,7 @@ class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow {
       (List(pedLogOnResponse), handleSubmitPayment orElse CommonBehaviours.handlePedLogOff)
   }
 
-  private lazy val  handleSubmitPayment: SpcBehaviour = behave {
+  private lazy val handleSubmitPayment: SpcBehaviour = behave {
     case submitPayment: SubmitPayment =>
       val paymentSubmittedData = SubmittedData(
         totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
@@ -66,7 +66,7 @@ class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow {
       val merchantReceiptNode = ReceiptMerchantNode(spcFlow, submittedData, submittedData.totalAmount, None)
       val posPrintReceipt: PosPrintReceipt = PosPrintReceipt(HeaderNode(), processTransaction.messageNode, merchantReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
       (
-        interimMessages :+[SpcResponseMessage] posPrintReceipt,
+        interimMessages :+ posPrintReceipt,
         handlePosPrintReceiptResponse(submittedData, None, merchantReceiptNode) orElse handleTransactionCancelled(submittedData)
       )
   }
@@ -134,6 +134,5 @@ class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow {
         errorsNode           = ErrorsNode(Seq.empty))
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
-
 
 }

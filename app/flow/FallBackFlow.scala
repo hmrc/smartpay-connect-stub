@@ -67,7 +67,7 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
       val cardNode = UpeCardNode(spcFlow.paymentCard)
       val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
       (
-        interimResponses :+[SpcResponseMessage] updatePaymentEnhanced,
+        interimResponses :+ updatePaymentEnhanced,
         handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData) orElse handleGetTransactionDetails(submittedData)
       )
   }
@@ -92,7 +92,7 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
       val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
       val posDecisionMessage = PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
       (
-        interimResponses :+[SpcResponseMessage] posPrintReceipt :+ posDecisionMessage,
+        interimResponses :+ posPrintReceipt :+ posDecisionMessage,
         handleTransactionCancelled(submittedData) orElse handleGetTransactionDetails(submittedData)
       )
   }
