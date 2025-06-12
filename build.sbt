@@ -49,7 +49,6 @@ lazy val microservice = Project(appName, file("."))
     Compile / doc / scalacOptions := Seq(), //this will allow to have warnings in `doc` task
     Test / doc / scalacOptions := Seq() //this will allow to have warnings in `doc` task
   )
-  .settings(resolvers += Resolver.jcenterRepo)
   .settings(ScalariformSettings())
   .settings(WartRemoverSettings.wartRemoverSettingsCommon)
   .settings(WartRemoverSettings.wartRemoverSettingsPlay)
