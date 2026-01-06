@@ -28,13 +28,12 @@ object TranResult {
   import TranResults._
   implicit val format: Format[TranResult] = EnumFormat(TranResults)
 
-  def apply(result: String): TranResult = {
+  def apply(result: String): TranResult =
     result match {
       case "success" => SuccessResult
       case "failure" => FailureResult
       case x         => throw new RuntimeException(s"Unknown scp message Result received: $x")
     }
-  }
 }
 
 object TranResults extends Enum[TranResult] {

@@ -24,9 +24,8 @@ object ScenarioService {
 
   private val scenarios: TrieMap[SpcStubDeviceId, Scenario] = TrieMap()
 
-  def setScenario(deviceId: SpcStubDeviceId, scenario: Scenario): Unit = {
+  def setScenario(deviceId: SpcStubDeviceId, scenario: Scenario): Unit =
     scenarios.update(deviceId, scenario)
-  }
 
   def getScenario(deviceId: SpcStubDeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
 

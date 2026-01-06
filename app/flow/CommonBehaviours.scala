@@ -20,21 +20,17 @@ import models._
 
 object CommonBehaviours {
 
-  lazy val handleFinalise: SpcBehaviour = behave {
-    case finalise: Finalise =>
-      val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
-      (List(finaliseResponse),
-        handlePedLogOff
-      )
+  lazy val handleFinalise: SpcBehaviour = behave { case finalise: Finalise =>
+    val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
+    (List(finaliseResponse), handlePedLogOff)
   }
 
-  lazy val handlePedLogOff: SpcBehaviour = behave {
-    case pedLogOff: PedLogOff =>
-      val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
-      (
-        List(pedLogOffResponse),
-        done
-      )
+  lazy val handlePedLogOff: SpcBehaviour = behave { case pedLogOff: PedLogOff =>
+    val pedLogOffResponse = PedLogOffResponse(HeaderNode(), pedLogOff.messageNode, SuccessResult)
+    (
+      List(pedLogOffResponse),
+      done
+    )
   }
 
 }

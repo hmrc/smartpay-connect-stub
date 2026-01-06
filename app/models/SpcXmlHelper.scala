@@ -20,31 +20,30 @@ import play.api.Logger
 
 import scala.xml.{Attribute, Elem, Node}
 
-/**
- * SPC- Smart Pay Connect helper functions
- */
+/** SPC- Smart Pay Connect helper functions
+  */
 object SpcXmlHelper {
 
-  def getSpcXmlMessage(node: Node): Option[SpcMessage] = {
+  def getSpcXmlMessage(node: Node): Option[SpcMessage] =
     (node \\ "POI_MSG" \ "@type").text match {
       case "administrative" =>
         (node \\ "ADMIN" \ "@name").text match {
           case GetTerminalDetails.name => Some(GetTerminalDetails.fromXml(node))
           case _                       => None
         }
-      case "interaction" =>
+      case "interaction"    =>
         (node \\ "INTERACTION" \ "@name").text match {
           case PedLogOn.name                => Some(PedLogOn.fromXml(node))
           case PosPrintReceiptResponse.name => Some(PosPrintReceiptResponse.fromXml(node))
           case PedLogOff.name               => Some(PedLogOff.fromXml(node))
           case _                            => None
         }
-      case "submittal" =>
+      case "submittal"      =>
         (node \\ "SUBMIT" \ "@name").text match {
           case SubmitPayment.name => Some(SubmitPayment.fromXml(node))
           case _                  => None
         }
-      case "transactional" =>
+      case "transactional"  =>
         (node \\ "TRANS" \ "@name").text match {
           case ProcessTransaction.name            => Some(ProcessTransaction.fromXml(node))
           case UpdatePaymentEnhancedResponse.name => Some(UpdatePaymentEnhancedResponse.fromXml(node))
@@ -54,18 +53,17 @@ object SpcXmlHelper {
           case CompleteTransaction.name           => Some(CompleteTransaction.fromXml(node))
           case _                                  => None
         }
-      case "error" => Some(ErrorMessage.fromXml(node))
-      case _       => None
+      case "error"          => Some(ErrorMessage.fromXml(node))
+      case _                => None
     }
-  }
 
-  def getSpcXmlMessageNode(node: Node): MessageNode = {
+  def getSpcXmlMessageNode(node: Node): MessageNode =
     MessageNode.fromXml(node)
-  }
 
   def addNode(to: Node, newNode: Node): Node = to match {
-    case Elem(prefix, label, attributes, scope, child @ _*) => Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
-    case _ =>
+    case Elem(prefix, label, attributes, scope, child @ _*) =>
+      Elem(prefix, label, attributes, scope, true, child ++ newNode: _*)
+    case _                                                  =>
       logger.warn("could not find node"); to
   }
 

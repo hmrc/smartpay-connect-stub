@@ -26,58 +26,59 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
   private lazy val handlePedLogOn: SpcBehaviour = behave {
     case getTerminalDetails: GetTerminalDetails =>
       (
-        List(GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
+        List(
+          GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))
+        ),
         handlePedLogOn orElse handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
-    case pedLogOn: PedLogOn =>
-      val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
-      (List(
-        pedLogOnResponse),
-        handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
-      )
+    case pedLogOn: PedLogOn                     =>
+      val pedLogOnResponse: SpcResponseMessage =
+        PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
+      (List(pedLogOnResponse), handleSubmitPayment orElse CommonBehaviours.handlePedLogOff)
   }
 
-  private lazy val handleSubmitPayment: SpcBehaviour = behave {
-    case submitPayment: SubmitPayment =>
-      val paymentSubmittedData = SubmittedData(
-        totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
-        currency            = submitPayment.transactionNode.amountNode.currency,
-        country             = submitPayment.transactionNode.amountNode.country,
-        transactionNumber   = submitPayment.messageNode.transNum,
-        transactionDateTime = StubUtil.getCurrentDateTime
-      )
+  private lazy val handleSubmitPayment: SpcBehaviour = behave { case submitPayment: SubmitPayment =>
+    val paymentSubmittedData = SubmittedData(
+      totalAmount = submitPayment.transactionNode.amountNode.totalAmount,
+      currency = submitPayment.transactionNode.amountNode.currency,
+      country = submitPayment.transactionNode.amountNode.country,
+      transactionNumber = submitPayment.messageNode.transNum,
+      transactionDateTime = StubUtil.getCurrentDateTime
+    )
 
-      val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
-      (
-        List(submitPaymentResponse),
-        handleProcessTransaction(paymentSubmittedData) orElse handleTransactionCancelled(paymentSubmittedData)
-      )
+    val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
+    (
+      List(submitPaymentResponse),
+      handleProcessTransaction(paymentSubmittedData) orElse handleTransactionCancelled(paymentSubmittedData)
+    )
   }
 
-  //Do not send updatePaymentEnhanced but got to print message instead
+  // Do not send updatePaymentEnhanced but got to print message instead
   private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave {
 
     case processTransaction: ProcessTransaction =>
-      //processTransactionResponse
+      // processTransactionResponse
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
-        amountNode      = amountNode,
-        verification    = spcFlow.cardVerificationMethod,
+        amountNode = amountNode,
+        verification = spcFlow.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
-        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime)
+      )
+      val cardNode           = PtrResponseCardNode(spcFlow.paymentCard)
 
       val processTransactionResponse = ProcessTransactionResponse(
-        headerNode           = HeaderNode(),
-        messageNode          = processTransaction.messageNode,
-        ptrTransactionNode   = ptrTransactionNode,
-        ptrCardNode          = cardNode,
-        result               = spcFlow.transactionResult,
-        paymentResult        = spcFlow.paymentResult,
+        headerNode = HeaderNode(),
+        messageNode = processTransaction.messageNode,
+        ptrTransactionNode = ptrTransactionNode,
+        ptrCardNode = cardNode,
+        result = spcFlow.transactionResult,
+        paymentResult = spcFlow.paymentResult,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
-        errorsNode           = errorsNode)
+        errorsNode = errorsNode
+      )
       (
         List(processTransactionResponse),
         CommonBehaviours.handleFinalise
@@ -86,26 +87,28 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
 
   private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave {
     case cancelTransaction: CancelTransaction =>
-      //processTransactionResponse
+      // processTransactionResponse
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
-        amountNode      = amountNode,
-        verification    = spcFlow.cardVerificationMethod,
+        amountNode = amountNode,
+        verification = spcFlow.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
-        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime)
+      )
+      val cardNode           = PtrResponseCardNode(spcFlow.paymentCard)
 
       val processTransactionResponse = ProcessTransactionResponse(
-        headerNode           = HeaderNode(),
-        messageNode          = cancelTransaction.messageNode,
-        ptrTransactionNode   = ptrTransactionNode,
-        ptrCardNode          = cardNode,
-        result               = spcFlow.transactionResult,
-        paymentResult        = PaymentResults.cancelled,
+        headerNode = HeaderNode(),
+        messageNode = cancelTransaction.messageNode,
+        ptrTransactionNode = ptrTransactionNode,
+        ptrCardNode = cardNode,
+        result = spcFlow.transactionResult,
+        paymentResult = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
-        errorsNode           = ErrorsNode(Seq.empty))
+        errorsNode = ErrorsNode(Seq.empty)
+      )
       (
         List(processTransactionResponse),
         CommonBehaviours.handleFinalise

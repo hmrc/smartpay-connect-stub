@@ -20,9 +20,8 @@ import models.TranResults.SuccessResult
 
 import scala.xml.{Node, NodeSeq}
 
-/**
- * SCP - Smart Pay Connect - XML messages
- */
+/** SCP - Smart Pay Connect - XML messages
+  */
 trait F2FMessage {
   val name: String
 }
@@ -41,7 +40,8 @@ sealed trait SpcResponseMessage extends SpcMessage {
 
 object SpcResponseMessage
 
-final case class GetTerminalDetails(messageNode: MessageNode, name: String = GetTerminalDetails.name) extends SpcRequestMessage
+final case class GetTerminalDetails(messageNode: MessageNode, name: String = GetTerminalDetails.name)
+    extends SpcRequestMessage
 
 object GetTerminalDetails {
   def fromXml(node: Node): GetTerminalDetails = {
@@ -52,15 +52,21 @@ object GetTerminalDetails {
   val name: String = "getTerminalDetails"
 }
 
-final case class GetTerminalDetailsResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, errors: ErrorsNode, name: String = PedLogOnResponse.name) extends SpcResponseMessage {
+final case class GetTerminalDetailsResponse(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  result:      TranResult,
+  errors:      ErrorsNode,
+  name:        String = PedLogOnResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }
-      { messageNode.toXml }
+      {headerNode.toXml}
+      {messageNode.toXml}
       <POI_MSG type="administrative">
         <ADMIN name="getTerminalDetailsResponse">
-          { errors.toXml }
-          <RESULT>{ result.toString }</RESULT>
+          {errors.toXml}
+          <RESULT>{result.toString}</RESULT>
         </ADMIN>
       </POI_MSG>
     </RLSOLVE_MSG>
@@ -79,15 +85,21 @@ object PedLogOn {
   val name: String = "pedLogOn"
 }
 
-final case class PedLogOnResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, errors: ErrorsNode, name: String = PedLogOnResponse.name) extends SpcResponseMessage {
+final case class PedLogOnResponse(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  result:      TranResult,
+  errors:      ErrorsNode,
+  name:        String = PedLogOnResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }
-      { messageNode.toXml }
+      {headerNode.toXml}
+      {messageNode.toXml}
       <POI_MSG type="interaction">
         <INTERACTION name="pedLogOnResponse">
-          { errors.toXml }
-          <RESULT>{ result.toString }</RESULT>
+          {errors.toXml}
+          <RESULT>{result.toString}</RESULT>
         </INTERACTION>
       </POI_MSG>
     </RLSOLVE_MSG>
@@ -99,11 +111,15 @@ object PedLogOnResponse {
   val name: String = "pedLogOnResponse"
 }
 //icc, keyed
-final case class SubmitPayment(messageNode: MessageNode, transactionNode: TransactionNode, name: String = SubmitPayment.name) extends SpcRequestMessage
+final case class SubmitPayment(
+  messageNode:     MessageNode,
+  transactionNode: TransactionNode,
+  name:            String = SubmitPayment.name
+) extends SpcRequestMessage
 
 object SubmitPayment {
   def fromXml(node: Node): SubmitPayment = {
-    val messageNode = MessageNode.fromXml(node)
+    val messageNode     = MessageNode.fromXml(node)
     val transactionNode = TransactionNode.fromXml(node)
     SubmitPayment(messageNode, transactionNode)
   }
@@ -111,12 +127,17 @@ object SubmitPayment {
   val name: String = "submitPayment"
 }
 
-final case class SubmitPaymentResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, name: String = SubmitPaymentResponse.name) extends SpcResponseMessage {
+final case class SubmitPaymentResponse(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  result:      TranResult,
+  name:        String = SubmitPaymentResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="submittal">
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="submittal">
                                                  <SUBMIT name="submitPaymentResponse">
-                                                   <RESULT>{ result.toString }</RESULT>
+                                                   <RESULT>{result.toString}</RESULT>
                                                  </SUBMIT>
                                                </POI_MSG>
     </RLSOLVE_MSG>
@@ -128,7 +149,8 @@ object SubmitPaymentResponse {
   val name: String = "submitPaymentResponse"
 }
 
-final case class ProcessTransaction(messageNode: MessageNode, name: String = ProcessTransaction.name) extends SpcRequestMessage
+final case class ProcessTransaction(messageNode: MessageNode, name: String = ProcessTransaction.name)
+    extends SpcRequestMessage
 
 object ProcessTransaction {
   def fromXml(node: Node): ProcessTransaction = {
@@ -139,11 +161,16 @@ object ProcessTransaction {
   val name: String = "processTransaction"
 }
 
-final case class PosDecisionMessage(headerNode: HeaderNode, messageNode: MessageNode, transNode: PdTransNode, name: String = PosDecisionMessage.name) extends SpcResponseMessage {
+final case class PosDecisionMessage(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  transNode:   PdTransNode,
+  name:        String = PosDecisionMessage.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
-                                                 { transNode.toXml }
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="transactional">
+                                                 {transNode.toXml}
                                                </POI_MSG>
     </RLSOLVE_MSG>
   }
@@ -154,11 +181,18 @@ object PosDecisionMessage {
   val name: String = "posDecision"
 }
 
-final case class PosDisplayMessage(headerNode: HeaderNode, messageNode: MessageNode, interactionNode: InteractionNode, result: TranResult, errors: ErrorsNode, name: String = PosDisplayMessage.name) extends SpcResponseMessage {
+final case class PosDisplayMessage(
+  headerNode:      HeaderNode,
+  messageNode:     MessageNode,
+  interactionNode: InteractionNode,
+  result:          TranResult,
+  errors:          ErrorsNode,
+  name:            String = PosDisplayMessage.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
-                                                 { interactionNode.toXml }
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="interaction">
+                                                 {interactionNode.toXml}
                                                </POI_MSG>
     </RLSOLVE_MSG>
   }
@@ -169,17 +203,25 @@ object PosDisplayMessage {
   val name: String = "posDisplayMessage"
 }
 
-final case class UpdatePaymentEnhanced(headerNode: HeaderNode, messageNode: MessageNode, transactionNode: TransactionNode, cardNode: UpeCardNode, result: TranResult, errors: ErrorsNode, name: String = UpdatePaymentEnhanced.name) extends SpcResponseMessage {
+final case class UpdatePaymentEnhanced(
+  headerNode:      HeaderNode,
+  messageNode:     MessageNode,
+  transactionNode: TransactionNode,
+  cardNode:        UpeCardNode,
+  result:          TranResult,
+  errors:          ErrorsNode,
+  name:            String = UpdatePaymentEnhanced.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="transactional">
                                                  <TRANS name="updatePaymentEnhanced">
                                                    <PAYMENT>
                                                      <ACQUIRER id="X">XXXX</ACQUIRER>
                                                      <BANK id="X">XXXXXX-XXXXX-XXXXXX</BANK>
-                                                     <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
-                                                     { transactionNode.toXml }
-                                                     { cardNode.toXml }
+                                                     <MERCHANT number={StubUtil.MERCHANT_NUMBER}/>
+                                                     {transactionNode.toXml}
+                                                     {cardNode.toXml}
                                                    </PAYMENT>
                                                  </TRANS>
                                                </POI_MSG>
@@ -192,12 +234,16 @@ object UpdatePaymentEnhanced {
   val name: String = "updatePaymentEnhanced"
 }
 
-final case class UpdatePaymentEnhancedResponse(messageNode: MessageNode, amountNode: AmountNode, name: String = UpdatePaymentEnhancedResponse.name) extends SpcRequestMessage
+final case class UpdatePaymentEnhancedResponse(
+  messageNode: MessageNode,
+  amountNode:  AmountNode,
+  name:        String = UpdatePaymentEnhancedResponse.name
+) extends SpcRequestMessage
 
 object UpdatePaymentEnhancedResponse {
   def fromXml(node: Node): UpdatePaymentEnhancedResponse = {
     val messageNode = MessageNode.fromXml(node)
-    val amountNode = AmountNode.fromXml(node)
+    val amountNode  = AmountNode.fromXml(node)
     UpdatePaymentEnhancedResponse(messageNode, amountNode)
   }
 
@@ -205,39 +251,48 @@ object UpdatePaymentEnhancedResponse {
 }
 
 final case class ProcessTransactionResponse(
-    headerNode:           HeaderNode,
-    messageNode:          MessageNode,
-    ptrTransactionNode:   PtrTransactionNode,
-    ptrCardNode:          PtrResponseCardNode,
-    result:               TranResult,
-    paymentResult:        PaymentResult,
-    receiptNodeCustomerO: Option[ReceiptNode],
-    receiptNodeMerchantO: Option[ReceiptNode],
-    errorsNode:           ErrorsNode,
-    name:                 String              = ProcessTransactionResponse.name) extends SpcResponseMessage {
+  headerNode:           HeaderNode,
+  messageNode:          MessageNode,
+  ptrTransactionNode:   PtrTransactionNode,
+  ptrCardNode:          PtrResponseCardNode,
+  result:               TranResult,
+  paymentResult:        PaymentResult,
+  receiptNodeCustomerO: Option[ReceiptNode],
+  receiptNodeMerchantO: Option[ReceiptNode],
+  errorsNode:           ErrorsNode,
+  name:                 String = ProcessTransactionResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }
+      {headerNode.toXml}{messageNode.toXml}
       <POI_MSG type="transactional">
         <TRANS name="processTransactionResponse">
-          { errorsNode.toXml }
-          <RESULT>{ result.toString }</RESULT>
+          {errorsNode.toXml}
+          <RESULT>{result.toString}</RESULT>
           <INTERFACE>
             <TERMINAL serialNumber="XXXXXXXXXXXXXXXXX">
               <TERMINAL_TYPE>XX</TERMINAL_TYPE>
             </TERMINAL>
           </INTERFACE>
           <PAYMENT>
-            <PAYMENT_RESULT>{ paymentResult.toString }</PAYMENT_RESULT>
+            <PAYMENT_RESULT>{paymentResult.toString}</PAYMENT_RESULT>
             <ACQUIRER id="X">XXXXXX</ACQUIRER>
             <BANK id="X">XXXXXXXXX</BANK>
-            <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
+            <MERCHANT number={StubUtil.MERCHANT_NUMBER}/>
             <HOST_RESP responseCode="XX"><![CDATA[ NOT AUTHORISED ]]></HOST_RESP>
-            { ptrTransactionNode.toXml }
-            { ptrCardNode.toXml }
+            {ptrTransactionNode.toXml}
+            {ptrCardNode.toXml}
           </PAYMENT>
-          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)) }
-          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)) }
+          {
+      receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant =>
+        receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)
+      )
+    }
+          {
+      receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer =>
+        receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)
+      )
+    }
         </TRANS>
       </POI_MSG>
     </RLSOLVE_MSG>
@@ -249,12 +304,19 @@ object ProcessTransactionResponse {
   val name: String = "processTransactionResponse"
 }
 
-final case class PosPrintReceipt(headerNode: HeaderNode, messageNode: MessageNode, receiptNode: ReceiptNode, result: TranResult, errors: ErrorsNode, name: String = PosPrintReceipt.name) extends SpcResponseMessage {
+final case class PosPrintReceipt(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  receiptNode: ReceiptNode,
+  result:      TranResult,
+  errors:      ErrorsNode,
+  name:        String = PosPrintReceipt.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="interaction">
                                                  <INTERACTION name="posPrintReceipt">
-                                                   { receiptNode.toXml }
+                                                   {receiptNode.toXml}
                                                  </INTERACTION>
                                                </POI_MSG>
     </RLSOLVE_MSG>
@@ -265,12 +327,16 @@ object PosPrintReceipt {
   val name: String = "posPrintReceipt"
 }
 
-final case class PosPrintReceiptResponse(messageNode: MessageNode, result: TranResult, name: String = PosPrintReceiptResponse.name) extends SpcRequestMessage
+final case class PosPrintReceiptResponse(
+  messageNode: MessageNode,
+  result:      TranResult,
+  name:        String = PosPrintReceiptResponse.name
+) extends SpcRequestMessage
 
 object PosPrintReceiptResponse {
   def fromXml(node: Node): PosPrintReceiptResponse = {
     val messageNode = MessageNode.fromXml(node)
-    val result = TranResult((node \\ "INTERACTION" \ "RESPONSE").text)
+    val result      = TranResult((node \\ "INTERACTION" \ "RESPONSE").text)
     PosPrintReceiptResponse(messageNode, result)
   }
 
@@ -288,7 +354,8 @@ object Finalise {
   val name: String = "finalise"
 }
 
-final case class CompleteTransaction(messageNode: MessageNode, name: String = CompleteTransaction.name) extends SpcRequestMessage
+final case class CompleteTransaction(messageNode: MessageNode, name: String = CompleteTransaction.name)
+    extends SpcRequestMessage
 
 object CompleteTransaction {
   def fromXml(node: Node): CompleteTransaction = {
@@ -299,12 +366,17 @@ object CompleteTransaction {
   val name: String = "completeTransaction"
 }
 
-final case class FinaliseResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, name: String = FinaliseResponse.name) extends SpcResponseMessage {
+final case class FinaliseResponse(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  result:      TranResult,
+  name:        String = FinaliseResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="transactional">
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="transactional">
                                                  <TRANS name="finaliseResponse">
-                                                   <RESULT>{ result.toString }</RESULT>
+                                                   <RESULT>{result.toString}</RESULT>
                                                  </TRANS>
                                                </POI_MSG>
     </RLSOLVE_MSG>
@@ -327,12 +399,17 @@ object PedLogOff {
   val name: String = "pedLogOff"
 }
 
-final case class PedLogOffResponse(headerNode: HeaderNode, messageNode: MessageNode, result: TranResult, name: String = PedLogOffResponse.name) extends SpcResponseMessage {
+final case class PedLogOffResponse(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  result:      TranResult,
+  name:        String = PedLogOffResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }<POI_MSG type="interaction">
+      {headerNode.toXml}{messageNode.toXml}<POI_MSG type="interaction">
                                                  <INTERACTION name="pedLogOffResponse">
-                                                   <RESULT>{ result.toString }</RESULT>
+                                                   <RESULT>{result.toString}</RESULT>
                                                  </INTERACTION>
                                                </POI_MSG>
     </RLSOLVE_MSG>
@@ -344,10 +421,11 @@ object PedLogOffResponse {
   val name: String = "pedLogOffResponse"
 }
 
-final case class CancelTransaction(messageNode: MessageNode, name: String = CancelTransaction.name) extends SpcRequestMessage {
+final case class CancelTransaction(messageNode: MessageNode, name: String = CancelTransaction.name)
+    extends SpcRequestMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { messageNode.toXml }
+      {messageNode.toXml}
       <POI_MSG type="transactional">
         <TRANS name="cancelTransaction"/>
       </POI_MSG>
@@ -365,12 +443,18 @@ object CancelTransaction {
   val name: String = "cancelTransaction"
 }
 
-final case class ErrorMessage(headerNode: HeaderNode, messageNode: MessageNode, errorsNode: ErrorsNode, result: TranResult, name: String = ErrorMessage.name) extends SpcResponseMessage {
+final case class ErrorMessage(
+  headerNode:  HeaderNode,
+  messageNode: MessageNode,
+  errorsNode:  ErrorsNode,
+  result:      TranResult,
+  name:        String = ErrorMessage.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }
+      {headerNode.toXml}{messageNode.toXml}
       <POI_MSG type="error">
-        { errorsNode.toXml }
+        {errorsNode.toXml}
       </POI_MSG>
     </RLSOLVE_MSG>
   }
@@ -378,19 +462,20 @@ final case class ErrorMessage(headerNode: HeaderNode, messageNode: MessageNode, 
 
 object ErrorMessage {
   def fromXml(node: Node): ErrorMessage = {
-    val headerNode = HeaderNode.fromXml()
+    val headerNode  = HeaderNode.fromXml()
     val messageNode = MessageNode.fromXml(node)
-    val errorsNode = ErrorsNode.fromXml(node)
+    val errorsNode  = ErrorsNode.fromXml(node)
     ErrorMessage(headerNode, messageNode, errorsNode, SuccessResult)
   }
 
   val name: String = "error"
 }
 
-final case class GetTransactionDetails(messageNode: MessageNode, name: String = GetTransactionDetails.name) extends SpcRequestMessage {
+final case class GetTransactionDetails(messageNode: MessageNode, name: String = GetTransactionDetails.name)
+    extends SpcRequestMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { messageNode.toXml }
+      {messageNode.toXml}
       <POI_MSG type="transactional">
         <TRANS name="getTransactionDetails"/>
       </POI_MSG>
@@ -409,39 +494,48 @@ object GetTransactionDetails {
 }
 
 final case class GetTransactionDetailsResponse(
-    headerNode:           HeaderNode,
-    messageNode:          MessageNode,
-    ptrTransactionNode:   PtrTransactionNode,
-    ptrCardNode:          PtrResponseCardNode,
-    result:               TranResult,
-    paymentResult:        PaymentResult,
-    receiptNodeCustomerO: Option[ReceiptNode],
-    receiptNodeMerchantO: Option[ReceiptNode],
-    errorsNode:           ErrorsNode,
-    name:                 String              = GetTransactionDetailsResponse.name) extends SpcResponseMessage {
+  headerNode:           HeaderNode,
+  messageNode:          MessageNode,
+  ptrTransactionNode:   PtrTransactionNode,
+  ptrCardNode:          PtrResponseCardNode,
+  result:               TranResult,
+  paymentResult:        PaymentResult,
+  receiptNodeCustomerO: Option[ReceiptNode],
+  receiptNodeMerchantO: Option[ReceiptNode],
+  errorsNode:           ErrorsNode,
+  name:                 String = GetTransactionDetailsResponse.name
+) extends SpcResponseMessage {
   def toXml: Node = {
     <RLSOLVE_MSG version="5.0">
-      { headerNode.toXml }{ messageNode.toXml }
+      {headerNode.toXml}{messageNode.toXml}
       <POI_MSG type="transactional">
         <TRANS name="getTransactionDetailsResponse">
-          { errorsNode.toXml }
-          <RESULT>{ result.toString }</RESULT>
+          {errorsNode.toXml}
+          <RESULT>{result.toString}</RESULT>
           <INTERFACE>
             <TERMINAL serialNumber="XXXXXXXXXXXXXXXXX">
               <TERMINAL_TYPE>XX</TERMINAL_TYPE>
             </TERMINAL>
           </INTERFACE>
           <PAYMENT>
-            <PAYMENT_RESULT>{ paymentResult.toString }</PAYMENT_RESULT>
+            <PAYMENT_RESULT>{paymentResult.toString}</PAYMENT_RESULT>
             <ACQUIRER id="X">XXXXXX</ACQUIRER>
             <BANK id="X">XXXXXXXXX</BANK>
-            <MERCHANT number={ StubUtil.MERCHANT_NUMBER }/>
+            <MERCHANT number={StubUtil.MERCHANT_NUMBER}/>
             <HOST_RESP responseCode="XX"><![CDATA[ NOT AUTHORISED ]]></HOST_RESP>
-            { ptrTransactionNode.toXml }
-            { ptrCardNode.toXml }
+            {ptrTransactionNode.toXml}
+            {ptrCardNode.toXml}
           </PAYMENT>
-          { receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant => receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)) }
-          { receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer => receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)) }
+          {
+      receiptNodeMerchantO.fold(NodeSeq.Empty)(receiptNodeMerchant =>
+        receiptNodeMerchant.toXml(ReceiptTypes.MerchantSignatureReceipt)
+      )
+    }
+          {
+      receiptNodeCustomerO.fold(NodeSeq.Empty)(receiptNodeCustomer =>
+        receiptNodeCustomer.toXml(ReceiptTypes.CustomerReceipt)
+      )
+    }
         </TRANS>
       </POI_MSG>
     </RLSOLVE_MSG>

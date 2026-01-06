@@ -19,11 +19,11 @@ package flow
 import models._
 
 final case class FlowDataNoReceipt(
-    paymentCard:                   PaymentCard,
-    paymentResult:                 PaymentResult,
-    transactionResult:             TranResult,
-    cardVerificationMethod:        CardVerificationMethod,
-    transactionSource:             TransactionSource,
-    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+  paymentCard:                   PaymentCard,
+  paymentResult:                 PaymentResult,
+  transactionResult:             TranResult,
+  cardVerificationMethod:        CardVerificationMethod,
+  transactionSource:             TransactionSource,
+  displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+  displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
 )

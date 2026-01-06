@@ -24,18 +24,18 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
 
 import javax.inject.Inject
-/**
- * Repeating the pattern which was brought originally by play-framework
- * and putting some more data which can be derived from a request
- *
- * Use it to provide HeaderCarrier, Lang, or Messages
- */
+
+/** Repeating the pattern which was brought originally by play-framework and putting some more data which can be derived
+  * from a request
+  *
+  * Use it to provide HeaderCarrier, Lang, or Messages
+  */
 class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I18nSupport {
 
   implicit def hc(implicit request: Request[_]): HeaderCarrier = RequestSupport.hc
-  def lang(implicit messages: Messages): Lang = messages.lang
+  def lang(implicit messages:       Messages): Lang            = messages.lang
 
-  //implicit def language(implicit messages: Messages): Language = Language(messages.lang)
+  // implicit def language(implicit messages: Messages): Language = Language(messages.lang)
 }
 
 object RequestSupport {
@@ -43,15 +43,14 @@ object RequestSupport {
 
   implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
-  def deviceId(implicit request: Request[_]): SpcStubDeviceId = request
-    .cookies
-    .find(_.name === SpcStubDeviceId.cookieName).map(c => SpcStubDeviceId(c.value))
+  def deviceId(implicit request: Request[_]): SpcStubDeviceId = request.cookies
+    .find(_.name === SpcStubDeviceId.cookieName)
+    .map(c => SpcStubDeviceId(c.value))
     .getOrElse(SpcStubDeviceId.couldNotFindDeviceId)
 
-  /**
-   * This is because we want to give responsibility of creation of [[HeaderCarrier]] to the platform code.
-   * If they refactor how hc is created our code will pick it up automatically.
-   */
+  /** This is because we want to give responsibility of creation of [[HeaderCarrier]] to the platform code. If they
+    * refactor how hc is created our code will pick it up automatically.
+    */
   private object HcProvider extends FrontendHeaderCarrierProvider {
     def headerCarrier(implicit request: Request[_]): HeaderCarrier = hc(request)
   }

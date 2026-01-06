@@ -27,14 +27,14 @@ object BehaviourService {
   private val behaviours: TrieMap[TransactionId, SpcBehaviour] = TrieMap()
 
   def getBehaviour(transactionId: TransactionId, deviceId: SpcStubDeviceId): SpcBehaviour = {
-    val scenario = ScenarioService.getScenario(deviceId)
+    val scenario                             = ScenarioService.getScenario(deviceId)
     val maybeBehaviour: Option[SpcBehaviour] = behaviours.get(
       transactionId
     )
 
     val behaviour: SpcBehaviour = maybeBehaviour match {
       case Some(b) => b
-      case None =>
+      case None    =>
         val b: SpcBehaviour = SpcFlows.getFlow(scenario).initialBehaviour
         updateBehaviour(transactionId, b)
         b
@@ -50,8 +50,7 @@ object BehaviourService {
     ()
   }
 
-  def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit = {
+  def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit =
     behaviours.update(transactionId, behaviour)
-  }
 
 }

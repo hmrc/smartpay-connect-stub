@@ -23,10 +23,10 @@ import enumeratum.{Enum, EnumEntry}
 object EnumFormatter {
 
   def format[A <: EnumEntry](
-      `enum`:                  Enum[A],
-      errorMessageIfMissing:   String  = "missing input",
-      errorMessageIfEnumError: String  = "invalid input",
-      insensitive:             Boolean = false
+    `enum`:                  Enum[A],
+    errorMessageIfMissing:   String = "missing input",
+    errorMessageIfEnumError: String = "invalid input",
+    insensitive:             Boolean = false
   ): Formatter[A] = new Formatter[A] {
     val delegate: Formatter[A] = enumeratum.Forms.format(`enum`, insensitive)
 

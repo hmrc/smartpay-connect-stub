@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
     Compile / doc / scalacOptions := Seq(), //this will allow to have warnings in `doc` task
     Test / doc / scalacOptions := Seq() //this will allow to have warnings in `doc` task
   )
-  .settings(ScalariformSettings())
+  .settings(scalafmtOnCompile := true)
   .settings(WartRemoverSettings.wartRemoverSettingsCommon)
   .settings(WartRemoverSettings.wartRemoverSettingsPlay)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings)

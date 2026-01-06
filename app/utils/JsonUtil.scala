@@ -23,9 +23,8 @@ object JsonUtil {
 
   def oFormat[T](format: Format[T]): OFormat[T] = {
     val oFormat: OFormat[T] = new OFormat[T]() {
-      override def writes(o: T): JsObject = {
+      override def writes(o: T): JsObject =
         Json.obj("stubPath" -> format.writes(o))
-      }
 
       override def reads(json: JsValue): JsResult[T] = {
         val reader = (__ \ "stubPath").read[T](format)

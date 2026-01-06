@@ -17,7 +17,7 @@
 package models
 
 import enumeratum.{Enum, EnumEntry}
-import play.api.libs.json.{Format}
+import play.api.libs.json.Format
 import utils.EnumFormat
 
 import scala.collection.immutable
@@ -28,12 +28,11 @@ object TransactionAction {
   import TransactionActions._
   implicit val format: Format[TransactionAction] = EnumFormat(TransactionActions)
 
-  def apply(value: String): TransactionAction = {
+  def apply(value: String): TransactionAction =
     value match {
       case "auth_n_settle" => AuthorizeAndSettle
       case x               => throw new RuntimeException(s"Unknown TransactionAction: $x")
     }
-  }
 }
 
 object TransactionActions extends Enum[TransactionAction] {

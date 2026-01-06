@@ -27,12 +27,11 @@ object CustomerPresence {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[CustomerPresence] = derived.oformat[CustomerPresence]()
 
-  def apply(value: String): CustomerPresence = {
+  def apply(value: String): CustomerPresence =
     value match {
       case "present" => present
       case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
     }
-  }
 
   case object present extends CustomerPresence
 }

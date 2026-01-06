@@ -22,27 +22,24 @@ import utils.EnumFormat
 
 import scala.collection.immutable
 
-/**
- * SPC- Smart Pay Connect - Interaction Node events
- */
+/** SPC- Smart Pay Connect - Interaction Node events
+  */
 sealed trait TransactionSource extends EnumEntry
 
 object TransactionSource {
   import TransactionSources._
   implicit val format: Format[TransactionSource] = EnumFormat(TransactionSources)
 
-  def apply(category: String): TransactionSource = {
+  def apply(category: String): TransactionSource =
     category match {
       case "icc"   => Icc
       case "keyed" => Keyed
       case x       => throw new RuntimeException(s"Unknown TransactionSource: $x")
     }
-  }
 }
 
 object TransactionSources extends Enum[TransactionSource] {
-  final case object Icc extends TransactionSource { override def toString: String = "icc" }
+  final case object Icc   extends TransactionSource { override def toString: String = "icc"   }
   final case object Keyed extends TransactionSource { override def toString: String = "keyed" }
   override def values: immutable.IndexedSeq[TransactionSource] = findValues
 }
-

@@ -25,11 +25,13 @@ object ScenarioForm {
 
   val form: Form[Scenario] = {
 
-    val scenarioMapping: Mapping[Scenario] = Forms.of(EnumFormatter.format(
-      `enum`                  = Scenario,
-      errorMessageIfMissing   = "Select scenario",
-      errorMessageIfEnumError = "Select scenario"
-    ))
+    val scenarioMapping: Mapping[Scenario] = Forms.of(
+      EnumFormatter.format(
+        `enum` = Scenario,
+        errorMessageIfMissing = "Select scenario",
+        errorMessageIfEnumError = "Select scenario"
+      )
+    )
 
     Form(
       mapping(

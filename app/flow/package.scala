@@ -21,7 +21,8 @@ package object flow {
 
   type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
 
-  def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(pf)
-  val done: Behaviour[SpcRequestMessage, Nothing] = BDone
+  def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(
+    pf
+  )
+  val done: Behaviour[SpcRequestMessage, Nothing]                                                           = BDone
 }
-

@@ -17,10 +17,9 @@
 package models
 
 final case class SubmittedData(
-    totalAmount:         AmountInPence,
-    country:             Country,
-    currency:            CurrencyNum,
-    transactionNumber:   TransactionId,
-    transactionDateTime: Long
+  totalAmount:         AmountInPence,
+  country:             Country,
+  currency:            CurrencyNum,
+  transactionNumber:   TransactionId,
+  transactionDateTime: Long
 )
-

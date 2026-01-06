@@ -42,257 +42,298 @@ object SpcFlows {
     case SuccessNoMerchantNumberInReceipt  => successNoMerchantNumberInReceipt
   }
 
-  private val successChipAndPinFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  private val successChipAndPinFlow                 = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.OnlineResult,
+      receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
-  private val successChipAndPinMultiFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    receiptNodeName               = ReceiptTypeName.ReceiptType2Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.SelectAppOnPed),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.FailedRetry, InteractionPrompts.PinIncorrect),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  )
+  private val successChipAndPinMultiFlow            = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.OnlineResult,
+      receiptNodeName = ReceiptTypeName.ReceiptType2Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.SelectAppOnPed),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.FailedRetry, InteractionPrompts.PinIncorrect),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
-  private val successNoVerificationFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  )
+  private val successNoVerificationFlow             = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.OnlineResult,
+      receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
-  private val successNoReceiptFlow = new NoReceiptFlow(FlowDataNoReceipt(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  )
+  private val successNoReceiptFlow                  = new NoReceiptFlow(
+    FlowDataNoReceipt(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.OnlineResult,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
-  private val declinedNotAuthorisedNotVerifiedFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType3Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  )
+  private val declinedNotAuthorisedNotVerifiedFlow  = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      receiptNodeName = ReceiptTypeName.ReceiptType3Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
-  private val declinedNotAuthorisedNotVerified2Flow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType6Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-  private val declinedValidationFailedFlow = new NoSurchargeFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType7Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Fallforward, InteractionPrompts.InsertCardInChipReader)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ), ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed"))))
-  private val declinedPedDisconnectedFlow = new PedDisconnectedFlow(FlowDataNoReceipt(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq.empty,
-    displayMessagesAuthentication = Seq.empty
-  ), ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure"))))
-  private val declinedBinCheckFailedFlow = new BinCheckCardDiscardedFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit_BinCheckFail,
-    paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-  private val declinedInvalidCard2Flow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType9Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.unknown,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-  private val declinedNoReceiptFlow = new NoReceiptFlow(FlowDataNoReceipt(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-  private val fallbackPosDecisionFlow = new FallBackFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  )
+  private val declinedNotAuthorisedNotVerified2Flow = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      receiptNodeName = ReceiptTypeName.ReceiptType6Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
     )
-  ))
-  private val cancelledOnPedIccFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptTypeEmpty,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.not_performed,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq.empty[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-  private val cancelledByBarclaycardFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.cancelled,
-    receiptNodeName               = ReceiptTypeName.ReceiptTypeBroken,
-    transactionResult             = TranResults.FailureResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq[(InteractionEvent, InteractionPrompt)]((InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)),
-    displayMessagesAuthentication = Seq[(InteractionEvent, InteractionPrompt)]((InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer), (InteractionEvents.StartedEvent, InteractionPrompts.PinIncorrect))
-  ))
+  )
+  private val declinedValidationFailedFlow          = new NoSurchargeFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      receiptNodeName = ReceiptTypeName.ReceiptType7Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertOrSwipeCard),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Fallforward, InteractionPrompts.InsertCardInChipReader)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+    ),
+    ErrorsNode(Seq(ErrorNode("100007", "Validation of card has failed")))
+  )
+  private val declinedPedDisconnectedFlow           = new PedDisconnectedFlow(
+    FlowDataNoReceipt(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq.empty,
+      displayMessagesAuthentication = Seq.empty
+    ),
+    ErrorsNode(Seq(ErrorNode("200001", "Terminal Communication Failure")))
+  )
+  private val declinedBinCheckFailedFlow            = new BinCheckCardDiscardedFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit_BinCheckFail,
+      paymentResult = PaymentResults.cancelled,
+      receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+    )
+  )
+  private val declinedInvalidCard2Flow              = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      receiptNodeName = ReceiptTypeName.ReceiptType9Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.unknown,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+    )
+  )
+  private val declinedNoReceiptFlow                 = new NoReceiptFlow(
+    FlowDataNoReceipt(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.UseChip, InteractionPrompts.InsertCardInChipReader),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+    )
+  )
+  private val fallbackPosDecisionFlow               = new FallBackFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.cancelled,
+      receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
+    )
+  )
+  private val cancelledOnPedIccFlow                 = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.cancelled,
+      receiptNodeName = ReceiptTypeName.ReceiptTypeEmpty,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.not_performed,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq.empty[(InteractionEvent, InteractionPrompt)],
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
+    )
+  )
+  private val cancelledByBarclaycardFlow            = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.cancelled,
+      receiptNodeName = ReceiptTypeName.ReceiptTypeBroken,
+      transactionResult = TranResults.FailureResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq[(InteractionEvent, InteractionPrompt)](
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq[(InteractionEvent, InteractionPrompt)](
+        (InteractionEvents.Processing, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.StartedEvent, InteractionPrompts.PinIncorrect)
+      )
+    )
+  )
 
-  private val declinedInvalidCardFlow = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.declined,
-    receiptNodeName               = ReceiptTypeName.ReceiptType4Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.unknown,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
-  ))
-
-  private val successFlowWithMastercard = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.MasterDebit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    receiptNodeName               = ReceiptTypeName.ReceiptType1Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  private val declinedInvalidCardFlow = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.declined,
+      receiptNodeName = ReceiptTypeName.ReceiptType4Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.unknown,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq.empty[(InteractionEvent, InteractionPrompt)]
     )
-  ))
+  )
 
-  private val successNoMerchantNumberInReceipt = new StandardFlow(FlowData(
-    paymentCard                   = StubUtil.VisaCredit,
-    paymentResult                 = PaymentResults.OnlineResult,
-    receiptNodeName               = ReceiptTypeName.ReceiptType10Name,
-    transactionResult             = TranResults.SuccessResult,
-    cardVerificationMethod        = CardVerificationMethod.pin,
-    transactionSource             = TransactionSources.Icc,
-    displayMessagesValidation     = Seq(
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
-    ),
-    displayMessagesAuthentication = Seq(
-      (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
-      (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
-      (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+  private val successFlowWithMastercard = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.MasterDebit,
+      paymentResult = PaymentResults.OnlineResult,
+      receiptNodeName = ReceiptTypeName.ReceiptType1Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
     )
-  ))
+  )
+
+  private val successNoMerchantNumberInReceipt = new StandardFlow(
+    FlowData(
+      paymentCard = StubUtil.VisaCredit,
+      paymentResult = PaymentResults.OnlineResult,
+      receiptNodeName = ReceiptTypeName.ReceiptType10Name,
+      transactionResult = TranResults.SuccessResult,
+      cardVerificationMethod = CardVerificationMethod.pin,
+      transactionSource = TransactionSources.Icc,
+      displayMessagesValidation = Seq(
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.Processing, InteractionPrompts.ProcessingTransaction)
+      ),
+      displayMessagesAuthentication = Seq(
+        (InteractionEvents.StartedEvent, InteractionPrompts.CustomerEnterPin),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction),
+        (InteractionEvents.InProgress, InteractionPrompts.ConnectingToAcquirer),
+        (InteractionEvents.EventSuccess, InteractionPrompts.ProcessingTransaction)
+      )
+    )
+  )
 
 }
