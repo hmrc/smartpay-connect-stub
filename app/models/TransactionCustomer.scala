@@ -17,7 +17,7 @@
 package models
 
 import enumeratum.{Enum, EnumEntry}
-import play.api.libs.json.{Format}
+import play.api.libs.json.Format
 import utils.EnumFormat
 
 import scala.collection.immutable
@@ -28,12 +28,11 @@ object TransactionCustomer {
   import TransactionCustomers._
   implicit val format: Format[TransactionCustomer] = EnumFormat(TransactionCustomers)
 
-  def apply(value: String): TransactionCustomer = {
+  def apply(value: String): TransactionCustomer =
     value match {
       case "present" => Present
       case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
     }
-  }
 }
 
 object TransactionCustomers extends Enum[TransactionCustomer] {

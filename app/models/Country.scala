@@ -25,7 +25,7 @@ object Country {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: Format[Country] = implicitly[Format[String]].inmap(Country(_), _.value)
 
-  val Uk: Country = Country("826")
-  val US: Country = Country("840")
+  val Uk: Country  = Country("826")
+  val US: Country  = Country("840")
   val Bel: Country = Country("056")
 }

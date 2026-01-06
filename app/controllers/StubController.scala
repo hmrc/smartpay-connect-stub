@@ -31,24 +31,25 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.Elem
 
 @Singleton()
-class StubController @Inject() (
-    val controllerComponents: MessagesControllerComponents)(implicit ec: ExecutionContext)
-  extends FrontendBaseController {
+class StubController @Inject() (val controllerComponents: MessagesControllerComponents)(implicit ec: ExecutionContext)
+    extends FrontendBaseController {
 
   def ping(): Action[AnyContent] = Action(Ok)
 
   def pingSpc(): Action[AnyContent] = Action(Ok)
 
   def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { implicit request =>
-    val spcRequestMessage: SpcRequestMessage = request.body
-    val transactionId: TransactionId = spcRequestMessage.messageNode.transNum
-    val behaviour: SpcBehaviour = BehaviourService.getBehaviour(transactionId, deviceId)
-    val unexpected: (List[SpcResponseMessage], BDone.type) = (List(Help.unexpectedRequestResponse(spcRequestMessage)), BDone)
+    val spcRequestMessage: SpcRequestMessage               = request.body
+    val transactionId: TransactionId                       = spcRequestMessage.messageNode.transNum
+    val behaviour: SpcBehaviour                            = BehaviourService.getBehaviour(transactionId, deviceId)
+    val unexpected: (List[SpcResponseMessage], BDone.type) =
+      (List(Help.unexpectedRequestResponse(spcRequestMessage)), BDone)
 
-    val (spcResponses: Seq[SpcResponseMessage], nextBehaviour: Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]) = behaviour match {
-      case BDone        => unexpected
-      case BDefined(pf) => if (pf.isDefinedAt(spcRequestMessage)) pf(spcRequestMessage) else unexpected
-    }
+    val (spcResponses: Seq[SpcResponseMessage], nextBehaviour: Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]) =
+      behaviour match {
+        case BDone        => unexpected
+        case BDefined(pf) => if (pf.isDefinedAt(spcRequestMessage)) pf(spcRequestMessage) else unexpected
+      }
 
     nextBehaviour match {
       case BDone             => BehaviourService.removeBehaviour(transactionId)
@@ -61,18 +62,19 @@ class StubController @Inject() (
   private val sendMessageRequestParser: BodyParser[SpcRequestMessage] = {
     val missingBody: Either[Result, String] = Left(BadRequest("Missing spc request in body"))
 
-      def invalidXml(err: String): Either[Result, Elem] = Left(BadRequest(s"could not parse XML: $err"))
-    val invalidSpcMessage: Either[Result, SpcMessage] = Left(BadRequest("could not parse SpcMessage"))
-      def invalidSpcRequestMessage(spcMessage: SpcMessage): Either[Result, SpcRequestMessage] = Left(BadRequest(s"could not parse SpcRequestMessage: ${spcMessage.name} is not SpcRequestMessage"))
+    def invalidXml(err: String): Either[Result, Elem]                                       = Left(BadRequest(s"could not parse XML: $err"))
+    val invalidSpcMessage: Either[Result, SpcMessage]                                       = Left(BadRequest("could not parse SpcMessage"))
+    def invalidSpcRequestMessage(spcMessage: SpcMessage): Either[Result, SpcRequestMessage] = Left(
+      BadRequest(s"could not parse SpcRequestMessage: ${spcMessage.name} is not SpcRequestMessage")
+    )
 
-    val parseMaybeString: BodyParser[Option[String]] = parse
-      .anyContent
+    val parseMaybeString: BodyParser[Option[String]] = parse.anyContent
       .map(_.asText)
 
     val parseString: BodyParser[String] = parseMaybeString
-      .validate[String](_
-        .filterNot(_.isEmpty)
-        .fold[Either[Result, String]](missingBody)(Right(_))
+      .validate[String](
+        _.filterNot(_.isEmpty)
+          .fold[Either[Result, String]](missingBody)(Right(_))
       )
 
     val parseXml: BodyParser[Elem] = parseString
@@ -84,9 +86,10 @@ class StubController @Inject() (
       )
 
     val parseSpcMessage: BodyParser[SpcMessage] = parseXml
-      .validate[SpcMessage](xml => SpcXmlHelper
-        .getSpcXmlMessage(xml)
-        .fold(invalidSpcMessage)(Right(_))
+      .validate[SpcMessage](xml =>
+        SpcXmlHelper
+          .getSpcXmlMessage(xml)
+          .fold(invalidSpcMessage)(Right(_))
       )
 
     val parseSpcRequestMessage: BodyParser[SpcRequestMessage] = parseSpcMessage
@@ -100,20 +103,20 @@ class StubController @Inject() (
 }
 
 final case class SendMessageRequest(
-    spcMessage: String
+  spcMessage: String
 )
 
 object Help {
   def unexpectedRequestResponse(unexpected: SpcRequestMessage, hint: String = ""): SpcResponseMessage = {
-    val errorNode = ErrorNode("XXXXXX", s"Unexpected message [${unexpected.name}] for selected stub flow: $hint")
-    val errorsNode = ErrorsNode(Seq(errorNode))
+    val errorNode     = ErrorNode("XXXXXX", s"Unexpected message [${unexpected.name}] for selected stub flow: $hint")
+    val errorsNode    = ErrorsNode(Seq(errorNode))
     val errorResponse = ErrorMessage(HeaderNode(), unexpected.messageNode, errorsNode, SuccessResult)
     errorResponse
   }
 }
 
 final case class SendMessageResponse(
-    spcResponses: Seq[String]
+  spcResponses: Seq[String]
 )
 
 object SendMessageResponse {

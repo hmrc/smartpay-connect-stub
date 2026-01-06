@@ -22,9 +22,8 @@ import utils.EnumFormat
 
 import scala.collection.immutable
 
-/**
- * SPC- Smart Pay Connect - Interaction Node categories
- */
+/** SPC- Smart Pay Connect - Interaction Node categories
+  */
 sealed trait ReceiptType extends EnumEntry {
   val receiptType: String
   val description: String
@@ -34,7 +33,7 @@ object ReceiptType {
   import ReceiptTypes._
   implicit val format: Format[ReceiptType] = EnumFormat(ReceiptTypes)
 
-  def apply(receiptType: String): ReceiptType = {
+  def apply(receiptType: String): ReceiptType =
     receiptType match {
       case "merchant"           => MerchantReceipt
       case "merchant_signature" => MerchantSignatureReceipt
@@ -42,7 +41,6 @@ object ReceiptType {
       case "pos"                => PosReceipt
       case x                    => throw new RuntimeException(s"Unknown TransactionDecision: $x")
     }
-  }
 }
 
 object ReceiptTypes extends Enum[ReceiptType] {
@@ -68,4 +66,3 @@ object ReceiptTypes extends Enum[ReceiptType] {
 
   override def values: immutable.IndexedSeq[ReceiptType] = findValues
 }
-

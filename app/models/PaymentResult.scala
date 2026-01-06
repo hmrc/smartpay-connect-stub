@@ -17,7 +17,7 @@
 package models
 
 import enumeratum.{Enum, EnumEntry}
-import play.api.libs.json.{Format}
+import play.api.libs.json.Format
 import utils.EnumFormat
 
 import scala.collection.immutable
@@ -28,7 +28,7 @@ object PaymentResult {
   import PaymentResults._
   implicit val format: Format[PaymentResult] = EnumFormat(PaymentResults)
 
-  def apply(value: String): PaymentResult = {
+  def apply(value: String): PaymentResult =
     value match {
       case "on-line"        => OnlineResult
       case "declined"       => declined
@@ -36,15 +36,13 @@ object PaymentResult {
       case "not_authorised" => not_authorised
       case x                => throw new RuntimeException(s"Unknown PaymentResult: $x")
     }
-  }
 }
 
 object PaymentResults extends Enum[PaymentResult] {
-  case object OnlineResult extends PaymentResult { override def toString: String = "on-line" }
-  case object declined extends PaymentResult
-  case object cancelled extends PaymentResult
+  case object OnlineResult   extends PaymentResult { override def toString: String = "on-line" }
+  case object declined       extends PaymentResult
+  case object cancelled      extends PaymentResult
   case object not_authorised extends PaymentResult
 
   override def values: immutable.IndexedSeq[PaymentResult] = findValues
 }
-

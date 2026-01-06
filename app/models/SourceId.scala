@@ -19,9 +19,8 @@ package models
 import play.api.libs.json.Format
 import play.api.libs.functional.syntax._
 
-/**
- * Source id used by smartpay connect.
- */
+/** Source id used by smartpay connect.
+  */
 final case class SourceId(value: String)
 
 object SourceId {

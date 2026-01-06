@@ -22,17 +22,19 @@ import scala.util.Random.self
 
 object RandomDataGenerator {
 
-  //7befa217-5291-49a1-98f5-d9dcaa13c6a3
+  // 7befa217-5291-49a1-98f5-d9dcaa13c6a3
   def generateTransactionReference: TransactionReference =
-    TransactionReference(s"${randomAlphaNumeric(8)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(8)}")
+    TransactionReference(
+      s"${randomAlphaNumeric(8)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(4)}-${randomAlphaNumeric(8)}"
+    )
 
   def randomAlphaNumeric(length: Int): String = alphaNumeric.take(length).mkString
 
   private def alphaNumeric: LazyList[Char] = {
-      def nextAlphaNumeric: Char = {
-        val chars = "0123456789abcdefghijklmnopqrstuvwxyz"
-        chars charAt (self nextInt chars.length)
-      }
+    def nextAlphaNumeric: Char = {
+      val chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+      chars charAt (self nextInt chars.length)
+    }
     LazyList continually nextAlphaNumeric
   }
 

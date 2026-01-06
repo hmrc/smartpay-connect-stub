@@ -31,14 +31,13 @@ object TransactionDecision {
   import TransactionDecisions._
   implicit val format: Format[TransactionDecision] = EnumFormat(TransactionDecisions)
 
-  def apply(decisionType: String): TransactionDecision = {
+  def apply(decisionType: String): TransactionDecision =
     decisionType match {
       case "get_sig_auth"     => SignatureRequired
       case "get_man_auth"     => AuthorizationRequired
       case "cv2_avs_decision" => LiabilityRequired
       case x                  => throw new RuntimeException(s"Unknown TransactionDecision: $x")
     }
-  }
 }
 
 object TransactionDecisions extends Enum[TransactionDecision] {
@@ -59,4 +58,3 @@ object TransactionDecisions extends Enum[TransactionDecision] {
   }
   override def values: immutable.IndexedSeq[TransactionDecision] = findValues
 }
-

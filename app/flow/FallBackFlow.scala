@@ -27,48 +27,65 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
   private lazy val handlePedLogOn: SpcBehaviour = behave {
     case getTerminalDetails: GetTerminalDetails =>
       (
-        List(GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))),
+        List(
+          GetTerminalDetailsResponse(HeaderNode(), getTerminalDetails.messageNode, SuccessResult, ErrorsNode(Seq.empty))
+        ),
         handlePedLogOn orElse handleSubmitPayment orElse CommonBehaviours.handlePedLogOff
       )
-    case pedLogOn: PedLogOn =>
-      val pedLogOnResponse: SpcResponseMessage = PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
+    case pedLogOn: PedLogOn                     =>
+      val pedLogOnResponse: SpcResponseMessage =
+        PedLogOnResponse(HeaderNode(), pedLogOn.messageNode, SuccessResult, ErrorsNode(Seq.empty))
       (List(pedLogOnResponse), handleSubmitPayment orElse CommonBehaviours.handlePedLogOff)
   }
 
-  private lazy val handleSubmitPayment: SpcBehaviour = behave {
-    case submitPayment: SubmitPayment =>
-      val paymentSubmittedData = SubmittedData(
-        totalAmount         = submitPayment.transactionNode.amountNode.totalAmount,
-        currency            = submitPayment.transactionNode.amountNode.currency,
-        country             = submitPayment.transactionNode.amountNode.country,
-        transactionNumber   = submitPayment.messageNode.transNum,
-        transactionDateTime = StubUtil.getCurrentDateTime
-      )
+  private lazy val handleSubmitPayment: SpcBehaviour = behave { case submitPayment: SubmitPayment =>
+    val paymentSubmittedData = SubmittedData(
+      totalAmount = submitPayment.transactionNode.amountNode.totalAmount,
+      currency = submitPayment.transactionNode.amountNode.currency,
+      country = submitPayment.transactionNode.amountNode.country,
+      transactionNumber = submitPayment.messageNode.transNum,
+      transactionDateTime = StubUtil.getCurrentDateTime
+    )
 
-      val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
-      (List(submitPaymentResponse), handleProcessTransaction(paymentSubmittedData))
+    val submitPaymentResponse = SubmitPaymentResponse(HeaderNode(), submitPayment.messageNode, SuccessResult)
+    (List(submitPaymentResponse), handleProcessTransaction(paymentSubmittedData))
   }
 
-  //sends UpdatePaymentEnhanced
+  // sends UpdatePaymentEnhanced
   private def handleProcessTransaction(submittedData: SubmittedData): SpcBehaviour = behave {
     case processTransaction: ProcessTransaction =>
 
-      //Display sequence - card validation
-      val interimResponses = spcFlow.displayMessagesValidation.map{
-        case (interactionEvents, interactionPrompt) =>
-          val interactionNode = InteractionNode(category = CardReader, event = interactionEvents, prompt = interactionPrompt)
-          val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), processTransaction.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
-          posDisplayMessageInsertCard
+      // Display sequence - card validation
+      val interimResponses = spcFlow.displayMessagesValidation.map { case (interactionEvents, interactionPrompt) =>
+        val interactionNode             =
+          InteractionNode(category = CardReader, event = interactionEvents, prompt = interactionPrompt)
+        val posDisplayMessageInsertCard = PosDisplayMessage(
+          HeaderNode(),
+          processTransaction.messageNode,
+          interactionNode,
+          SuccessResult,
+          ErrorsNode(Seq.empty)
+        )
+        posDisplayMessageInsertCard
       }
 
-      //UpdatePaymentEnhanced
-      val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
-      val transactionNode = TransactionNode(amountNode = amountNode)
-      val cardNode = UpeCardNode(spcFlow.paymentCard)
-      val updatePaymentEnhanced = UpdatePaymentEnhanced(HeaderNode(), processTransaction.messageNode, transactionNode, cardNode, SuccessResult, ErrorsNode(Seq.empty))
+      // UpdatePaymentEnhanced
+      val amountNode            = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
+      val transactionNode       = TransactionNode(amountNode = amountNode)
+      val cardNode              = UpeCardNode(spcFlow.paymentCard)
+      val updatePaymentEnhanced = UpdatePaymentEnhanced(
+        HeaderNode(),
+        processTransaction.messageNode,
+        transactionNode,
+        cardNode,
+        SuccessResult,
+        ErrorsNode(Seq.empty)
+      )
       (
         interimResponses :+ updatePaymentEnhanced,
-        handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(submittedData) orElse handleGetTransactionDetails(submittedData)
+        handleUpdatePaymentEnhancedResponse(submittedData) orElse handleTransactionCancelled(
+          submittedData
+        ) orElse handleGetTransactionDetails(submittedData)
       )
   }
 
@@ -77,20 +94,33 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
       val finalAmount = updatePaymentEnhancedResponse.amountNode.finalAmountO
       val totalAmount = updatePaymentEnhancedResponse.amountNode.totalAmount
 
-      //Display sequence - card Authentication
-      val interimResponses = spcFlow.displayMessagesAuthentication.map {
-        case (interactionEvents, interactionPrompt) =>
-          val interactionNode = InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
-          val posDisplayMessageInsertCard = PosDisplayMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, interactionNode, SuccessResult, ErrorsNode(Seq.empty))
-          posDisplayMessageInsertCard
+      // Display sequence - card Authentication
+      val interimResponses = spcFlow.displayMessagesAuthentication.map { case (interactionEvents, interactionPrompt) =>
+        val interactionNode             =
+          InteractionNode(category = OnlineCategory, event = interactionEvents, prompt = interactionPrompt)
+        val posDisplayMessageInsertCard = PosDisplayMessage(
+          HeaderNode(),
+          updatePaymentEnhancedResponse.messageNode,
+          interactionNode,
+          SuccessResult,
+          ErrorsNode(Seq.empty)
+        )
+        posDisplayMessageInsertCard
       }
 
-      //PosPrintReceipt client
+      // PosPrintReceipt client
       val merchantReceiptNode = ReceiptMerchantNode(spcFlow, submittedData, totalAmount, finalAmount)
-      val posPrintReceipt = PosPrintReceipt(HeaderNode(), updatePaymentEnhancedResponse.messageNode, merchantReceiptNode, SuccessResult, ErrorsNode(Seq.empty))
+      val posPrintReceipt     = PosPrintReceipt(
+        HeaderNode(),
+        updatePaymentEnhancedResponse.messageNode,
+        merchantReceiptNode,
+        SuccessResult,
+        ErrorsNode(Seq.empty)
+      )
 
       val posDecisionTransNode = PdTransNode(TransactionDecisions.SignatureRequired)
-      val posDecisionMessage = PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
+      val posDecisionMessage   =
+        PosDecisionMessage(HeaderNode(), updatePaymentEnhancedResponse.messageNode, posDecisionTransNode)
       (
         interimResponses :+ posPrintReceipt :+ posDecisionMessage,
         handleTransactionCancelled(submittedData) orElse handleGetTransactionDetails(submittedData)
@@ -100,51 +130,55 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
   private def handleTransactionCancelled(submittedData: SubmittedData): SpcBehaviour = behave {
     case cancelTransaction: CancelTransaction =>
 
-      //processTransactionResponse
+      // processTransactionResponse
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
-        amountNode      = amountNode,
-        verification    = spcFlow.cardVerificationMethod,
+        amountNode = amountNode,
+        verification = spcFlow.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
-        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime)
+      )
+      val cardNode           = PtrResponseCardNode(spcFlow.paymentCard)
 
       val processTransactionResponse = ProcessTransactionResponse(
-        headerNode           = HeaderNode(),
-        messageNode          = cancelTransaction.messageNode,
-        ptrTransactionNode   = ptrTransactionNode,
-        ptrCardNode          = cardNode,
-        result               = spcFlow.transactionResult,
-        paymentResult        = PaymentResults.cancelled,
+        headerNode = HeaderNode(),
+        messageNode = cancelTransaction.messageNode,
+        ptrTransactionNode = ptrTransactionNode,
+        ptrCardNode = cardNode,
+        result = spcFlow.transactionResult,
+        paymentResult = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
-        errorsNode           = ErrorsNode(Seq.empty))
+        errorsNode = ErrorsNode(Seq.empty)
+      )
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
 
   private def handleGetTransactionDetails(submittedData: SubmittedData): SpcBehaviour = behave {
     case getTransactionDetails: GetTransactionDetails =>
-      //processTransactionResponse
+      // processTransactionResponse
       val amountNode = AmountNode(submittedData.totalAmount, submittedData.currency, submittedData.country, None)
 
       val ptrTransactionNode = PtrTransactionNode(
-        amountNode      = amountNode,
-        verification    = spcFlow.cardVerificationMethod,
+        amountNode = amountNode,
+        verification = spcFlow.cardVerificationMethod,
         transactionDate = StubUtil.formatTransactionDate(submittedData.transactionDateTime),
-        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime))
-      val cardNode = PtrResponseCardNode(spcFlow.paymentCard)
+        transactionTime = StubUtil.formatTransactionTime(submittedData.transactionDateTime)
+      )
+      val cardNode           = PtrResponseCardNode(spcFlow.paymentCard)
 
       val processTransactionResponse = GetTransactionDetailsResponse(
-        headerNode           = HeaderNode(),
-        messageNode          = getTransactionDetails.messageNode,
-        ptrTransactionNode   = ptrTransactionNode,
-        ptrCardNode          = cardNode,
-        result               = spcFlow.transactionResult,
-        paymentResult        = PaymentResults.cancelled,
+        headerNode = HeaderNode(),
+        messageNode = getTransactionDetails.messageNode,
+        ptrTransactionNode = ptrTransactionNode,
+        ptrCardNode = cardNode,
+        result = spcFlow.transactionResult,
+        paymentResult = PaymentResults.cancelled,
         receiptNodeCustomerO = None,
         receiptNodeMerchantO = None,
-        errorsNode           = ErrorsNode(Seq.empty))
+        errorsNode = ErrorsNode(Seq.empty)
+      )
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
 

@@ -19,13 +19,12 @@ package flow
 import models._
 
 final case class FlowData(
-    paymentCard:                   PaymentCard,
-    paymentResult:                 PaymentResult,
-    receiptNodeName:               ReceiptTypeName,
-    transactionResult:             TranResult,
-    cardVerificationMethod:        CardVerificationMethod,
-    transactionSource:             TransactionSource,
-    displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
-    displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
+  paymentCard:                   PaymentCard,
+  paymentResult:                 PaymentResult,
+  receiptNodeName:               ReceiptTypeName,
+  transactionResult:             TranResult,
+  cardVerificationMethod:        CardVerificationMethod,
+  transactionSource:             TransactionSource,
+  displayMessagesValidation:     Seq[(InteractionEvent, InteractionPrompt)],
+  displayMessagesAuthentication: Seq[(InteractionEvent, InteractionPrompt)]
 )
-

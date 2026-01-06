@@ -16,10 +16,9 @@
 
 package behaviour
 
-/**
- * Wrapper around partial function which returns both next behaviour and the value returned by the partial function.
- * It's strong type alternative to code previously written using akka classic actors and "receive: Any => Unit"
- */
+/** Wrapper around partial function which returns both next behaviour and the value returned by the partial function.
+  * It's strong type alternative to code previously written using akka classic actors and "receive: Any => Unit"
+  */
 sealed trait Behaviour[-I, +O] {
 
   def orElse[I1 <: I, O1 >: O](b: Behaviour[I1, O1]): Behaviour[I1, O1] = (this, b) match {
@@ -38,12 +37,10 @@ sealed trait Behaviour[-I, +O] {
   //  }
 }
 
-/**
- * Behaviour (B) Done. The last step, nothing more to do
- */
+/** Behaviour (B) Done. The last step, nothing more to do
+  */
 case object BDone extends Behaviour[Any, Nothing]
 
-/**
- * Behaviour (B) Defined
- */
+/** Behaviour (B) Defined
+  */
 final case class BDefined[I, O](pf: PartialFunction[I, (O, Behaviour[I, O])]) extends Behaviour[I, O]

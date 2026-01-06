@@ -18,16 +18,14 @@ package deviceid
 
 import utils.RandomDataGenerator
 
-/**
- * This is dedicated for the stub device id. The reason of not relying
- * on standard platform's device id is that stride-auth-stub overrides it.
- * We need an identifier which is persisted between sessions.
- * It's for testing purposes only and should not affect any production functionality.
- */
+/** This is dedicated for the stub device id. The reason of not relying on standard platform's device id is that
+  * stride-auth-stub overrides it. We need an identifier which is persisted between sessions. It's for testing purposes
+  * only and should not affect any production functionality.
+  */
 final case class SpcStubDeviceId(value: String)
 
 object SpcStubDeviceId {
-  def fresh(): SpcStubDeviceId = SpcStubDeviceId(RandomDataGenerator.randomAlphaNumeric(6))
+  def fresh(): SpcStubDeviceId              = SpcStubDeviceId(RandomDataGenerator.randomAlphaNumeric(6))
   val couldNotFindDeviceId: SpcStubDeviceId = SpcStubDeviceId("couldNotFindDeviceId")
-  val cookieName: String = "spcstubdi"
+  val cookieName: String                    = "spcstubdi"
 }

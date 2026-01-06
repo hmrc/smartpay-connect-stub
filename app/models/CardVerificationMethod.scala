@@ -19,9 +19,8 @@ package models
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-/**
- * SPC- Smart Pay Connect - Interaction Node events
- */
+/** SPC- Smart Pay Connect - Interaction Node events
+  */
 sealed trait CardVerificationMethod
 
 object CardVerificationMethod {
@@ -29,7 +28,7 @@ object CardVerificationMethod {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[CardVerificationMethod] = derived.oformat[CardVerificationMethod]()
 
-  def apply(category: String): CardVerificationMethod = {
+  def apply(category: String): CardVerificationMethod =
     category match {
       case "pin"               => pin
       case "signature"         => signature
@@ -40,14 +39,12 @@ object CardVerificationMethod {
       case "unknown"           => unknown
       case x                   => throw new RuntimeException(s"Unknown CardVerificationMethod: $x")
     }
-  }
 
-  final case object pin extends CardVerificationMethod
-  final case object signature extends CardVerificationMethod
+  final case object pin               extends CardVerificationMethod
+  final case object signature         extends CardVerificationMethod
   final case object pin_and_signature extends CardVerificationMethod
-  final case object on_device extends CardVerificationMethod
-  final case object not_performed extends CardVerificationMethod
-  final case object failed extends CardVerificationMethod
-  final case object unknown extends CardVerificationMethod
+  final case object on_device         extends CardVerificationMethod
+  final case object not_performed     extends CardVerificationMethod
+  final case object failed            extends CardVerificationMethod
+  final case object unknown           extends CardVerificationMethod
 }
-

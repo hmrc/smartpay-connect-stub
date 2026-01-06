@@ -27,28 +27,26 @@ import views.html.ScenariosView
 import javax.inject.Inject
 
 class ScenarioController @Inject() (
-    val controllerComponents: MessagesControllerComponents,
-    scenariosView:            ScenariosView)
-  extends FrontendBaseController {
+  val controllerComponents: MessagesControllerComponents,
+  scenariosView:            ScenariosView
+) extends FrontendBaseController {
 
   def showScenarios: Action[AnyContent] = Action { implicit request =>
     val scenario = ScenarioService.getScenario(deviceId)
-    val result = Ok(scenariosView(ScenarioForm.form.fill(scenario)))
-    request
-      .cookies
+    val result   = Ok(scenariosView(ScenarioForm.form.fill(scenario)))
+    request.cookies
       .find(_.name === SpcStubDeviceId.cookieName)
       .fold(result.withCookies(makeDeviceIdCookie()))(_ => result)
   }
 
   private def makeDeviceIdCookie(): Cookie = Cookie(
-    name   = SpcStubDeviceId.cookieName,
-    value  = SpcStubDeviceId.fresh().value,
-    maxAge = Some(315360000) //10 years
+    name = SpcStubDeviceId.cookieName,
+    value = SpcStubDeviceId.fresh().value,
+    maxAge = Some(315360000) // 10 years
   )
 
   def submitScenario: Action[AnyContent] = Action { implicit request =>
-    ScenarioForm
-      .form
+    ScenarioForm.form
       .bindFromRequest()
       .fold(
         formWithErrors => Ok(scenariosView(formWithErrors)),
