@@ -16,7 +16,6 @@
 
 package scenario
 
-import cats.implicits.catsSyntaxEq
 import deviceid.SpcStubDeviceId
 import forms.ScenarioForm
 import play.api.mvc.{Action, AnyContent, Cookie, MessagesControllerComponents}
@@ -35,7 +34,7 @@ class ScenarioController @Inject() (
     val scenario = ScenarioService.getScenario(deviceId)
     val result   = Ok(scenariosView(ScenarioForm.form.fill(scenario)))
     request.cookies
-      .find(_.name === SpcStubDeviceId.cookieName)
+      .find(_.name == SpcStubDeviceId.cookieName)
       .fold(result.withCookies(makeDeviceIdCookie()))(_ => result)
   }
 

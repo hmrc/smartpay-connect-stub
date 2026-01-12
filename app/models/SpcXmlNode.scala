@@ -340,7 +340,7 @@ trait ReceiptBrokenNode extends ReceiptNode {
 
 }
 
-sealed trait ReceiptTypeName
+sealed trait ReceiptTypeName derives CanEqual
 
 object ReceiptTypeName {
   case object ReceiptType1Name extends ReceiptTypeName

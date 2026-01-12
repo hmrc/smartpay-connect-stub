@@ -24,5 +24,6 @@ package object flow {
   def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(
     pf
   )
-  val done: Behaviour[SpcRequestMessage, Nothing]                                                           = BDone
+
+  val done: Behaviour[SpcRequestMessage, Nothing] = BDone
 }

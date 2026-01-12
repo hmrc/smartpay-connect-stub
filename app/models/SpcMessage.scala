@@ -22,7 +22,7 @@ import scala.xml.{Node, NodeSeq}
 
 /** SCP - Smart Pay Connect - XML messages
   */
-trait F2FMessage {
+trait F2FMessage extends Any {
   val name: String
 }
 

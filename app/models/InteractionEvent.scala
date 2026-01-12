@@ -27,8 +27,10 @@ import scala.collection.immutable
 sealed trait InteractionEvent extends EnumEntry
 
 object InteractionEvent {
-  import InteractionEvents._
-  implicit val format: Format[InteractionEvent] = EnumFormat(InteractionEvents)
+
+  import InteractionEvents.*
+
+  given Format[InteractionEvent] = EnumFormat(InteractionEvents)
 
   def apply(category: String): InteractionEvent =
     category match {
@@ -46,14 +48,16 @@ object InteractionEvent {
 }
 
 object InteractionEvents extends Enum[InteractionEvent] {
-  final case object UseChip         extends InteractionEvent { override def toString: String = "use_chip"          }
-  final case object InProgress      extends InteractionEvent { override def toString: String = "in_progress"       }
-  final case object EventSuccess    extends InteractionEvent { override def toString: String = "success"           }
-  final case object Processing      extends InteractionEvent { override def toString: String = "processing"        }
-  final case object UseChipReinsert extends InteractionEvent { override def toString: String = "use_chip_reinsert" }
-  final case object UseAnotherCard  extends InteractionEvent { override def toString: String = "use_another_card"  }
-  final case object StartedEvent    extends InteractionEvent { override def toString: String = "started"           }
-  final case object FailedRetry     extends InteractionEvent { override def toString: String = "failed_retry"      }
-  final case object Fallforward     extends InteractionEvent { override def toString: String = "fallforward"       }
+
+  case object UseChip         extends InteractionEvent { override def toString: String = "use_chip"          }
+  case object InProgress      extends InteractionEvent { override def toString: String = "in_progress"       }
+  case object EventSuccess    extends InteractionEvent { override def toString: String = "success"           }
+  case object Processing      extends InteractionEvent { override def toString: String = "processing"        }
+  case object UseChipReinsert extends InteractionEvent { override def toString: String = "use_chip_reinsert" }
+  case object UseAnotherCard  extends InteractionEvent { override def toString: String = "use_another_card"  }
+  case object StartedEvent    extends InteractionEvent { override def toString: String = "started"           }
+  case object FailedRetry     extends InteractionEvent { override def toString: String = "failed_retry"      }
+  case object Fallforward     extends InteractionEvent { override def toString: String = "fallforward"       }
+
   override def values: immutable.IndexedSeq[InteractionEvent] = findValues
 }

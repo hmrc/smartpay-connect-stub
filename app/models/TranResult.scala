@@ -37,8 +37,8 @@ object TranResult {
 }
 
 object TranResults extends Enum[TranResult] {
-  final case object SuccessResult extends TranResult { override def toString: String = "success" }
-  final case object FailureResult extends TranResult { override def toString: String = "failure" }
+  case object SuccessResult extends TranResult { override def toString: String = "success" }
+  case object FailureResult extends TranResult { override def toString: String = "failure" }
 
   override def values: immutable.IndexedSeq[TranResult] = findValues
 }

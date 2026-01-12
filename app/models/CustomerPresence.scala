@@ -17,15 +17,13 @@
 package models
 
 import enumeratum.EnumEntry
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+//import play.api.libs.json.{Json, OFormat}
 
 sealed trait CustomerPresence extends EnumEntry
 
 object CustomerPresence {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[CustomerPresence] = derived.oformat[CustomerPresence]()
+  // given OFormat[CustomerPresence] = Json.format[CustomerPresence]
 
   def apply(value: String): CustomerPresence =
     value match {

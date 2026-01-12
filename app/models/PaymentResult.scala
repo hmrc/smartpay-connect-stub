@@ -22,11 +22,12 @@ import utils.EnumFormat
 
 import scala.collection.immutable
 
-sealed trait PaymentResult extends EnumEntry
+sealed trait PaymentResult extends EnumEntry derives CanEqual
 
 object PaymentResult {
   import PaymentResults._
-  implicit val format: Format[PaymentResult] = EnumFormat(PaymentResults)
+
+  given Format[PaymentResult] = EnumFormat(PaymentResults)
 
   def apply(value: String): PaymentResult =
     value match {

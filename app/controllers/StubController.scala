@@ -34,9 +34,9 @@ import scala.xml.Elem
 class StubController @Inject() (val controllerComponents: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendBaseController {
 
-  def ping(): Action[AnyContent] = Action(Ok)
+  val ping: Action[AnyContent] = Action(Ok)
 
-  def pingSpc(): Action[AnyContent] = Action(Ok)
+  val pingSpc: Action[AnyContent] = Action(Ok)
 
   def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { implicit request =>
     val spcRequestMessage: SpcRequestMessage               = request.body

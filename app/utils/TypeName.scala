@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package scenario
+package utils
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.{JsValue, Json}
+import scala.quoted.{Expr, Quotes, Type}
 
-class ScenarioSpec extends AnyFreeSpec with Matchers {
+object TypeName:
 
-  given CanEqual[JsValue, JsValue] = CanEqual.derived
+  inline def of[A]: String = ${ impl[A] }
 
-  "json" in {
-    val json = Json.obj("SuccessChipAndPin" -> Json.obj())
-    Json.toJson(Scenario.SuccessChipAndPin: Scenario) shouldBe json
-    json.as[Scenario] shouldBe Scenario.SuccessChipAndPin
-  }
-}
+  def impl[A](using Type[A], Quotes): Expr[String] =
+    Expr(Type.show[A])

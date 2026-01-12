@@ -39,7 +39,7 @@ object TransactionSource {
 }
 
 object TransactionSources extends Enum[TransactionSource] {
-  final case object Icc   extends TransactionSource { override def toString: String = "icc"   }
-  final case object Keyed extends TransactionSource { override def toString: String = "keyed" }
+  case object Icc   extends TransactionSource { override def toString: String = "icc"   }
+  case object Keyed extends TransactionSource { override def toString: String = "keyed" }
   override def values: immutable.IndexedSeq[TransactionSource] = findValues
 }

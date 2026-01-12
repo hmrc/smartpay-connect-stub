@@ -69,9 +69,10 @@ object SpcXmlHelper {
 
   private val logger = Logger(this.getClass)
 
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def addAttribute(to: Elem, attribute: Attribute): Elem = to match {
     case elem: Elem => elem % attribute
-    case _          => logger.warn("could not find node"); to
+    case null       => logger.warn("could not find node"); to
   }
 
   implicit class SuperNode(val to: Node) extends AnyVal {

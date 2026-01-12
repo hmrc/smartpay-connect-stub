@@ -16,7 +16,8 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.Format
 
 final case class CurrencyNum(value: String) {
   def toCurrencyCode: String = value match {
@@ -29,8 +30,7 @@ final case class CurrencyNum(value: String) {
 
 object CurrencyNum {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: Format[CurrencyNum] = Json.valueFormat
+  given Format[CurrencyNum] = summon[Format[String]].inmap(CurrencyNum(_), _.value)
 
   val Gbp: CurrencyNum = CurrencyNum("826")
   val Usd: CurrencyNum = CurrencyNum("840")
