@@ -26,24 +26,22 @@ import scala.collection.immutable
   */
 sealed trait InteractionCategory extends EnumEntry
 
-object InteractionCategory {
+object InteractionCategory:
 
   import InteractionCategories.*
 
   given Format[InteractionCategory] = EnumFormat(InteractionCategories)
 
   def apply(category: String): InteractionCategory =
-    category match {
+    category match
       case "online"      => OnlineCategory
       case "card_reader" => CardReader
       case "pin_entry"   => PinEntry
       case "signature"   => Signature
       case "transaction" => Transaction
       case x             => throw new RuntimeException(s"Unknown InteractionCategory: $x")
-    }
-}
 
-object InteractionCategories extends Enum[InteractionCategory] {
+object InteractionCategories extends Enum[InteractionCategory]:
 
   case object OnlineCategory extends InteractionCategory { override def toString: String = "online"      }
   case object CardReader     extends InteractionCategory { override def toString: String = "card_reader" }
@@ -52,4 +50,3 @@ object InteractionCategories extends Enum[InteractionCategory] {
   case object Transaction    extends InteractionCategory { override def toString: String = "transaction" }
 
   override def values: immutable.IndexedSeq[InteractionCategory] = findValues
-}

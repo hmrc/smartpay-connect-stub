@@ -22,35 +22,29 @@ import scenario.ScenarioService
 
 import scala.collection.concurrent.TrieMap
 
-object BehaviourService {
+object BehaviourService:
 
   private val behaviours: TrieMap[TransactionId, SpcBehaviour] = TrieMap()
 
-  def getBehaviour(transactionId: TransactionId, deviceId: SpcStubDeviceId): SpcBehaviour = {
+  def getBehaviour(transactionId: TransactionId, deviceId: SpcStubDeviceId): SpcBehaviour =
     val scenario                             = ScenarioService.getScenario(deviceId)
     val maybeBehaviour: Option[SpcBehaviour] = behaviours.get(
       transactionId
     )
 
-    val behaviour: SpcBehaviour = maybeBehaviour match {
+    val behaviour: SpcBehaviour = maybeBehaviour match
       case Some(b) => b
       case None    =>
         val b: SpcBehaviour = SpcFlows.getFlow(scenario).initialBehaviour
         updateBehaviour(transactionId, b)
         b
-    }
 
     behaviour
 
-  }
-
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  def removeBehaviour(transactionId: TransactionId): Unit = {
+  def removeBehaviour(transactionId: TransactionId): Unit =
     behaviours.remove(transactionId)
     ()
-  }
 
   def updateBehaviour(transactionId: TransactionId, behaviour: SpcBehaviour): Unit =
     behaviours.update(transactionId, behaviour)
-
-}

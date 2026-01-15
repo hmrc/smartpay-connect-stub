@@ -29,7 +29,7 @@ final case class PaymentCard(
   cardSchema:     CardSchema,
   seqNum:         String,
   availableSpend: Option[AmountInPence]
-) {
+):
 
   def receiptPan: String       = pan.take(6) + pan.drop(6).replaceAll(".(?=.{4})", "*")
   def receiptPanMasked: String = "*** Data Removed for Security ***"
@@ -38,8 +38,6 @@ final case class PaymentCard(
   def receiptEnd: String       =
     new SimpleDateFormat("MM/yy").format(new SimpleDateFormat("yyyy-MM-dd").parse(endDate).getTime)
   def receiptEndMasked: String = "****-**"
-}
 
-object PaymentCard {
+object PaymentCard:
   given format: OFormat[PaymentCard] = Json.format[PaymentCard]
-}

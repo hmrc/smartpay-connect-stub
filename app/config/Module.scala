@@ -20,8 +20,7 @@ import com.google.inject.AbstractModule
 
 import java.time.{Clock, ZoneOffset}
 
-class Module extends AbstractModule {
+class Module extends AbstractModule:
 
   override def configure(): Unit =
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-}

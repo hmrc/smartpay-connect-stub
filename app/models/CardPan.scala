@@ -18,11 +18,9 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class CardPan(value: String) {
+final case class CardPan(value: String):
   def receiptValue: String = value.replaceAll(".(?=.{4})", "*")
   def maskedValue: String  = "*** Data Removed for Security ***"
-}
 
-object CardPan {
+object CardPan:
   given format: OFormat[CardPan] = Json.format[CardPan]
-}

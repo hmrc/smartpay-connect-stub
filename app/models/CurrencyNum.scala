@@ -19,20 +19,17 @@ package models
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.Format
 
-final case class CurrencyNum(value: String) {
-  def toCurrencyCode: String = value match {
+final case class CurrencyNum(value: String):
+  def toCurrencyCode: String = value match
     case "826" => "GBP"
     case "840" => "USD"
     case "978" => "EUR"
     case x     => x
-  }
-}
 
-object CurrencyNum {
+object CurrencyNum:
 
   given Format[CurrencyNum] = summon[Format[String]].inmap(CurrencyNum(_), _.value)
 
   val Gbp: CurrencyNum = CurrencyNum("826")
   val Usd: CurrencyNum = CurrencyNum("840")
   val Eur: CurrencyNum = CurrencyNum("978")
-}

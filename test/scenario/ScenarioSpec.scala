@@ -20,7 +20,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{JsValue, Json}
 
-class ScenarioSpec extends AnyFreeSpec with Matchers {
+class ScenarioSpec extends AnyFreeSpec with Matchers:
 
   given CanEqual[JsValue, JsValue] = CanEqual.derived
 
@@ -29,4 +29,3 @@ class ScenarioSpec extends AnyFreeSpec with Matchers {
     Json.toJson(Scenario.SuccessChipAndPin: Scenario) shouldBe json
     json.as[Scenario] shouldBe Scenario.SuccessChipAndPin
   }
-}

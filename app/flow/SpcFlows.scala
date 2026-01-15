@@ -20,9 +20,9 @@ import scenario.Scenario._
 import models._
 import scenario.Scenario
 
-object SpcFlows {
+object SpcFlows:
 
-  def getFlow(scenario: Scenario): Flow = scenario match {
+  def getFlow(scenario: Scenario): Flow = scenario match
     case Scenario.SuccessChipAndPin        => successChipAndPinFlow
     case Scenario.SuccessChipAndPinMulti   => successChipAndPinMultiFlow
     case Scenario.SuccessNoVerification    => successNoVerificationFlow
@@ -40,7 +40,6 @@ object SpcFlows {
     case CancelledByBarclaycard            => cancelledByBarclaycardFlow
     case SuccessChipAndPinMasterCard       => successFlowWithMastercard
     case SuccessNoMerchantNumberInReceipt  => successNoMerchantNumberInReceipt
-  }
 
   private val successChipAndPinFlow                 = new StandardFlow(
     FlowData(
@@ -335,5 +334,3 @@ object SpcFlows {
       )
     )
   )
-
-}

@@ -22,12 +22,12 @@ package models
   */
 sealed trait CardVerificationMethod
 
-object CardVerificationMethod {
+object CardVerificationMethod:
 
   // given OFormat[CardVerificationMethod] = Json.format[CardVerificationMethod]
 
   def apply(category: String): CardVerificationMethod =
-    category match {
+    category match
       case "pin"               => pin
       case "signature"         => signature
       case "pin_and_signature" => pin_and_signature
@@ -36,7 +36,6 @@ object CardVerificationMethod {
       case "failed"            => failed
       case "unknown"           => unknown
       case x                   => throw new RuntimeException(s"Unknown CardVerificationMethod: $x")
-    }
 
   case object pin               extends CardVerificationMethod
   case object signature         extends CardVerificationMethod
@@ -45,5 +44,3 @@ object CardVerificationMethod {
   case object not_performed     extends CardVerificationMethod
   case object failed            extends CardVerificationMethod
   case object unknown           extends CardVerificationMethod
-
-}

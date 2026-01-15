@@ -21,15 +21,13 @@ import enumeratum.EnumEntry
 
 sealed trait CustomerPresence extends EnumEntry
 
-object CustomerPresence {
+object CustomerPresence:
 
   // given OFormat[CustomerPresence] = Json.format[CustomerPresence]
 
   def apply(value: String): CustomerPresence =
-    value match {
+    value match
       case "present" => present
       case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
-    }
 
   case object present extends CustomerPresence
-}

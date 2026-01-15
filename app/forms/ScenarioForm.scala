@@ -21,9 +21,9 @@ import play.api.data.{Form, Forms, Mapping}
 import scenario.Scenario
 import utils.EnumFormatter
 
-object ScenarioForm {
+object ScenarioForm:
 
-  val form: Form[Scenario] = {
+  val form: Form[Scenario] =
 
     val scenarioMapping: Mapping[Scenario] = Forms.of(
       EnumFormatter.format(
@@ -38,5 +38,3 @@ object ScenarioForm {
         "scenario" -> scenarioMapping
       )(identity)(Some(_))
     )
-  }
-}

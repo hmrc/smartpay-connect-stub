@@ -17,7 +17,7 @@
 import behaviour.{BDefined, BDone, Behaviour}
 import models.{SpcRequestMessage, SpcResponseMessage}
 
-package object flow {
+package object flow:
 
   type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
 
@@ -26,4 +26,3 @@ package object flow {
   )
 
   val done: Behaviour[SpcRequestMessage, Nothing] = BDone
-}

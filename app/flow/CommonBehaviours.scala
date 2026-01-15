@@ -18,7 +18,7 @@ package flow
 import models.TranResults.SuccessResult
 import models._
 
-object CommonBehaviours {
+object CommonBehaviours:
 
   lazy val handleFinalise: SpcBehaviour = behave { case finalise: Finalise =>
     val finaliseResponse: FinaliseResponse = FinaliseResponse(HeaderNode(), finalise.messageNode, SuccessResult)
@@ -32,5 +32,3 @@ object CommonBehaviours {
       done
     )
   }
-
-}

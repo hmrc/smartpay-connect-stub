@@ -24,46 +24,38 @@ import scala.collection.immutable
 
 /** SPC- Smart Pay Connect - Interaction Node categories
   */
-sealed trait ReceiptType extends EnumEntry derives CanEqual {
+sealed trait ReceiptType extends EnumEntry derives CanEqual:
   val receiptType: String
   val description: String
-}
 
-object ReceiptType {
+object ReceiptType:
   import ReceiptTypes._
 
   given format: Format[ReceiptType] = EnumFormat(ReceiptTypes)
 
   def apply(receiptType: String): ReceiptType =
-    receiptType match {
+    receiptType match
       case "merchant"           => MerchantReceipt
       case "merchant_signature" => MerchantSignatureReceipt
       case "customer"           => CustomerReceipt
       case "pos"                => PosReceipt
       case x                    => throw new RuntimeException(s"Unknown TransactionDecision: $x")
-    }
-}
 
-object ReceiptTypes extends Enum[ReceiptType] {
-  case object MerchantReceipt extends ReceiptType {
+object ReceiptTypes extends Enum[ReceiptType]:
+  case object MerchantReceipt extends ReceiptType:
     override val receiptType: String = "merchant"
     override val description: String = "Transaction receipt for the merchant."
-  }
 
-  case object MerchantSignatureReceipt extends ReceiptType {
+  case object MerchantSignatureReceipt extends ReceiptType:
     override val receiptType: String = "merchant_signature"
     override val description: String = "Manual authorisation is required."
-  }
 
-  case object CustomerReceipt extends ReceiptType {
+  case object CustomerReceipt extends ReceiptType:
     override val receiptType: String = "customer"
     override val description: String = "Transaction receipt for the customer."
-  }
 
-  case object PosReceipt extends ReceiptType {
+  case object PosReceipt extends ReceiptType:
     override val receiptType: String = "pos"
     override val description: String = "The PoS has constructed the receipt/invoice and wishes to print it on the PED."
-  }
 
   override def values: immutable.IndexedSeq[ReceiptType] = findValues
-}

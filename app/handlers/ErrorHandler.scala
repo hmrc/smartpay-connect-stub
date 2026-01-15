@@ -31,7 +31,7 @@ class ErrorHandler @Inject() (
   view:            ErrorTemplate
 )(using executionContext: ExecutionContext)
     extends FrontendErrorHandler
-    with I18nSupport {
+    with I18nSupport:
 
   implicit protected val ec: ExecutionContext = executionContext
 
@@ -41,4 +41,3 @@ class ErrorHandler @Inject() (
     message:   String
   )(using RequestHeader): Future[Html] =
     Future.successful(view(pageTitle, heading, message))
-}

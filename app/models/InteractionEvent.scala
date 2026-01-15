@@ -26,14 +26,14 @@ import scala.collection.immutable
   */
 sealed trait InteractionEvent extends EnumEntry
 
-object InteractionEvent {
+object InteractionEvent:
 
   import InteractionEvents.*
 
   given Format[InteractionEvent] = EnumFormat(InteractionEvents)
 
   def apply(category: String): InteractionEvent =
-    category match {
+    category match
       case "use_chip"          => UseChip
       case "in_progress"       => InProgress
       case "success"           => EventSuccess
@@ -44,10 +44,8 @@ object InteractionEvent {
       case "failed_retry"      => FailedRetry
       case "fallforward"       => Fallforward
       case x                   => throw new RuntimeException(s"Unknown InteractionEvent: $x")
-    }
-}
 
-object InteractionEvents extends Enum[InteractionEvent] {
+object InteractionEvents extends Enum[InteractionEvent]:
 
   case object UseChip         extends InteractionEvent { override def toString: String = "use_chip"          }
   case object InProgress      extends InteractionEvent { override def toString: String = "in_progress"       }
@@ -60,4 +58,3 @@ object InteractionEvents extends Enum[InteractionEvent] {
   case object Fallforward     extends InteractionEvent { override def toString: String = "fallforward"       }
 
   override def values: immutable.IndexedSeq[InteractionEvent] = findValues
-}

@@ -28,7 +28,7 @@ import javax.inject.Inject
 class ScenarioController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   scenariosView:            ScenariosView
-) extends FrontendBaseController {
+) extends FrontendBaseController:
 
   def showScenarios: Action[AnyContent] = Action { request =>
     given Request[AnyContent] = request
@@ -59,4 +59,3 @@ class ScenarioController @Inject() (
         }
       )
   }
-}

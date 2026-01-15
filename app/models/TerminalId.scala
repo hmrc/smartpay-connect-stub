@@ -18,10 +18,8 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class TerminalId(value: String) {
+final case class TerminalId(value: String):
   def receiptValue: String = value.replaceAll(".(?=.{4})", "*")
-}
 
-object TerminalId {
+object TerminalId:
   given format: OFormat[TerminalId] = Json.format[TerminalId]
-}

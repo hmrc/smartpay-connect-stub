@@ -26,13 +26,13 @@ import scala.collection.immutable
   */
 sealed trait InteractionPrompt extends EnumEntry
 
-object InteractionPrompt {
+object InteractionPrompt:
   import InteractionPrompts._
 
   given format: Format[InteractionPrompt] = EnumFormat(InteractionPrompts)
 
   def apply(value: String): InteractionPrompt =
-    value match {
+    value match
       case "Customer To Insert Or Swipe Card"       => InsertOrSwipeCard
       case "Connecting to Acquirer"                 => ConnectingToAcquirer
       case "Processing Transaction"                 => ProcessingTransaction
@@ -42,34 +42,23 @@ object InteractionPrompt {
       case "Customer To Enter PIN - PIN Incorrect"  => PinIncorrect
       case "Customer To Insert Card In Chip Reader" => InsertCardInChipReader
       case x                                        => throw new RuntimeException(s"Unknown InteractionPrompt: $x")
-    }
-}
 
-object InteractionPrompts extends Enum[InteractionPrompt] {
-  case object InsertOrSwipeCard      extends InteractionPrompt {
+object InteractionPrompts extends Enum[InteractionPrompt]:
+  case object InsertOrSwipeCard      extends InteractionPrompt:
     override def toString: String = "Customer To Insert Or Swipe Card"
-  }
-  case object ConnectingToAcquirer   extends InteractionPrompt {
+  case object ConnectingToAcquirer   extends InteractionPrompt:
     override def toString: String = "Connecting to Acquirer"
-  }
-  case object ProcessingTransaction  extends InteractionPrompt {
+  case object ProcessingTransaction  extends InteractionPrompt:
     override def toString: String = "Processing Transaction"
-  }
-  case object CustomerReinsertCard   extends InteractionPrompt {
+  case object CustomerReinsertCard   extends InteractionPrompt:
     override def toString: String = "Customer To Reinsert Card"
-  }
-  case object SelectAppOnPed         extends InteractionPrompt {
+  case object SelectAppOnPed         extends InteractionPrompt:
     override def toString: String = "Customer To Select Application On PED"
-  }
-  case object CustomerEnterPin       extends InteractionPrompt {
+  case object CustomerEnterPin       extends InteractionPrompt:
     override def toString: String = "Customer To Enter PIN"
-  }
-  case object PinIncorrect           extends InteractionPrompt {
+  case object PinIncorrect           extends InteractionPrompt:
     override def toString: String = "Customer To Enter PIN - PIN Incorrect"
-  }
-  case object InsertCardInChipReader extends InteractionPrompt {
+  case object InsertCardInChipReader extends InteractionPrompt:
     override def toString: String = "Customer To Insert Card In Chip Reader"
-  }
 
   override def values: immutable.IndexedSeq[InteractionPrompt] = findValues
-}

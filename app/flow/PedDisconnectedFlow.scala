@@ -19,7 +19,7 @@ package flow
 import models.TranResults.SuccessResult
 import models._
 
-class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) extends Flow {
+class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) extends Flow:
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
@@ -114,5 +114,3 @@ class PedDisconnectedFlow(spcFlow: FlowDataNoReceipt, errorsNode: ErrorsNode) ex
         CommonBehaviours.handleFinalise
       )
   }
-
-}

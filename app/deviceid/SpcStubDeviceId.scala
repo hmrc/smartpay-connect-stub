@@ -24,8 +24,7 @@ import utils.RandomDataGenerator
   */
 final case class SpcStubDeviceId(value: String)
 
-object SpcStubDeviceId {
+object SpcStubDeviceId:
   def fresh(): SpcStubDeviceId              = SpcStubDeviceId(RandomDataGenerator.randomAlphaNumeric(6))
   val couldNotFindDeviceId: SpcStubDeviceId = SpcStubDeviceId("couldNotFindDeviceId")
   val cookieName: String                    = "spcstubdi"
-}

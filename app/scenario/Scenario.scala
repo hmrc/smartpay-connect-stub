@@ -22,12 +22,11 @@ import utils.FormatUtil
 
 import scala.collection.immutable
 
-sealed trait Scenario extends enumeratum.EnumEntry derives CanEqual {
+sealed trait Scenario extends enumeratum.EnumEntry derives CanEqual:
   def value: String
   def description: String
-}
 
-object Scenario extends Enum[Scenario] {
+object Scenario extends Enum[Scenario]:
 
   given OFormat[Scenario] = FormatUtil(
     "SuccessChipAndPin"                 -> SuccessChipAndPin,
@@ -51,23 +50,19 @@ object Scenario extends Enum[Scenario] {
 
   val default: Scenario = SuccessChipAndPin
 
-  case object SuccessChipAndPin extends Scenario {
+  case object SuccessChipAndPin extends Scenario:
     val value       = "success_chip_and_pin"
     val description = "Success chip & pin with all data on receipt"
-  }
 
-  case object SuccessChipAndPinMulti extends Scenario {
+  case object SuccessChipAndPinMulti extends Scenario:
     val value       = "success_chip_and_pin_multi_card";
     val description = "Success chip & pin with no sequenceNumber on receipt"
-  }
 
   // FlowType1
-  case object SuccessNoVerification extends Scenario {
+  case object SuccessNoVerification extends Scenario:
     val value = "success_no_verification"; val description = "Success no verification card with all data on receipt"
-  }
-  case object SuccessNoReceipt      extends Scenario {
+  case object SuccessNoReceipt      extends Scenario:
     val value = "success_no_receipt"; val description = "Success chip & pin with no receipt."
-  }
   // FlowType8, ReceiptType 5
   //  case object SuccessContactlessEMV extends StubPath { val value = "success_contactless_EMV"; val description = "Success contactlessEMV card with no startDate on receipt" }
   //  //FlowType8, ReceiptType 5
@@ -76,59 +71,45 @@ object Scenario extends Enum[Scenario] {
   //  case object SuccessContactlessEMV3 extends StubPath { val value = "success_contactless_EMV3"; val description = "Success contactlessEMV card with availableSpent additionally on receipt" }
 
   // FlowType5 ReceiptType3
-  case object DeclinedNotAuthorisedNotVerified  extends Scenario {
+  case object DeclinedNotAuthorisedNotVerified  extends Scenario:
     val value       = "declined_no_verification_no_authorisation";
     val description = "Declined/Not Authorised for chip & pin card with authCode missing on receipt"
-  }
-  case object DeclinedNotAuthorisedNotVerified2 extends Scenario {
+  case object DeclinedNotAuthorisedNotVerified2 extends Scenario:
     val value       = "declined_no_verification_no_authorisation2";
     val description = "Declined/Not Authorised for chip & pin card with authCode and startDate missing on receipt"
-  }
 
   // FlowType7 ReceiptType4
-  case object DeclinedInvalidCard  extends Scenario {
+  case object DeclinedInvalidCard  extends Scenario:
     val value       = "declined_invalid_card";
     val description = "Declined/Not Authorised invalid card with terminalId missing on receipt"
-  }
   // FlowType7 ReceiptType9
-  case object DeclinedInvalidCard2 extends Scenario {
+  case object DeclinedInvalidCard2 extends Scenario:
     val value       = "declined_invalid_card2";
     val description = "Declined/Not Authorised invalid card with authCode, terminalId, seqNumber missing on receipt"
-  }
 
-  case object DeclinedValidationFailed extends Scenario {
+  case object DeclinedValidationFailed extends Scenario:
     val value       = "declined_validation_failed";
     val description = "Declined/No Validation with availableSpent and startDate missing on receipt"
-  }
-  case object DeclinedBinCheckFailed   extends Scenario {
+  case object DeclinedBinCheckFailed   extends Scenario:
     val value = "declined_bin_check_failed"; val description = "Declined/Bin check failed"
-  }
-  case object DeclinedNoReceipt        extends Scenario {
+  case object DeclinedNoReceipt        extends Scenario:
     val value = "declined_no_receipt"; val description = "Declined no receipt"
-  }
-  case object DeclinedPedDisconnected  extends Scenario {
+  case object DeclinedPedDisconnected  extends Scenario:
     val value = "declined_ped_disconnected"; val description = "Declined PED disconnected"
-  }
 
-  case object FallbackPosDecision extends Scenario {
+  case object FallbackPosDecision extends Scenario:
     val value = "fallback_pos_decision"; val description = "Fallback after posDecision"
-  }
 
   //  case object CardDeclinedIcc extends StubPath { val value =  "card_declined_icc" ; val description = "Chip&Pin path with card declined by card provider"}
-  case object CancelledOnPedIcc      extends Scenario {
+  case object CancelledOnPedIcc      extends Scenario:
     val value = "cancelled_ped_icc"; val description = "Chip&Pin path with transaction cancelled by user on ped"
-  }
-  case object CancelledByBarclaycard extends Scenario {
+  case object CancelledByBarclaycard extends Scenario:
     val value = "cancelled_by_barclaycard"; val description = "Chip&Pin path with transaction cancelled by Barclaycard"
-  }
   //  case object IncorrectPinIcc extends StubPath { val value =  "incorrect_pin_icc" ; val description = "Chip&Pin path with incorrect PIN and card removed from PED"}
 
-  case object SuccessChipAndPinMasterCard      extends Scenario {
+  case object SuccessChipAndPinMasterCard      extends Scenario:
     val value = "success_chip_and_pin_mastercard"; val description = "Success chip & pin with different card"
-  }
-  case object SuccessNoMerchantNumberInReceipt extends Scenario {
+  case object SuccessNoMerchantNumberInReceipt extends Scenario:
     val value = "success_no_merchant_number_in_receipt"; val description = "Success no merchant number in receipt"
-  }
 
   override def values: immutable.IndexedSeq[Scenario] = findValues
-}

@@ -20,7 +20,7 @@ import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult
 import models._
 
-class NoReceiptFlow(flowData: FlowDataNoReceipt) extends Flow {
+class NoReceiptFlow(flowData: FlowDataNoReceipt) extends Flow:
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
@@ -162,5 +162,3 @@ class NoReceiptFlow(flowData: FlowDataNoReceipt) extends Flow {
 
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
-
-}
