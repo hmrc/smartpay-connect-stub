@@ -31,7 +31,8 @@ sealed trait ReceiptType extends EnumEntry derives CanEqual {
 
 object ReceiptType {
   import ReceiptTypes._
-  implicit val format: Format[ReceiptType] = EnumFormat(ReceiptTypes)
+
+  given format: Format[ReceiptType] = EnumFormat(ReceiptTypes)
 
   def apply(receiptType: String): ReceiptType =
     receiptType match {

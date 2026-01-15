@@ -31,14 +31,16 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.Elem
 
 @Singleton()
-class StubController @Inject() (val controllerComponents: MessagesControllerComponents)(implicit ec: ExecutionContext)
+class StubController @Inject() (val controllerComponents: MessagesControllerComponents)(using ExecutionContext)
     extends FrontendBaseController {
 
   val ping: Action[AnyContent] = Action(Ok)
 
   val pingSpc: Action[AnyContent] = Action(Ok)
 
-  def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { implicit request =>
+  def sendMessage(): Action[SpcRequestMessage] = Action(sendMessageRequestParser) { request =>
+    given Request[SpcRequestMessage] = request
+
     val spcRequestMessage: SpcRequestMessage               = request.body
     val transactionId: TransactionId                       = spcRequestMessage.messageNode.transNum
     val behaviour: SpcBehaviour                            = BehaviourService.getBehaviour(transactionId, deviceId)
@@ -120,6 +122,5 @@ final case class SendMessageResponse(
 )
 
 object SendMessageResponse {
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[SendMessageResponse] = Json.format[SendMessageResponse]
+  given format: OFormat[SendMessageResponse] = Json.format[SendMessageResponse]
 }

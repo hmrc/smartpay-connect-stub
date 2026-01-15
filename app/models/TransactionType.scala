@@ -26,7 +26,8 @@ sealed trait TransactionType extends EnumEntry
 
 object TransactionType {
   import TransactionTypes._
-  implicit val format: Format[TransactionType] = EnumFormat(TransactionTypes)
+
+  given format: Format[TransactionType] = EnumFormat(TransactionTypes)
 
   def apply(value: String): TransactionType =
     value match {

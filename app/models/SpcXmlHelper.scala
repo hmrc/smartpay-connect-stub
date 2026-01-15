@@ -75,7 +75,7 @@ object SpcXmlHelper {
     case null       => logger.warn("could not find node"); to
   }
 
-  implicit class SuperNode(val to: Node) extends AnyVal {
+  extension (to:                   Node)
     def maybeAddNode(maybeNewNode: Option[Node]): Node = maybeNewNode.fold(to)(newNode => addNode(to, newNode))
-  }
+
 }

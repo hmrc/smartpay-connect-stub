@@ -29,7 +29,8 @@ sealed trait TransactionDecision extends EnumEntry {
 
 object TransactionDecision {
   import TransactionDecisions._
-  implicit val format: Format[TransactionDecision] = EnumFormat(TransactionDecisions)
+
+  given format: Format[TransactionDecision] = EnumFormat(TransactionDecisions)
 
   def apply(decisionType: String): TransactionDecision =
     decisionType match {

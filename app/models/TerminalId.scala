@@ -23,5 +23,5 @@ final case class TerminalId(value: String) {
 }
 
 object TerminalId {
-  implicit val format: OFormat[TerminalId] = Json.format[TerminalId]
+  given format: OFormat[TerminalId] = Json.format[TerminalId]
 }

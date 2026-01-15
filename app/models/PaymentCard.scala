@@ -38,9 +38,8 @@ final case class PaymentCard(
   def receiptEnd: String       =
     new SimpleDateFormat("MM/yy").format(new SimpleDateFormat("yyyy-MM-dd").parse(endDate).getTime)
   def receiptEndMasked: String = "****-**"
-
 }
+
 object PaymentCard {
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[PaymentCard] = Json.format[PaymentCard]
+  given format: OFormat[PaymentCard] = Json.format[PaymentCard]
 }

@@ -28,7 +28,8 @@ sealed trait TransactionSource extends EnumEntry
 
 object TransactionSource {
   import TransactionSources._
-  implicit val format: Format[TransactionSource] = EnumFormat(TransactionSources)
+
+  given format: Format[TransactionSource] = EnumFormat(TransactionSources)
 
   def apply(category: String): TransactionSource =
     category match {

@@ -28,7 +28,8 @@ sealed trait InteractionPrompt extends EnumEntry
 
 object InteractionPrompt {
   import InteractionPrompts._
-  implicit val format: Format[InteractionPrompt] = EnumFormat(InteractionPrompts)
+
+  given format: Format[InteractionPrompt] = EnumFormat(InteractionPrompts)
 
   def apply(value: String): InteractionPrompt =
     value match {

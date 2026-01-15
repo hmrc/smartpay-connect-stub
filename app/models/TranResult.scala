@@ -26,7 +26,8 @@ sealed trait TranResult extends EnumEntry
 
 object TranResult {
   import TranResults._
-  implicit val format: Format[TranResult] = EnumFormat(TranResults)
+
+  given format: Format[TranResult] = EnumFormat(TranResults)
 
   def apply(result: String): TranResult =
     result match {

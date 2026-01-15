@@ -24,5 +24,5 @@ final case class CardPan(value: String) {
 }
 
 object CardPan {
-  implicit val format: OFormat[CardPan] = Json.format[CardPan]
+  given format: OFormat[CardPan] = Json.format[CardPan]
 }

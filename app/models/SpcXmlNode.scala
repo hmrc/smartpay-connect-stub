@@ -148,13 +148,13 @@ final case class PdTransNode(decision: TransactionDecision, name: String = PdTra
 
 object PdTransNode {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[PdTransNode] = Json.format[PdTransNode]
-  def fromXml(node: Node): PdTransNode      = {
+  given format: OFormat[PdTransNode] = Json.format[PdTransNode]
+
+  def fromXml(node: Node): PdTransNode = {
     val transactionDecision = TransactionDecision((node \\ "TRANS" \ "DECISION" \ "@type").text)
     PdTransNode(transactionDecision)
   }
-  val name                                  = "PdTransNode"
+  val name                             = "PdTransNode"
 }
 
 final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
@@ -539,13 +539,14 @@ final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode
 }
 
 object ErrorsNode {
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
-  def fromXml(node: Node): ErrorsNode      = {
+
+  given format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
+
+  def fromXml(node: Node): ErrorsNode = {
     val errors = (node \\ "TRANS" \ "ERRORS").headOption.map(_.map(ErrorNode.fromXml))
     ErrorsNode(errors.getOrElse(Seq.empty[ErrorNode]))
   }
-  val name                                 = "ErrorsNode"
+  val name                            = "ErrorsNode"
 }
 
 final case class ErrorNode(code: String, description: String, name: String = ErrorNode.name) extends SpcXmlNode {
@@ -556,14 +557,14 @@ final case class ErrorNode(code: String, description: String, name: String = Err
 
 object ErrorNode {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[ErrorNode] = Json.format[ErrorNode]
-  def fromXml(node: Node): ErrorNode      = {
+  given format: OFormat[ErrorNode] = Json.format[ErrorNode]
+
+  def fromXml(node: Node): ErrorNode = {
     val code        = (node \\ "ERROR" \ "@code").text
     val description = (node \\ "ERROR").text
     ErrorNode(code, description)
   }
-  val name                                = "ErrorNode"
+  val name                           = "ErrorNode"
 }
 
 final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
@@ -577,8 +578,8 @@ final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
 }
 
 object HeaderNode {
-  implicit val format: OFormat[HeaderNode] = Json.format[HeaderNode]
-  def fromXml(): HeaderNode                =
+  given format: OFormat[HeaderNode] = Json.format[HeaderNode]
+  def fromXml(): HeaderNode         =
     HeaderNode()
-  val name                                 = "HeaderNode"
+  val name                          = "HeaderNode"
 }

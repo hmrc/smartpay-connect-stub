@@ -18,7 +18,7 @@ package scenario
 
 import deviceid.SpcStubDeviceId
 import forms.ScenarioForm
-import play.api.mvc.{Action, AnyContent, Cookie, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Cookie, MessagesControllerComponents, Request}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.RequestSupport.deviceId
 import views.html.ScenariosView
@@ -30,7 +30,9 @@ class ScenarioController @Inject() (
   scenariosView:            ScenariosView
 ) extends FrontendBaseController {
 
-  def showScenarios: Action[AnyContent] = Action { implicit request =>
+  def showScenarios: Action[AnyContent] = Action { request =>
+    given Request[AnyContent] = request
+
     val scenario = ScenarioService.getScenario(deviceId)
     val result   = Ok(scenariosView(ScenarioForm.form.fill(scenario)))
     request.cookies
@@ -44,7 +46,9 @@ class ScenarioController @Inject() (
     maxAge = Some(315360000) // 10 years
   )
 
-  def submitScenario: Action[AnyContent] = Action { implicit request =>
+  def submitScenario: Action[AnyContent] = Action { request =>
+    given Request[AnyContent] = request
+
     ScenarioForm.form
       .bindFromRequest()
       .fold(
