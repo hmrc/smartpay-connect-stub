@@ -16,8 +16,6 @@
 
 package behaviour
 
-//import scala.reflect.Typeable
-
 /** Wrapper around partial function which returns both next behaviour and the value returned by the partial function.
   * It's strong type alternative to code previously written using akka classic actors and "receive: Any => Unit"
   */
@@ -38,8 +36,6 @@ sealed trait Behaviour[-I, +O] derives CanEqual:
   //    case BDone              => BDone
   //    case bd: BDefined[I, O] => BDefined[I, O2](bd.pf.andThen(t => (f(t._1), t._2.map(f))))
   //  }
-
-given CanEqual[BDone.type, BDefined[_, _]] = CanEqual.derived
 
 /** Behaviour (B) Done. The last step, nothing more to do
   */

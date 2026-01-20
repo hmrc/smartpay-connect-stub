@@ -17,13 +17,10 @@
 package models
 
 import enumeratum.EnumEntry
-//import play.api.libs.json.{Json, OFormat}
 
 sealed trait CustomerPresence extends EnumEntry
 
 object CustomerPresence:
-
-  // given OFormat[CustomerPresence] = Json.format[CustomerPresence]
 
   def apply(value: String): CustomerPresence =
     value match

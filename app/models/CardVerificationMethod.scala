@@ -16,15 +16,11 @@
 
 package models
 
-//import play.api.libs.json.{Json, OFormat}
-
 /** SPC- Smart Pay Connect - Interaction Node events
   */
 sealed trait CardVerificationMethod
 
 object CardVerificationMethod:
-
-  // given OFormat[CardVerificationMethod] = Json.format[CardVerificationMethod]
 
   def apply(category: String): CardVerificationMethod =
     category match
