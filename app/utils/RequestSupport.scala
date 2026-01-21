@@ -16,7 +16,6 @@
 
 package utils
 
-import cats.implicits.catsSyntaxEq
 import deviceid.SpcStubDeviceId
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.Request
@@ -30,30 +29,24 @@ import javax.inject.Inject
   *
   * Use it to provide HeaderCarrier, Lang, or Messages
   */
-class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I18nSupport {
+class RequestSupport @Inject() (override val messagesApi: MessagesApi) extends I18nSupport:
 
-  implicit def hc(implicit request: Request[_]): HeaderCarrier = RequestSupport.hc
-  def lang(implicit messages:       Messages): Lang            = messages.lang
+  given hc(using request: Request[_]): HeaderCarrier = RequestSupport.hc
 
-  // implicit def language(implicit messages: Messages): Language = Language(messages.lang)
-}
+  def lang(using messages: Messages): Lang = messages.lang
 
-object RequestSupport {
-  def isLoggedIn(implicit request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
+object RequestSupport:
+  def isLoggedIn(using request: Request[_]): Boolean = request.session.get(SessionKeys.authToken).isDefined
 
-  implicit def hc(implicit request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
+  given hc(using request: Request[_]): HeaderCarrier = HcProvider.headerCarrier
 
-  def deviceId(implicit request: Request[_]): SpcStubDeviceId = request.cookies
-    .find(_.name === SpcStubDeviceId.cookieName)
+  def deviceId(using request: Request[_]): SpcStubDeviceId = request.cookies
+    .find(_.name == SpcStubDeviceId.cookieName)
     .map(c => SpcStubDeviceId(c.value))
     .getOrElse(SpcStubDeviceId.couldNotFindDeviceId)
 
   /** This is because we want to give responsibility of creation of [[HeaderCarrier]] to the platform code. If they
     * refactor how hc is created our code will pick it up automatically.
     */
-  private object HcProvider extends FrontendHeaderCarrierProvider {
-    def headerCarrier(implicit request: Request[_]): HeaderCarrier = hc(request)
-  }
-
-  //  implicit def language(implicit messages: Messages): Language = Language(messages.lang)
-}
+  private object HcProvider extends FrontendHeaderCarrierProvider:
+    def headerCarrier(using request: Request[_]): HeaderCarrier = super.hc(request)

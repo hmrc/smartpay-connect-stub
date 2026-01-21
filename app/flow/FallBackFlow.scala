@@ -20,7 +20,7 @@ import models.InteractionCategories.{CardReader, OnlineCategory}
 import models.TranResults.SuccessResult
 import models._
 
-class FallBackFlow(spcFlow: FlowData) extends Flow {
+class FallBackFlow(spcFlow: FlowData) extends Flow:
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
@@ -181,5 +181,3 @@ class FallBackFlow(spcFlow: FlowData) extends Flow {
       )
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
-
-}

@@ -17,15 +17,15 @@
 package scenario
 
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.libs.json.Json
+import org.scalatest.matchers.should.Matchers
+import play.api.libs.json.{JsValue, Json}
 
-class ScenarioSpec extends AnyFreeSpec with Matchers {
+class ScenarioSpec extends AnyFreeSpec with Matchers:
+
+  given CanEqual[JsValue, JsValue] = CanEqual.derived
 
   "json" in {
     val json = Json.obj("SuccessChipAndPin" -> Json.obj())
     Json.toJson(Scenario.SuccessChipAndPin: Scenario) shouldBe json
     json.as[Scenario] shouldBe Scenario.SuccessChipAndPin
   }
-}

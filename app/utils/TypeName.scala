@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-import play.api.libs.json.{Json, OFormat}
+import scala.quoted.{Expr, Quotes, Type}
 
-final case class CardPan(value: String):
-  def receiptValue: String = value.replaceAll(".(?=.{4})", "*")
-  def maskedValue: String  = "*** Data Removed for Security ***"
+object TypeName:
 
-object CardPan:
-  given format: OFormat[CardPan] = Json.format[CardPan]
+  inline def of[A]: String = ${ impl[A] }
+
+  def impl[A](using Type[A], Quotes): Expr[String] =
+    Expr(Type.show[A])

@@ -16,6 +16,5 @@
 
 package flow
 
-trait Flow {
+trait Flow:
   def initialBehaviour: SpcBehaviour
-}

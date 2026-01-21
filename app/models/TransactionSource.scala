@@ -26,20 +26,18 @@ import scala.collection.immutable
   */
 sealed trait TransactionSource extends EnumEntry
 
-object TransactionSource {
+object TransactionSource:
   import TransactionSources._
-  implicit val format: Format[TransactionSource] = EnumFormat(TransactionSources)
+
+  given format: Format[TransactionSource] = EnumFormat(TransactionSources)
 
   def apply(category: String): TransactionSource =
-    category match {
+    category match
       case "icc"   => Icc
       case "keyed" => Keyed
       case x       => throw new RuntimeException(s"Unknown TransactionSource: $x")
-    }
-}
 
-object TransactionSources extends Enum[TransactionSource] {
-  final case object Icc   extends TransactionSource { override def toString: String = "icc"   }
-  final case object Keyed extends TransactionSource { override def toString: String = "keyed" }
+object TransactionSources extends Enum[TransactionSource]:
+  case object Icc   extends TransactionSource { override def toString: String = "icc"   }
+  case object Keyed extends TransactionSource { override def toString: String = "keyed" }
   override def values: immutable.IndexedSeq[TransactionSource] = findValues
-}

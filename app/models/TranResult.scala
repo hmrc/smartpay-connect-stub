@@ -24,21 +24,19 @@ import scala.collection.immutable
 
 sealed trait TranResult extends EnumEntry
 
-object TranResult {
+object TranResult:
   import TranResults._
-  implicit val format: Format[TranResult] = EnumFormat(TranResults)
+
+  given format: Format[TranResult] = EnumFormat(TranResults)
 
   def apply(result: String): TranResult =
-    result match {
+    result match
       case "success" => SuccessResult
       case "failure" => FailureResult
       case x         => throw new RuntimeException(s"Unknown scp message Result received: $x")
-    }
-}
 
-object TranResults extends Enum[TranResult] {
-  final case object SuccessResult extends TranResult { override def toString: String = "success" }
-  final case object FailureResult extends TranResult { override def toString: String = "failure" }
+object TranResults extends Enum[TranResult]:
+  case object SuccessResult extends TranResult { override def toString: String = "success" }
+  case object FailureResult extends TranResult { override def toString: String = "failure" }
 
   override def values: immutable.IndexedSeq[TranResult] = findValues
-}

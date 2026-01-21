@@ -21,6 +21,5 @@ import play.api.libs.functional.syntax._
 
 final case class TransactionReference(value: String)
 
-object TransactionReference {
-  implicit val format: Format[TransactionReference] = implicitly[Format[String]].inmap(TransactionReference(_), _.value)
-}
+object TransactionReference:
+  given format: Format[TransactionReference] = summon[Format[String]].inmap(TransactionReference(_), _.value)

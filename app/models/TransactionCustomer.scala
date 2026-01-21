@@ -24,19 +24,17 @@ import scala.collection.immutable
 
 sealed trait TransactionCustomer extends EnumEntry
 
-object TransactionCustomer {
+object TransactionCustomer:
   import TransactionCustomers._
-  implicit val format: Format[TransactionCustomer] = EnumFormat(TransactionCustomers)
+
+  given format: Format[TransactionCustomer] = EnumFormat(TransactionCustomers)
 
   def apply(value: String): TransactionCustomer =
-    value match {
+    value match
       case "present" => Present
       case x         => throw new RuntimeException(s"Unknown TransactionCustomer: $x")
-    }
-}
 
-object TransactionCustomers extends Enum[TransactionCustomer] {
+object TransactionCustomers extends Enum[TransactionCustomer]:
   case object Present extends TransactionCustomer { override def toString: String = "present" }
 
   override def values: immutable.IndexedSeq[TransactionCustomer] = findValues
-}

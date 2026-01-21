@@ -19,7 +19,7 @@ package models
 import java.text.SimpleDateFormat
 import java.util.Date
 
-object StubUtil {
+object StubUtil:
   //  val customerReceipts =
   //    """<![CDATA[AID: A0000000031010
   //      |Visa Credit
@@ -155,5 +155,3 @@ object StubUtil {
   //    transactionType        = TransactionTypes.Purchase,
   //    cardVerificationMethod = CardVerificationMethod.signature
   //  )
-
-}

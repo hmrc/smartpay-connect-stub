@@ -17,12 +17,12 @@
 import behaviour.{BDefined, BDone, Behaviour}
 import models.{SpcRequestMessage, SpcResponseMessage}
 
-package object flow {
+package object flow:
 
   type SpcBehaviour = Behaviour[SpcRequestMessage, Seq[SpcResponseMessage]]
 
   def behave(pf: PartialFunction[SpcRequestMessage, (Seq[SpcResponseMessage], SpcBehaviour)]): SpcBehaviour = BDefined(
     pf
   )
-  val done: Behaviour[SpcRequestMessage, Nothing]                                                           = BDone
-}
+
+  val done: Behaviour[SpcRequestMessage, Nothing] = BDone

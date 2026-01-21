@@ -20,14 +20,14 @@ import play.api.data.FormError
 import play.api.data.format.Formatter
 import enumeratum.{Enum, EnumEntry}
 
-object EnumFormatter {
+object EnumFormatter:
 
   def format[A <: EnumEntry](
     `enum`:                  Enum[A],
     errorMessageIfMissing:   String = "missing input",
     errorMessageIfEnumError: String = "invalid input",
     insensitive:             Boolean = false
-  ): Formatter[A] = new Formatter[A] {
+  ): Formatter[A] = new Formatter[A]:
     val delegate: Formatter[A] = enumeratum.Forms.format(`enum`, insensitive)
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], A] =
@@ -45,7 +45,3 @@ object EnumFormatter {
       )
 
     override def unbind(key: String, value: A): Map[String, String] = Map(key -> value.toString)
-
-  }
-
-}

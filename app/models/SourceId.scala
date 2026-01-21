@@ -23,6 +23,5 @@ import play.api.libs.functional.syntax._
   */
 final case class SourceId(value: String)
 
-object SourceId {
-  implicit val format: Format[SourceId] = implicitly[Format[String]].inmap(SourceId(_), _.value)
-}
+object SourceId:
+  given format: Format[SourceId] = summon[Format[String]].inmap(SourceId(_), _.value)

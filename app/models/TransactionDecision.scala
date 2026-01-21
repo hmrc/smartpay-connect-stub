@@ -22,39 +22,33 @@ import utils.EnumFormat
 
 import scala.collection.immutable
 
-sealed trait TransactionDecision extends EnumEntry {
+sealed trait TransactionDecision extends EnumEntry:
   val decisionType: String
   val decisionDesc: String
-}
 
-object TransactionDecision {
+object TransactionDecision:
   import TransactionDecisions._
-  implicit val format: Format[TransactionDecision] = EnumFormat(TransactionDecisions)
+
+  given format: Format[TransactionDecision] = EnumFormat(TransactionDecisions)
 
   def apply(decisionType: String): TransactionDecision =
-    decisionType match {
+    decisionType match
       case "get_sig_auth"     => SignatureRequired
       case "get_man_auth"     => AuthorizationRequired
       case "cv2_avs_decision" => LiabilityRequired
       case x                  => throw new RuntimeException(s"Unknown TransactionDecision: $x")
-    }
-}
 
-object TransactionDecisions extends Enum[TransactionDecision] {
+object TransactionDecisions extends Enum[TransactionDecision]:
 
-  case object SignatureRequired extends TransactionDecision {
+  case object SignatureRequired extends TransactionDecision:
     override val decisionType: String = "get_sig_auth"
     override val decisionDesc: String = "Signature verification required"
-  }
 
-  case object AuthorizationRequired extends TransactionDecision {
+  case object AuthorizationRequired extends TransactionDecision:
     override val decisionType: String = "get_man_auth"
     override val decisionDesc: String = "Manual authorisation is required."
-  }
 
-  case object LiabilityRequired extends TransactionDecision {
+  case object LiabilityRequired extends TransactionDecision:
     override val decisionType: String = "cv2_avs_decision"
     override val decisionDesc: String = "A CV2/AVS liability decision is required."
-  }
   override def values: immutable.IndexedSeq[TransactionDecision] = findValues
-}

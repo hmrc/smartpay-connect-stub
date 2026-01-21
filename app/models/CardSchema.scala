@@ -21,8 +21,8 @@ import play.api.libs.functional.syntax._
 
 final case class CardSchema(value: String)
 
-object CardSchema {
-  implicit val format: Format[CardSchema] = implicitly[Format[String]].inmap(CardSchema(_), _.value)
-  val VisaCredit: CardSchema              = CardSchema("Visa Credit")
-  val MasterDebit: CardSchema             = CardSchema("Mastercard Debit")
-}
+object CardSchema:
+  given format: Format[CardSchema] = summon[Format[String]].inmap(CardSchema(_), _.value)
+
+  val VisaCredit: CardSchema  = CardSchema("Visa Credit")
+  val MasterDebit: CardSchema = CardSchema("Mastercard Debit")

@@ -19,18 +19,19 @@ object WartRemoverSettings {
       (Compile / compile / wartremoverErrors) ++= {
         if (StrictBuilding.strictBuilding.value) Warts.allBut(
           Wart.DefaultArguments,
+          Wart.Equals,
           Wart.ImplicitConversion,
           Wart.ImplicitParameter,
+          Wart.JavaSerializable,
           Wart.Nothing,
           Wart.Overloading,
+          Wart.PlatformDefault,
+          Wart.Product,
+          Wart.Serializable,
           Wart.SizeIs,
           Wart.SortedMaxMinOption,
           Wart.Throw,
-          Wart.ToString,
-          Wart.JavaSerializable,
-          Wart.Serializable,
-          Wart.Product,
-          Wart.PlatformDefault
+          Wart.ToString
         )
         else Nil
       },
@@ -40,7 +41,6 @@ object WartRemoverSettings {
         Wart.StringPlusAny,
         Wart.ThreadSleep,
         Wart.Any,
-        Wart.Equals,
         Wart.GlobalExecutionContext,
         Wart.Null,
         Wart.NonUnitStatements,

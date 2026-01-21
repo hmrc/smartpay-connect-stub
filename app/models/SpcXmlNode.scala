@@ -25,46 +25,39 @@ import scala.xml.{Node, PCData}
 
 /** SCP - Smart Pay Connect - XML nodes that are used to build messages
   */
-sealed trait SpcXmlNode {
+sealed trait SpcXmlNode:
   def toXml: Node
-}
 
-final case class MessageNode(transNum: TransactionId, deviceId: DeviceId, sourceId: SourceId) extends SpcXmlNode {
-  def toXml: Node = {
+final case class MessageNode(transNum: TransactionId, deviceId: DeviceId, sourceId: SourceId) extends SpcXmlNode:
+  def toXml: Node =
     <MESSAGE>
       <TRANS_NUM>{transNum.value}</TRANS_NUM>
       <DEVICE_ID>{deviceId.value}</DEVICE_ID>
       <SOURCE_ID>{sourceId.value}</SOURCE_ID>
     </MESSAGE>
-  }
-}
 
-object MessageNode {
-  def fromXml(node: Node): MessageNode = {
+object MessageNode:
+  def fromXml(node: Node): MessageNode =
     val transNr  = TransactionId((node \\ "MESSAGE" \ "TRANS_NUM").text)
     val sourceId = SourceId((node \\ "MESSAGE" \ "SOURCE_ID").text)
     val deviceId = DeviceId((node \\ "MESSAGE" \ "DEVICE_ID").text)
     MessageNode(transNr, deviceId, sourceId)
-  }
-}
 
 final case class InteractionNode(category: InteractionCategory, event: InteractionEvent, prompt: InteractionPrompt)
-    extends SpcXmlNode {
-  def toXml: Node = {
+    extends SpcXmlNode:
+  def toXml: Node =
     <INTERACTION name="posDisplayMessage">
       <STATUS category={category.toString} event={event.toString}/>
       <PROMPT>{prompt.toString}</PROMPT>
     </INTERACTION>
-  }
-}
 
 final case class AmountNode(
   totalAmount:  AmountInPence,
   currency:     CurrencyNum,
   country:      Country,
   finalAmountO: Option[AmountInPence]
-) extends SpcXmlNode {
-  def toXml: Node = {
+) extends SpcXmlNode:
+  def toXml: Node =
     val totalAmountNode =
       <AMOUNT currency={currency.value} country={country.value}>
         <TOTAL>{totalAmount.value}</TOTAL>
@@ -75,39 +68,31 @@ final case class AmountNode(
         SpcXmlHelper.addNode(totalAmountNode, <FINAL>{finalAmount.value}</FINAL>)
       }
       .getOrElse(totalAmountNode)
-  }
-}
 
-object AmountNode {
-  def fromXml(node: Node): AmountNode = {
+object AmountNode:
+  def fromXml(node: Node): AmountNode =
     val totalAmount  = AmountInPence.fromScpAmount((node \\ "AMOUNT" \ "TOTAL").text)
     val currency     = CurrencyNum((node \\ "AMOUNT" \ "@currency").text)
     val country      = Country((node \\ "AMOUNT" \ "@country").text)
     val finalAmountO = (node \\ "AMOUNT" \ "FINAL").headOption.map(x => AmountInPence(x.text))
     AmountNode(totalAmount, currency, country, finalAmountO)
-  }
-}
 
 final case class TransactionNode(amountNode: AmountNode, transactionSource: TransactionSource = TransactionSources.Icc)
-    extends SpcXmlNode {
-  def toXml: Node = {
+    extends SpcXmlNode:
+  def toXml: Node =
     <TRANSACTION type={TransactionTypes.Purchase.toString} action={
       TransactionActions.AuthorizeAndSettle.toString
     } source={transactionSource.toString} customer={TransactionCustomers.Present.toString}>
       {amountNode.toXml}
     </TRANSACTION>
-  }
-}
 
-object TransactionNode {
-  def fromXml(node: Node): TransactionNode = {
+object TransactionNode:
+  def fromXml(node: Node): TransactionNode =
     val transactionSourceO: TransactionSource = (node \\ "TRANSACTION" \ "@source").headOption
       .map(x => TransactionSource(x.text))
       .getOrElse(sys.error("invalid xml"))
     val amountNode                            = AmountNode.fromXml(node)
     TransactionNode(amountNode, transactionSourceO)
-  }
-}
 
 //TODO - provide current date time in message
 final case class PtrTransactionNode(
@@ -116,8 +101,8 @@ final case class PtrTransactionNode(
   verification:      CardVerificationMethod,
   transactionDate:   String,
   transactionTime:   String
-) extends SpcXmlNode {
-  def toXml: Node = {
+) extends SpcXmlNode:
+  def toXml: Node =
     <TRANSACTION action={TransactionActions.AuthorizeAndSettle.toString} type={
       TransactionTypes.Purchase.toString
     } source={transactionSource.toString} customer={TransactionCustomers.Present.toString} reference={
@@ -135,30 +120,24 @@ final case class PtrTransactionNode(
       <CRYPTO_TRANSTYPE>XX</CRYPTO_TRANSTYPE>
       {amountNode.toXml}
     </TRANSACTION>
-  }
-}
 
-final case class PdTransNode(decision: TransactionDecision, name: String = PdTransNode.name) extends SpcXmlNode {
-  def toXml: Node = {
+final case class PdTransNode(decision: TransactionDecision, name: String = PdTransNode.name) extends SpcXmlNode:
+  def toXml: Node =
     <TRANS name="posDecision">
       <DECISION type={decision.decisionType}>{decision.decisionDesc}</DECISION>
     </TRANS>
-  }
-}
 
-object PdTransNode {
+object PdTransNode:
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[PdTransNode] = Json.format[PdTransNode]
-  def fromXml(node: Node): PdTransNode      = {
+  given format: OFormat[PdTransNode] = Json.format[PdTransNode]
+
+  def fromXml(node: Node): PdTransNode =
     val transactionDecision = TransactionDecision((node \\ "TRANS" \ "DECISION" \ "@type").text)
     PdTransNode(transactionDecision)
-  }
-  val name                                  = "PdTransNode"
-}
+  val name                             = "PdTransNode"
 
-final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
-  def toXml: Node = {
+final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode:
+  def toXml: Node =
     <CARD range="X" currency={paymentCard.currency.value} country={paymentCard.country.value}>
       <PAN end={paymentCard.receiptEndMasked} start={paymentCard.startDate} seqNum={paymentCard.seqNum}>{
       paymentCard.receiptPan
@@ -170,11 +149,9 @@ final case class UpeCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
         <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
       </TOKENS>
     </CARD>
-  }
-}
 
-final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNode {
-  def toXml: Node = {
+final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNode:
+  def toXml: Node =
     <CARD range="X" currency={paymentCard.currency.value} country={paymentCard.country.value}>
       <PAN end={paymentCard.endDate} start={paymentCard.startDate} seqNum={paymentCard.seqNum}>{paymentCard.pan}</PAN>
       <APPLICATION id={StubUtil.APPLICATION_ID} version="XXXXX">
@@ -195,15 +172,12 @@ final case class PtrResponseCardNode(paymentCard: PaymentCard) extends SpcXmlNod
         <TOKEN origin="xxxxxxx">XXXXXXXXXXXXXXXXXXXXXXXX</TOKEN>
       </TOKENS>
     </CARD>
-  }
-}
 
-trait ReceiptNode {
+trait ReceiptNode:
   def toXml: Node
   def toXml(receiptType: ReceiptType): Node
-}
 
-trait ReceiptNotEmptyNode extends ReceiptNode {
+trait ReceiptNotEmptyNode extends ReceiptNode:
 
   val spcFlow: FlowData
   val submittedData: SubmittedData
@@ -250,49 +224,38 @@ trait ReceiptNotEmptyNode extends ReceiptNode {
       .maybeAddNode(maybeTerminalId.map(x => <TERMINAL_ID>{x}</TERMINAL_ID>))
       .maybeAddNode(maybeMerchantNumber.map(x => <MERCHANT_NUMBER>{x}</MERCHANT_NUMBER>))
 
-  override def toXml: Node = {
+  override def toXml: Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
 
-  override def toXml(receiptType: ReceiptType): Node = {
+  override def toXml(receiptType: ReceiptType): Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
 
-  def getPanNumber: String = receiptType match {
+  def getPanNumber: String = receiptType match
     case _ @ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptPan
     case _                               => spcFlow.paymentCard.receiptPanMasked
-  }
 
-  def getEndDate: String = receiptType match {
+  def getEndDate: String = receiptType match
     case _ @ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptEnd
     case _                               => spcFlow.paymentCard.receiptEndMasked
-  }
 
-  def getTransactionResponse: String = spcFlow.paymentResult match {
+  def getTransactionResponse: String = spcFlow.paymentResult match
     case _ @PaymentResults.OnlineResult => maybeAuthCode.getOrElse("Error TransactionResponse.Auth is missing")
     case _                              => spcFlow.paymentResult.toString
-  }
 
-}
-
-trait ReceiptEmptyNode extends ReceiptNode {
+trait ReceiptEmptyNode extends ReceiptNode:
   def receiptType: ReceiptType = ReceiptTypes.CustomerReceipt
   val name: String             = "ReceiptEmptyNode"
 
-  def receiptToXml: Node = {
+  def receiptToXml: Node =
     <RECEIPT/>
-  }
 
-  override def toXml: Node = {
+  override def toXml: Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
 
-  override def toXml(receiptType: ReceiptType): Node = {
+  override def toXml(receiptType: ReceiptType): Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
-}
 
-trait ReceiptBrokenNode extends ReceiptNode {
+trait ReceiptBrokenNode extends ReceiptNode:
 
   val spcFlow: FlowData
   val submittedData: SubmittedData
@@ -305,7 +268,7 @@ trait ReceiptBrokenNode extends ReceiptNode {
 
   val name: String = "ReceiptBrokenNode"
 
-  def receiptToXml: Node = {
+  def receiptToXml: Node =
     <RECEIPT>
       <APPLICATION_ID>{StubUtil.APPLICATION_ID}</APPLICATION_ID>
       <CURRENCY_CODE>{submittedData.currency.toCurrencyCode}</CURRENCY_CODE>
@@ -318,31 +281,24 @@ trait ReceiptBrokenNode extends ReceiptNode {
       <TRANSACTION_RESPONSE>{spcFlow.paymentResult.toString}</TRANSACTION_RESPONSE>
       <TRANSACTION_TYPE>{TransactionTypes.Purchase.toString}</TRANSACTION_TYPE>
     </RECEIPT>
-  }
 
-  override def toXml: Node = {
+  override def toXml: Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
 
-  override def toXml(receiptType: ReceiptType): Node = {
+  override def toXml(receiptType: ReceiptType): Node =
     <RECEIPT type={receiptType.receiptType} format="xml">{PCData(receiptToXml.toString())}</RECEIPT>
-  }
 
-  def getPanNumber: String = receiptType match {
+  def getPanNumber: String = receiptType match
     case _ @ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptPan
     case _                               => spcFlow.paymentCard.receiptPanMasked
-  }
 
-  def getEndDate: String = receiptType match {
+  def getEndDate: String = receiptType match
     case _ @ReceiptTypes.CustomerReceipt => spcFlow.paymentCard.receiptEnd
     case _                               => spcFlow.paymentCard.receiptEndMasked
-  }
 
-}
+sealed trait ReceiptTypeName derives CanEqual
 
-sealed trait ReceiptTypeName
-
-object ReceiptTypeName {
+object ReceiptTypeName:
   case object ReceiptType1Name extends ReceiptTypeName
 
   case object ReceiptType2Name extends ReceiptTypeName
@@ -366,9 +322,8 @@ object ReceiptTypeName {
   case object ReceiptTypeEmpty extends ReceiptTypeName
 
   case object ReceiptTypeBroken extends ReceiptTypeName
-}
 
-object ReceiptNode {
+object ReceiptNode:
   import ReceiptTypeName._
   def createReceiptNode(
     submittedData: SubmittedData,
@@ -376,7 +331,7 @@ object ReceiptNode {
     totalAmount:   AmountInPence,
     finalAmount:   Option[AmountInPence]
   ): ReceiptNode =
-    spcFlow.receiptNodeName match {
+    spcFlow.receiptNodeName match
       case ReceiptType1Name  => ReceiptType1Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType2Name  => ReceiptType2Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptType3Name  => ReceiptType3Node(spcFlow, submittedData, totalAmount, finalAmount)
@@ -389,9 +344,6 @@ object ReceiptNode {
       case ReceiptType10Name => ReceiptType10Node(spcFlow, submittedData, totalAmount, finalAmount)
       case ReceiptTypeEmpty  => ReceiptTypeEmptyNode()
       case ReceiptTypeBroken => ReceiptTypeBrokenNode(spcFlow, submittedData, totalAmount, finalAmount)
-    }
-
-}
 
 final case class ReceiptType1Node(
   spcFlow:       FlowData,
@@ -399,9 +351,8 @@ final case class ReceiptType1Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends ReceiptNotEmptyNode
-    with SpcXmlNode {
+    with SpcXmlNode:
   override val maybeAvailableSpend: Option[AmountInPence] = None
-}
 
 final case class ReceiptType2Node(
   spcFlow:       FlowData,
@@ -409,10 +360,9 @@ final case class ReceiptType2Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybePanSequence: Option[String]           = None
-}
 
 final case class ReceiptType3Node(
   spcFlow:       FlowData,
@@ -420,10 +370,9 @@ final case class ReceiptType3Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeAuthCode: Option[String]              = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
-}
 
 final case class ReceiptType4Node(
   spcFlow:       FlowData,
@@ -431,11 +380,10 @@ final case class ReceiptType4Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeAuthCode: Option[String]              = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybeTerminalId: Option[String]            = None
-}
 
 final case class ReceiptType5Node(
   spcFlow:       FlowData,
@@ -443,9 +391,8 @@ final case class ReceiptType5Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybePanStartDate: Option[String] = None
-}
 
 final case class ReceiptType6Node(
   spcFlow:       FlowData,
@@ -453,10 +400,9 @@ final case class ReceiptType6Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeAuthCode: Option[String]     = None
   override val maybePanStartDate: Option[String] = None
-}
 
 final case class ReceiptType7Node(
   spcFlow:       FlowData,
@@ -464,12 +410,10 @@ final case class ReceiptType7Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeAuthCode: Option[String]              = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybePanStartDate: Option[String]          = None
-
-}
 
 final case class ReceiptType8Node(
   spcFlow:       FlowData,
@@ -477,10 +421,9 @@ final case class ReceiptType8Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybePanSequence: Option[String]  = None
   override val maybePanStartDate: Option[String] = None
-}
 
 final case class ReceiptType9Node(
   spcFlow:       FlowData,
@@ -488,12 +431,11 @@ final case class ReceiptType9Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybePanSequence: Option[String]           = None
   override val maybeTerminalId: Option[String]            = None
   override val maybeAuthCode: Option[String]              = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
-}
 
 final case class ReceiptType10Node(
   spcFlow:       FlowData,
@@ -501,9 +443,8 @@ final case class ReceiptType10Node(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
   override val maybeMerchantNumber: Option[String] = None
-}
 
 final case class ReceiptTypeEmptyNode() extends SpcXmlNode with ReceiptEmptyNode
 
@@ -521,64 +462,53 @@ final case class ReceiptMerchantNode(
   totalAmount:   AmountInPence,
   finalAmount:   Option[AmountInPence]
 ) extends SpcXmlNode
-    with ReceiptNotEmptyNode {
+    with ReceiptNotEmptyNode:
 
   override val receiptType: ReceiptType                   = ReceiptTypes.MerchantReceipt
   override val maybeAuthCode: Option[String]              = None
   override val maybeAvailableSpend: Option[AmountInPence] = None
   override val maybeTerminalId: Option[String]            = None
-}
 
 //TODO - DO parse all errors
-final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode.name) extends SpcXmlNode {
-  def toXml: Node = {
+final case class ErrorsNode(errorNode: Seq[ErrorNode], name: String = ErrorsNode.name) extends SpcXmlNode:
+  def toXml: Node =
     <ERRORS>
       {errorNode.map(_.toXml)}
     </ERRORS>
-  }
-}
 
-object ErrorsNode {
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
-  def fromXml(node: Node): ErrorsNode      = {
+object ErrorsNode:
+
+  given format: OFormat[ErrorsNode] = Json.format[ErrorsNode]
+
+  def fromXml(node: Node): ErrorsNode =
     val errors = (node \\ "TRANS" \ "ERRORS").headOption.map(_.map(ErrorNode.fromXml))
     ErrorsNode(errors.getOrElse(Seq.empty[ErrorNode]))
-  }
-  val name                                 = "ErrorsNode"
-}
+  val name                            = "ErrorsNode"
 
-final case class ErrorNode(code: String, description: String, name: String = ErrorNode.name) extends SpcXmlNode {
-  def toXml: Node = {
+final case class ErrorNode(code: String, description: String, name: String = ErrorNode.name) extends SpcXmlNode:
+  def toXml: Node =
     <ERROR code={code}>{description}</ERROR>
-  }
-}
 
-object ErrorNode {
+object ErrorNode:
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[ErrorNode] = Json.format[ErrorNode]
-  def fromXml(node: Node): ErrorNode      = {
+  given format: OFormat[ErrorNode] = Json.format[ErrorNode]
+
+  def fromXml(node: Node): ErrorNode =
     val code        = (node \\ "ERROR" \ "@code").text
     val description = (node \\ "ERROR").text
     ErrorNode(code, description)
-  }
-  val name                                = "ErrorNode"
-}
+  val name                           = "ErrorNode"
 
-final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode {
-  def toXml: Node = {
+final case class HeaderNode(name: String = HeaderNode.name) extends SpcXmlNode:
+  def toXml: Node =
     <HEADER>
       <BUILD>
         <VERSION>{StubUtil.VERSION}</VERSION>
       </BUILD>
     </HEADER>
-  }
-}
 
-object HeaderNode {
-  implicit val format: OFormat[HeaderNode] = Json.format[HeaderNode]
-  def fromXml(): HeaderNode                =
+object HeaderNode:
+  given format: OFormat[HeaderNode] = Json.format[HeaderNode]
+  def fromXml(): HeaderNode         =
     HeaderNode()
-  val name                                 = "HeaderNode"
-}
+  val name                          = "HeaderNode"

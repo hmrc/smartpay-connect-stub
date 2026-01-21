@@ -26,7 +26,7 @@ import play.api.libs.json.{Format, JsError, JsNumber, JsSuccess, Reads, Writes}
 import java.text.NumberFormat
 import java.util.Locale
 
-final case class AmountInPence(value: Long) {
+final case class AmountInPence(value: Long):
   def formatInPounds: String = NumberFormat.getCurrencyInstance(Locale.UK).format(inPounds)
 
   def formatInDecimal: String = "%,1.2f".format(inPounds)
@@ -35,26 +35,22 @@ final case class AmountInPence(value: Long) {
 
   def >(other: AmountInPence): Boolean       = value > other.value
   def +(other: AmountInPence): AmountInPence = AmountInPence(value + other.value)
-}
 
-object AmountInPence {
+object AmountInPence:
   def apply(str: String): AmountInPence            =
-    str match {
+    str match
       case s if s.isEmpty => AmountInPence(0)
       case s              => AmountInPence((BigDecimal(s.replace(",", "")).doubleValue * 100).round)
-    }
   def apply(bigDecimal: BigDecimal): AmountInPence = AmountInPence((bigDecimal.doubleValue * 100).round)
 
   def fromScpAmount(str: String): AmountInPence =
-    str match {
+    str match
       case s if s.isEmpty => AmountInPence(0)
       case s              => AmountInPence(s.toLong)
-    }
 
   val zero: AmountInPence = AmountInPence(0)
 
-  //  implicit val format: OFormat[AmountInPence] = Json.format[AmountInPence]
-  implicit val format: Format[AmountInPence] = Format(
+  given Format[AmountInPence] = Format(
     Reads {
       case JsNumber(n) if n.isWhole => JsSuccess(AmountInPence(n.toLong))
       case JsNumber(_)              => JsError("Expected positive integer but got non-integral number")
@@ -63,8 +59,6 @@ object AmountInPence {
     Writes(a => JsNumber(BigDecimal(a.value)))
   )
 
-  private def toPounds(amountInPence: AmountInPence): BigDecimal = {
+  private def toPounds(amountInPence: AmountInPence): BigDecimal =
     val pd = BigDecimal(amountInPence.value) / 100
-    if (pd.isValidInt) pd else pd.setScale(2)
-  }
-}
+    if pd.isValidInt then pd else pd.setScale(2)

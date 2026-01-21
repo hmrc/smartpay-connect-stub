@@ -20,7 +20,7 @@ import models.TransactionReference
 
 import scala.util.Random.self
 
-object RandomDataGenerator {
+object RandomDataGenerator:
 
   // 7befa217-5291-49a1-98f5-d9dcaa13c6a3
   def generateTransactionReference: TransactionReference =
@@ -30,12 +30,8 @@ object RandomDataGenerator {
 
   def randomAlphaNumeric(length: Int): String = alphaNumeric.take(length).mkString
 
-  private def alphaNumeric: LazyList[Char] = {
-    def nextAlphaNumeric: Char = {
+  private def alphaNumeric: LazyList[Char] =
+    def nextAlphaNumeric: Char =
       val chars = "0123456789abcdefghijklmnopqrstuvwxyz"
       chars charAt (self nextInt chars.length)
-    }
     LazyList continually nextAlphaNumeric
-  }
-
-}

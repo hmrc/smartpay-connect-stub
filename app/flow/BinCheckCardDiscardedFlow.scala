@@ -20,7 +20,7 @@ import models.InteractionCategories.CardReader
 import models.TranResults.SuccessResult
 import models._
 
-class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
+class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow:
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
@@ -120,5 +120,3 @@ class BinCheckCardDiscardedFlow(spcFlow: FlowData) extends Flow {
       )
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
-
-}

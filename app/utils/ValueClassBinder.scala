@@ -19,47 +19,46 @@ package utils
 import play.api.libs.json._
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import scala.reflect.runtime.universe.{TypeTag, typeOf}
+import scala.reflect.ClassTag
 
-object ValueClassBinder {
+object ValueClassBinder:
 
   def valueClassBinder[A: Reads](
     fromAtoString: A => String
-  )(implicit stringBinder: PathBindable[String]): PathBindable[A] = {
+  )(using stringBinder: PathBindable[String]): PathBindable[A] =
 
     def parseString(str: String) =
-      JsString(str).validate[A] match {
+      JsString(str).validate[A] match
         case JsSuccess(a, _) => Right(a)
         case JsError(error)  => Left(s"No valid value in path: $str. Error: ${error.toString()}")
-      }
 
-    new PathBindable[A] {
+    new PathBindable[A]:
       override def bind(key: String, value: String): Either[String, A] =
         stringBinder.bind(key, value).flatMap(parseString)
 
       override def unbind(key: String, a: A): String =
         stringBinder.unbind(key, fromAtoString(a))
-    }
-  }
 
-  def bindableA[A: TypeTag: Reads](fromAtoString: A => String): QueryStringBindable[A] =
+  def bindableA[A: ClassTag: Reads](fromAtoString: A => String): QueryStringBindable[A] =
+    val _ = summon[ClassTag[A]]
     new QueryStringBindable.Parsing[A](
       parse = JsString(_).as[A],
       fromAtoString,
       { case (key: String, _: Exception) =>
-        s"Cannot parse param $key as ${typeOf[A].typeSymbol.name.toString}"
+        s"Cannot parse param $key as ${TypeName.of[A]}"
       }
     )
 
-  def queryStringValueBinder[A: TypeTag: Reads](fromAtoString: A => String): QueryStringBindable[A] =
+  def queryStringValueBinder[A: ClassTag: Reads](fromAtoString: A => String): QueryStringBindable[A] =
+    val _ = summon[ClassTag[A]]
     new QueryStringBindable.Parsing[A](
       parse = JsString(_).as[A],
       fromAtoString,
       {
         case (key: String, e: JsResultException) =>
-          s"Cannot parse param $key as ${typeOf[A].typeSymbol.name.toString}. ${e.errors.headOption.flatMap(_._2.headOption.map(_.message)).getOrElse("")}"
-        case (key: String, e)                    => s"Cannot parse param $key as ${typeOf[A].typeSymbol.name.toString}. ${e.toString}"
+          s"Cannot parse param $key as ${TypeName.of[A]}. ${e.errors.headOption
+              .flatMap(_._2.headOption.map(_.message))
+              .getOrElse("")}"
+        case (key: String, e)                    => s"Cannot parse param $key as ${TypeName.of[A]}. ${e.toString}"
       }
     )
-
-}

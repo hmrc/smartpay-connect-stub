@@ -19,14 +19,15 @@ package behaviour
 /** Wrapper around partial function which returns both next behaviour and the value returned by the partial function.
   * It's strong type alternative to code previously written using akka classic actors and "receive: Any => Unit"
   */
-sealed trait Behaviour[-I, +O] {
+sealed trait Behaviour[-I, +O] derives CanEqual:
 
-  def orElse[I1 <: I, O1 >: O](b: Behaviour[I1, O1]): Behaviour[I1, O1] = (this, b) match {
-    case (BDone, BDone)                               => BDone
-    case (BDone, bd: BDefined[I1, O1])                => bd
-    case (bd: BDefined[I, O], BDone)                  => bd
-    case (bd1: BDefined[I, O], bd2: BDefined[I1, O1]) => BDefined(pf = bd1.pf.orElse(bd2.pf))
-  }
+  def orElse[I1 <: I, O1 >: O](
+    b: Behaviour[I1, O1]
+  ): Behaviour[I1, O1] = (this, b) match
+    case (BDone, BDone)                             => BDone
+    case (BDone, bd: BDefined[_, _])                => bd
+    case (bd: BDefined[_, _], BDone)                => bd
+    case (bd1: BDefined[_, _], bd2: BDefined[_, _]) => BDefined(pf = bd1.pf.orElse(bd2.pf))
 
   //  /**
   //   * Maps over the returned type O
@@ -35,7 +36,6 @@ sealed trait Behaviour[-I, +O] {
   //    case BDone              => BDone
   //    case bd: BDefined[I, O] => BDefined[I, O2](bd.pf.andThen(t => (f(t._1), t._2.map(f))))
   //  }
-}
 
 /** Behaviour (B) Done. The last step, nothing more to do
   */

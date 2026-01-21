@@ -20,7 +20,7 @@ import models.InteractionCategories.CardReader
 import models.TranResults.SuccessResult
 import models._
 
-class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow {
+class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow:
 
   val initialBehaviour: SpcBehaviour = handlePedLogOn
 
@@ -168,5 +168,3 @@ class NoSurchargeFlow(spcFlow: FlowData, errorsNode: ErrorsNode) extends Flow {
       )
       (List(processTransactionResponse), CommonBehaviours.handleFinalise)
   }
-
-}

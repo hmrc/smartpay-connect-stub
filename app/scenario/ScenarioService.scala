@@ -20,7 +20,7 @@ import deviceid.SpcStubDeviceId
 
 import scala.collection.concurrent.TrieMap
 
-object ScenarioService {
+object ScenarioService:
 
   private val scenarios: TrieMap[SpcStubDeviceId, Scenario] = TrieMap()
 
@@ -28,5 +28,3 @@ object ScenarioService {
     scenarios.update(deviceId, scenario)
 
   def getScenario(deviceId: SpcStubDeviceId): Scenario = scenarios.getOrElse(deviceId, Scenario.default)
-
-}

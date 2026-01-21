@@ -23,6 +23,5 @@ import play.api.libs.json.Format
   */
 final case class TransactionId(value: String)
 
-object TransactionId {
-  implicit val format: Format[TransactionId] = implicitly[Format[String]].inmap(TransactionId(_), _.value)
-}
+object TransactionId:
+  given format: Format[TransactionId] = summon[Format[String]].inmap(TransactionId(_), _.value)
