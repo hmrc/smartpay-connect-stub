@@ -8,7 +8,8 @@ object SbtUpdatesSettings {
   lazy val sbtUpdatesSettings = Seq(
     dependencyUpdatesFailBuild := StrictBuilding.strictBuilding.value,
     (Compile / compile) := ((Compile / compile) dependsOn dependencyUpdates).value,
-    dependencyUpdatesFilter -= moduleFilter("org.scala-lang")
+    dependencyUpdatesFilter -= moduleFilter("org.scala-lang"),
+    dependencyUpdatesFilter -= moduleFilter("uk.gov.hmrc", "play-frontend-hmrc-play-30")
   )
 
 }
